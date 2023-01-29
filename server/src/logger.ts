@@ -20,6 +20,9 @@ const logger = pino({
 });
 const httplog = require("pino-http")({
     logger: logger,
+    redact: {
+        paths: [`req.headers["x-forwarded-for"]`],
+    },
     customLogLevel: (req: Request, res: Response, error: Error) => {
         if (res.statusCode >= 400 || error) {
             return "error";
