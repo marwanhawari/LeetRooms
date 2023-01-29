@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             Int      @id @default(autoincrement())
+  username       String
+  provider       String
+  providerUserId String
+  picture        String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  room           Room?    @relation(fields: [roomId], references: [id])
+  roomId         String?
+
+  @@unique([provider, providerUserId])
+}
+
+model Room {
+  id        String         @id
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  users     User[]
+  questions RoomQuestion[]
+}
+
+model Question {
+  id         Int            @id
+  title      String         @unique
+  titleSlug  String         @unique
+  difficulty Difficulty
+  rooms      RoomQuestion[]
+}
+
+model RoomQuestion {
+  room       Room     @relation(fields: [roomId], references: [id])
+  roomId     String
+  question   Question @relation(fields: [questionId], references: [id])
+  questionId Int
+
+  @@id([roomId, questionId])
+}
+
+enum Difficulty {
+  Easy
+  Medium
+  Hard
+}

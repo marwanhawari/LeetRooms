@@ -1,0 +1,42 @@
+---
+export interface Props {
+    title: string;
+}
+
+const { title } = Astro.props;
+
+import faviconAppleTouchIcon from "../assets/favicon/apple-touch-icon.png";
+import favicon32 from "../assets/favicon/favicon-32x32.png";
+import favicon16 from "../assets/favicon/favicon-16x16.png";
+import webManifest from "../assets/favicon/site.webmanifest";
+---
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href={faviconAppleTouchIcon}
+        />
+        <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />
+        <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />
+        <link rel="manifest" href={webManifest} />
+        <title>{Astro.props.title}</title>
+    </head>
+    <body
+        class="overscroll-none min-h-screen h-full bg-gradient-radial from-yellow-800 to-[hsl(0,0%,12%)]"
+    >
+        <slot />
+    </body>
+</html>
+
+<style is:global>
+    html {
+        color-scheme: dark;
+    }
+</style>

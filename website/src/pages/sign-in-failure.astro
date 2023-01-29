@@ -1,0 +1,16 @@
+---
+import Layout from "../layouts/Layout.astro";
+import FailureIcon from "../assets/FailureIcon.svg";
+---
+
+<Layout title="LeetRooms | Sign in failure">
+    <main>
+        <main class="flex flex-col items-center gap-10 pt-10">
+            <img class="w-24" src={FailureIcon} alt="Failure icon" />
+            <div class="text-slate-200 font-normal text-center text-2xl">
+                Uh oh, there was a problem signing you in! This window is safe
+                to close.
+            </div>
+        </main>
+    </main>
+</Layout>

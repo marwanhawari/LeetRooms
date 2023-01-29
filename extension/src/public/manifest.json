@@ -1,0 +1,31 @@
+{
+    "manifest_version": 3,
+    "name": "LeetRooms",
+    "version": "0.1.0",
+    "description": "Multiplayer rooms for LeetCode.",
+    "homepage_url": "https://leetrooms.com",
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "{987cc249-f89d-4643-8391-d7ed1d205624}"
+        }
+    },
+    "action": {
+        "default_icon": {
+            "16": "icons/16.png",
+            "24": "icons/24.png",
+            "32": "icons/32.png"
+        }
+    },
+    "icons": {
+        "16": "icons/16.png",
+        "32": "icons/32.png",
+        "48": "icons/48.png",
+        "128": "icons/128.png"
+    },
+    "content_scripts": [
+        {
+            "matches": ["https://leetcode.com/problems/*"],
+            "js": ["content.js"]
+        }
+    ]
+}

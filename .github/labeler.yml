@@ -1,0 +1,8 @@
+extension:
+  - extension/**/*
+
+server:
+  - server/**/*
+
+website:
+  - website/**/*

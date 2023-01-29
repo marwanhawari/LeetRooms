@@ -1,0 +1,9 @@
+/*
+We need this separate file because we want to use TypeScript for type checking on test files,
+but we want to exclude test files from the dist/ build
+*/
+
+{
+    "extends": "./tsconfig",
+    "exclude": ["**/*.test.ts", "**/tests/"]
+}

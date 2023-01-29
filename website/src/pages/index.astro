@@ -1,0 +1,139 @@
+---
+import Layout from "../layouts/Layout.astro";
+import LeetRoomScreenshot from "../assets/LeetRoomsScreenshot.png";
+import LeetRoomsIcon from "../assets/LeetRoomsIcon.png";
+import GitHubIcon from "../assets/github.svg";
+import ChromeIcon from "../assets/ChromeIcon.svg";
+import ChatIcon from "../assets/ChatIcon.svg";
+import OpenSourceIcon from "../assets/OpenSourceIcon.svg";
+import PrivacyIcon from "../assets/PrivacyIcon.svg";
+---
+
+<Layout title="LeetRooms | Multiplayer rooms for LeetCode">
+    <header class="fixed z-50 w-full transition duration-300 ease-in-out">
+        <div
+            class="flex flex-row items-center justify-center h-20 px-16 md:px-24 lg:px-36"
+        >
+            <div class="flex flex-row sm:flex-1 gap-x-3">
+                <img class="w-8" src={LeetRoomsIcon} alt="LeetRooms icon" />
+                <div class="text-slate-200 text-xl font-bold">LeetRooms</div>
+            </div>
+            <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://github.com/marwanhawari/LeetRooms"
+                class="sm:block hidden"
+            >
+                <img class="w-8" src={GitHubIcon} alt="GitHub icon" />
+            </a>
+        </div>
+    </header>
+    <main class="flex flex-col items-center justify-center pt-36 gap-y-16">
+        <div
+            class="text-center font-bold lg:text-5xl md:text-3xl text-xl text-transparent bg-clip-text bg-gradient-to-r from-slate-300 to-orange-200"
+        >
+            Multiplayer rooms for LeetCode
+        </div>
+        <a
+            target="_blank"
+            rel="noopener noreferrer"
+            href="https://chrome.google.com/webstore/detail/leetrooms/ekldadcjhbmljcefnilihgagmnmmlfcd"
+            class="flex flex-row items-center justify-center bg-[hsl(0,0%,16%)] hover:bg-[hsl(0,0%,19%)] transition-all p-4 rounded-lg gap-x-2"
+        >
+            <div class="text-slate-200 text-lg font-semibold">Download for</div>
+            <img src={ChromeIcon} alt="Download for Chrome" class="w-7" />
+        </a>
+        <img
+            src={LeetRoomScreenshot}
+            alt="LeetRooms screenshot"
+            class="w-3/4 rounded-2xl border-slate-600 border-[1px]"
+        />
+        <div
+            class="flex flex-row flex-wrap text-slate-200 px-28 lg:gap-x-36 gap-x-16 gap-y-12 items-start justify-center mt-14 mb-14"
+        >
+            <div class="flex flex-col flex-1 text-center items-center">
+                <img class="w-16 mb-3" src={ChatIcon} alt="Chat icon" />
+                <div class="font-bold">Chat</div>
+                <div class="opacity-60 text-md max-w-[16rem]">
+                    Use the live chat to collaborate on a shared set of
+                    questions.
+                </div>
+            </div>
+            <div class="flex flex-col flex-1 text-center items-center">
+                <img
+                    class="w-16 mb-3"
+                    src={OpenSourceIcon}
+                    alt="Open-source icon"
+                />
+                <div class="font-bold">Open-source</div>
+                <div class="opacity-60 text-md max-w-[16rem]">
+                    The web extension, the server, and even this website are all
+                    open-source!
+                </div>
+            </div>
+            <div class="flex flex-col flex-1 text-center items-center">
+                <img class="w-16 mb-3" src={PrivacyIcon} alt="Privacy icon" />
+                <div class="font-bold">Privacy</div>
+                <div class="opacity-60 text-md max-w-[16rem]">
+                    LeetRooms does not store any passwords or messages.
+                </div>
+            </div>
+        </div>
+        <div
+            class="text-slate-200 flex flex-row flex-wrap text-sm gap-x-4 pb-8 items-center justify-center"
+        >
+            <a
+                class="hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://discord.gg/bJBDNpSUWQ">Discord</a
+            >
+            <div>•</div>
+            <a
+                class="hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://github.com/marwanhawari/LeetRooms">GitHub</a
+            >
+            <div>•</div>
+            <a
+                class="hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+                href="/terms-of-service">Terms of service</a
+            >
+            <div>•</div>
+            <a
+                class="hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+                href="/privacy-policy"
+            >
+                Privacy policy
+            </a>
+            <div>•</div>
+            <a
+                class="hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+                href="/cookies-policy"
+            >
+                Cookies policy
+            </a>
+        </div>
+    </main>
+</Layout>
+
+<script>
+    let navBar = document.querySelector("header");
+    let blurClasses = ["bg-opacity-50", "shadow-lg", "backdrop-blur-sm"];
+    function blurNavBar() {
+        if (window.scrollY > 30) {
+            navBar?.classList.add(...blurClasses);
+        } else if (window.scrollY <= 30) {
+            navBar?.classList.remove(...blurClasses);
+        }
+    }
+    window.addEventListener("scroll", blurNavBar);
+    blurNavBar();
+</script>

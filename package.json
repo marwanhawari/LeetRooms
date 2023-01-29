@@ -1,0 +1,30 @@
+{
+    "name": "leetrooms",
+    "version": "0.1.0",
+    "description": "Multiplayer rooms for LeetCode",
+    "main": "index.js",
+    "author": "Marwan Hawari",
+    "license": "MIT",
+    "private": true,
+    "workspaces": {
+        "packages": [
+            "extension",
+            "server",
+            "website"
+        ],
+        "nohoist": [
+            "**/extension",
+            "**/extension/**",
+            "**/server",
+            "**/server/**",
+            "**/website",
+            "**/website/**"
+        ]
+    },
+    "scripts": {
+        "dev": "set -a && . ./.env && set +a && caddy start && turbo run dev",
+        "build": "set -a && . ./.env.production && set +a && turbo run build",
+        "build:dev": "set -a && . ./.env && set +a && turbo run build:dev",
+        "nuke": "rm -rf node_modules && rm -rf yarn.lock && rm -rf extension/node_modules && rm -rf server/node_modules && rm -rf website/node_modules"
+    }
+}

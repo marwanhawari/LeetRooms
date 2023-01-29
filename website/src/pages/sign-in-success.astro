@@ -1,0 +1,13 @@
+---
+import Layout from "../layouts/Layout.astro";
+import SuccessIcon from "../assets/SuccessIcon.svg";
+---
+
+<Layout title="LeetRooms | Sign in successful">
+    <main class="flex flex-col items-center gap-10 pt-10">
+        <img class="w-24" src={SuccessIcon} alt="Success icon" />
+        <div class="text-slate-200 font-normal text-center text-2xl">
+            You have successfully signed in! This window is safe to close.
+        </div>
+    </main>
+</Layout>

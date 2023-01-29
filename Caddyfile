@@ -1,0 +1,15 @@
+app.{$BASE_URL} {
+    reverse_proxy localhost:5173
+}
+
+api.{$BASE_URL} {
+    reverse_proxy localhost:5050
+}
+
+www.{$BASE_URL} {
+	redir {$WEBSITE_URL}{uri}
+}
+
+{$BASE_URL} {
+    reverse_proxy localhost:5155
+}
