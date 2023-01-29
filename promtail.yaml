@@ -15,6 +15,6 @@ scrape_configs:
       - localhost
     labels:
       job: varlogs
-      __path__: ./server/logs/*.log
+      __path__: ./logs/*.log
 
 # promtail -config.file="promtail.yaml" -config.expand-env=true
