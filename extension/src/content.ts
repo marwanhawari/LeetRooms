@@ -1,28 +1,21 @@
 const APP_URL = import.meta.env.VITE_APP_URL;
 
 async function main() {
-    let reactRoot = document.createElement("iframe");
+    const reactRoot = document.createElement("iframe");
 
     reactRoot.src = APP_URL;
     reactRoot.id = "leetrooms-iframe";
     reactRoot.style.width = "525px";
     reactRoot.allow = "clipboard-read; clipboard-write";
 
-    let mainContentContainer = await waitForElement("#qd-content");
-
-    if (!mainContentContainer) {
-        return;
-    }
-
+    const mainContentContainer = await waitForElement(["#qd-content"]);
     mainContentContainer.insertAdjacentElement("afterend", reactRoot);
 
-    const submissionButton = window.parent.document.querySelector(
-        "#__next > div > div > div > div > div > div:nth-child(3) > div > div:nth-child(3) > div > div > div:nth-child(3) > div > div > div:nth-child(3) > button:nth-last-child(1)"
-    );
-
-    if (!submissionButton) {
-        return;
-    }
+    const submissionButtonSelectors = [
+        "#__next > div > div > div > div > div > div:nth-child(3) > div > div:nth-child(3) > div > div > div > div > div > div:nth-last-child(1) > button:nth-last-child(1)",
+        "#__next > div > div > div > div > div > div:nth-child(3) > div > div:nth-child(3) > div > div > div:nth-child(3) > div > div > div:nth-child(3) > button:nth-last-child(1)",
+    ];
+    const submissionButton = await waitForElement(submissionButtonSelectors);
 
     function handleClickSubmitCodeButton() {
         if (!reactRoot.contentWindow) {
@@ -36,16 +29,16 @@ async function main() {
     submissionButton.addEventListener("click", handleClickSubmitCodeButton);
 }
 
-function waitForElement(selector: string): Promise<Element | null> {
+function waitForElement(selectors: string[]): Promise<Element> {
     return new Promise((resolve) => {
-        if (document.querySelector(selector)) {
-            return resolve(document.querySelector(selector));
-        }
-
         const observer = new MutationObserver((mutations) => {
-            if (document.querySelector(selector)) {
-                resolve(document.querySelector(selector));
-                observer.disconnect();
+            for (const selector of selectors) {
+                const element = document.querySelector(selector);
+                if (element) {
+                    resolve(element);
+                    observer.disconnect();
+                    return;
+                }
             }
         });
 
