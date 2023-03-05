@@ -11,4 +11,5 @@ export enum ChatEvent {
     Join = "Join",
     Leave = "Leave",
     Submit = "Submit",
+    Accepted = "Accepted",
 }

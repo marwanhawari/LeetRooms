@@ -22,32 +22,64 @@ const colorChoices = [
 ];
 
 export default function Message({ message }: { message: MessageInterface }) {
-    if (message.chatEvent == ChatEvent.Message) {
-        return (
-            <li className="flex flex-row items-start gap-x-1">
-                <span>
-                    <span className={`${message.color} font-bold`}>
-                        {message.username}
-                    </span>
-                    <span>:&nbsp;</span>
-                    <span className="chat-message">{`${message.body}`}</span>
-                </span>
-            </li>
-        );
-    } else {
-        return (
-            <li className="flex flex-row items-start gap-x-1 rounded-md bg-[hsl(0,0%,20%)] py-1.5 px-2">
-                <span>
+    switch (message.chatEvent) {
+        case ChatEvent.Message:
+            return (
+                <li className="flex flex-row items-start gap-x-1">
                     <span>
-                        {message.chatEvent == ChatEvent.Submit ? `🤞` : `👋`}
-                        &nbsp;
+                        <span className={`${message.color} font-bold`}>
+                            {message.username}
+                        </span>
+                        <span>:&nbsp;</span>
+                        <span className="chat-message">{`${message.body}`}</span>
                     </span>
-                    <span className={`${message.color} ml-1 font-bold`}>
-                        {`${message.username}`}&nbsp;&nbsp;
+                </li>
+            );
+        case ChatEvent.Join:
+        case ChatEvent.Leave:
+            return (
+                <li className="flex flex-row items-start gap-x-1 rounded-md bg-[hsl(0,0%,20%)] py-1.5 px-2">
+                    <span>
+                        <span>
+                            {`👋`}
+                            &nbsp;
+                        </span>
+                        <span className={`${message.color} ml-1 font-bold`}>
+                            {`${message.username}`}&nbsp;&nbsp;
+                        </span>
+                        <span className="chat-message">{`${message.body}`}</span>
                     </span>
-                    <span className="chat-message">{`${message.body}`}</span>
-                </span>
-            </li>
-        );
+                </li>
+            );
+        case ChatEvent.Submit:
+            return (
+                <li className="flex flex-row items-start gap-x-1 rounded-md bg-[hsl(0,0%,20%)] py-1.5 px-2">
+                    <span>
+                        <span>
+                            {`🤞`}
+                            &nbsp;
+                        </span>
+                        <span className={`${message.color} ml-1 font-bold`}>
+                            {`${message.username}`}&nbsp;&nbsp;
+                        </span>
+                        <span className="chat-message">{`${message.body}`}</span>
+                    </span>
+                </li>
+            );
+        case ChatEvent.Accepted:
+            return (
+                <li className="flex flex-row items-start gap-x-1 rounded-md bg-[hsl(0,0%,20%)] py-1.5 px-2">
+                    <span>
+                        <span>
+                            {`💯`}
+                            &nbsp;
+                        </span>
+                        <span className={`${message.color} ml-1 font-bold`}>
+                            {`${message.username}`}&nbsp;&nbsp;
+                        </span>
+                        <span className="chat-message">{`${message.body}`}</span>
+                    </span>
+                </li>
+            );
     }
 }

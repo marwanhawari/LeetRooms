@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "LeetRooms",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "description": "Multiplayer rooms for LeetCode.",
     "homepage_url": "https://leetrooms.com",
     "browser_specific_settings": {

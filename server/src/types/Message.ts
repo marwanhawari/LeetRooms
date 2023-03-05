@@ -11,4 +11,5 @@ export enum ChatEvent {
     Join,
     Leave,
     Submit,
+    Accepted,
 }

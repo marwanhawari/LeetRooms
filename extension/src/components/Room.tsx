@@ -127,14 +127,30 @@ export default function Room({
             ) {
                 return;
             }
-            let newSubmissionMessage: MessageInterface = {
-                timestamp: Date.now(),
-                username: username,
-                body: "submitted.",
-                chatEvent: ChatEvent.Submit,
-                color: userColor,
-            };
-            socket.emit("chat-message", newSubmissionMessage);
+            switch (event.data?.event) {
+                case "submit":
+                    let newSubmissionMessage: MessageInterface = {
+                        timestamp: Date.now(),
+                        username: username,
+                        body: "submitted.",
+                        chatEvent: ChatEvent.Submit,
+                        color: userColor,
+                    };
+                    socket.emit("chat-message", newSubmissionMessage);
+                    break;
+                case "accepted":
+                    let newAcceptedMessage: MessageInterface = {
+                        timestamp: Date.now(),
+                        username: username,
+                        body: `solved ${event.data.currentProblem}!`,
+                        chatEvent: ChatEvent.Accepted,
+                        color: userColor,
+                    };
+                    if (event.data?.currentProblem) {
+                        socket.emit("chat-message", newAcceptedMessage);
+                    }
+                    break;
+            }
         }
 
         window.addEventListener("message", handleClickSubmitCodeButton);
