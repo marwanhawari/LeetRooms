@@ -7,9 +7,9 @@ export interface MessageInterface {
 }
 
 export enum ChatEvent {
-    Message,
-    Join,
-    Leave,
-    Submit,
-    Accepted,
+    Message = "Message",
+    Join = "Join",
+    Leave = "Leave",
+    Submit = "Submit",
+    Accepted = "Accepted",
 }
