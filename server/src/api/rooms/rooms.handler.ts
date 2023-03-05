@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { RoomsPathParameter } from "./rooms.model";
+import { RoomsPathParameter, PlayerWithSubmissions } from "./rooms.model";
 import { Question, RoomQuestion, Room } from "@prisma/client";
 import prisma from "../../index";
 import { nanoid } from "nanoid";
@@ -12,15 +12,9 @@ import {
 import { MessageInterface, ChatEvent } from "../../types/Message";
 import { RoomSession } from "../../types/Session";
 
-interface Player {
-    id: number;
-    username: string;
-    updatedAt: Date;
-}
-
 export async function getRoomPlayers(
     req: Request,
-    res: Response<Player[]>,
+    res: Response<PlayerWithSubmissions[]>,
     next: NextFunction
 ) {
     try {
@@ -29,19 +23,19 @@ export async function getRoomPlayers(
             throw new Error("Could not find a room for the current user");
         }
         let roomId = room.roomId;
-        let currentUsers = await prisma.user.findMany({
-            where: {
-                roomId: roomId,
-            },
-        });
-
-        let response = currentUsers.map((currentUser) => {
-            return {
-                id: currentUser.id,
-                username: currentUser.username,
-                updatedAt: currentUser.updatedAt,
-            };
-        });
+        let response: PlayerWithSubmissions[] =
+            await prisma.$queryRaw`SELECT u.id, u.username, u."updatedAt", array_agg(json_build_object(
+                'title', q.title,
+                'titleSlug', q."titleSlug",
+                'difficulty', q.difficulty,
+                'status', s.status
+            )) as submissions
+            FROM "User" u
+            JOIN "Submission" s ON s."userId" = u.id
+            JOIN "RoomQuestion" rq ON rq."roomId" = s."roomId" AND rq."questionId" = s."questionId"
+            JOIN "Question" q ON q.id = s."questionId"
+            WHERE rq."roomId" = ${roomId}
+            GROUP BY u.id, u.username, u."updatedAt"`;
         return res.json(response);
     } catch (error) {
         return next(error);
