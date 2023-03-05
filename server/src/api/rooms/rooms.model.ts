@@ -8,7 +8,7 @@ export interface Player {
     updatedAt: Date;
 }
 
-export interface PlayerSubmissions {
+export interface PlayerSubmission {
     title: string;
     titleSlug: string;
     difficulty: string;
@@ -16,5 +16,5 @@ export interface PlayerSubmissions {
 }
 
 export interface PlayerWithSubmissions extends Player {
-    submissions: PlayerSubmissions[];
+    submissions: PlayerSubmission[];
 }
