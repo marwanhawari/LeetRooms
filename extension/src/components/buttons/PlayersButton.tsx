@@ -136,6 +136,7 @@ export default function PlayersButton() {
 }
 
 function Players({ players }: { players: Player[] | undefined }) {
+    // TODO: update the interface and this component
     return (
         <div className="mt-3 mb-3 flex flex-col overflow-auto text-sm font-medium text-white">
             {players

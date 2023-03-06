@@ -19,6 +19,7 @@ import http from "http";
 import { Server } from "socket.io";
 import { errorHandler, ensureAuthenticated } from "./middleware";
 import roomsRoute from "../api/rooms/rooms.route";
+import submissionsRoute from "../api/submissions/submissions.route";
 import authRoute from "../api/auth/auth.route";
 import session, { Session } from "express-session";
 import passport from "passport";
@@ -290,6 +291,7 @@ app.get(
 
 app.use(httplog);
 app.use("/auth", authRoute);
+app.use("/submissions", ensureAuthenticated, submissionsRoute);
 app.use("/rooms", ensureAuthenticated, roomsRoute);
 app.use(errorHandler);
 

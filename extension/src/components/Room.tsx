@@ -137,6 +137,7 @@ export default function Room({
                         color: userColor,
                     };
                     socket.emit("chat-message", newSubmissionMessage);
+                    // TODO: Post submission to backend
                     break;
                 case "accepted":
                     let newAcceptedMessage: MessageInterface = {
@@ -148,6 +149,7 @@ export default function Room({
                     };
                     if (event.data?.currentProblem) {
                         socket.emit("chat-message", newAcceptedMessage);
+                        // TODO: Post submission to backend
                     }
                     break;
             }
