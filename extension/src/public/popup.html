@@ -21,10 +21,23 @@
                 </div>
             </div>
             <div id="leetrooms-settings">
-                <label class="switch">
-                    <input id="toggle-leetrooms-button" type="checkbox" />
-                    <span class="slider round"></span>
-                </label>
+                <div class="flex-col">
+                    <label class="switch">
+                        <input id="toggle-leetrooms-button" type="checkbox" />
+                        <span class="slider round"></span>
+                    </label>
+                    <div id="leetrooms-width-container" class="flex-row">
+                        <input
+                            type="range"
+                            id="leetrooms-width"
+                            name="leetrooms-width"
+                            min="375"
+                            max="600"
+                            step="25"
+                        />
+                        <div>Width</div>
+                    </div>
+                </div>
             </div>
             <div id="github-link">GitHub</div>
         </div>

@@ -73,11 +73,7 @@ export default function JoinRoomByIdButton() {
                     isLoadingGlobal && "cursor-default"
                 } flex h-[33px] w-[90px] flex-col items-center justify-center rounded-lg bg-lc-green-button font-medium text-white transition-all hover:bg-lc-green-button-hover`}
             >
-                {!isLoading ? (
-                    "Join room"
-                ) : (
-                    <div className="dot-flashing"></div>
-                )}
+                {!isLoading ? "Join" : <div className="dot-flashing"></div>}
             </button>
         </div>
     );

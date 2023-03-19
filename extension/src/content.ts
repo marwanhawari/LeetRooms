@@ -5,7 +5,6 @@ async function main() {
 
     reactRoot.src = APP_URL;
     reactRoot.id = "leetrooms-iframe";
-    reactRoot.style.width = "525px";
     reactRoot.allow = "clipboard-read; clipboard-write";
     chrome.storage.local.get("leetroomsToggleState", (result) => {
         const toggleState = result.leetroomsToggleState ?? true;
@@ -14,6 +13,10 @@ async function main() {
         } else {
             reactRoot.style.display = "none";
         }
+    });
+    chrome.storage.local.get("leetroomsWidth", (result) => {
+        const leetroomsWidth = result.leetroomsWidth ?? "525";
+        reactRoot.style.width = `${leetroomsWidth}px`;
     });
 
     const mainContentContainer = await waitForElement(["#qd-content"]);
@@ -75,6 +78,9 @@ async function main() {
                 } else {
                     reactRoot.style.display = "none";
                 }
+            }
+            if (key == "leetroomsWidth") {
+                reactRoot.style.width = `${newValue}px`;
             }
         }
     });
