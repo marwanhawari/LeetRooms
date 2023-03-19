@@ -10,13 +10,14 @@
         "preview": "vite preview"
     },
     "dependencies": {
-        "@tanstack/react-query": "^4.20.4",
         "@headlessui/react": "^1.7.7",
+        "@tanstack/react-query": "^4.20.4",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "socket.io-client": "^4.5.3"
     },
     "devDependencies": {
+        "@types/chrome": "^0.0.224",
         "@types/react": "^18.0.17",
         "@types/react-dom": "^18.0.6",
         "@vitejs/plugin-react": "^2.1.0",

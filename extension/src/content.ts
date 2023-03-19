@@ -7,6 +7,14 @@ async function main() {
     reactRoot.id = "leetrooms-iframe";
     reactRoot.style.width = "525px";
     reactRoot.allow = "clipboard-read; clipboard-write";
+    chrome.storage.local.get("leetroomsToggleState", (result) => {
+        const toggleState = result.leetroomsToggleState ?? true;
+        if (toggleState) {
+            reactRoot.style.display = "block";
+        } else {
+            reactRoot.style.display = "none";
+        }
+    });
 
     const mainContentContainer = await waitForElement(["#qd-content"]);
     mainContentContainer.insertAdjacentElement("afterend", reactRoot);
@@ -59,6 +67,17 @@ async function main() {
         }, 100);
     }
     submissionButton.addEventListener("click", handleClickSubmitCodeButton);
+    chrome.storage.onChanged.addListener((changes, namespace) => {
+        for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
+            if (key == "leetroomsToggleState") {
+                if (newValue == true) {
+                    reactRoot.style.display = "block";
+                } else {
+                    reactRoot.style.display = "none";
+                }
+            }
+        }
+    });
 }
 
 function waitForElement(selectors: string[]): Promise<Element> {
