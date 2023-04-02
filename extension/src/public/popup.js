@@ -4,14 +4,21 @@ toggleButton.addEventListener("click", () => {
     chrome.storage.local.set({ leetroomsToggleState: toggleState });
     if (toggleState) {
         widthSlider.parentElement.style.display = "flex";
+        darkModeButton.parentElement.style.display = "block";
     } else {
         widthSlider.parentElement.style.display = "none";
+        darkModeButton.parentElement.style.display = "none";
     }
 });
 const widthSlider = document.querySelector("#leetrooms-width");
 widthSlider.addEventListener("input", (event) => {
     const leetroomsWidth = event.target.value;
     chrome.storage.local.set({ leetroomsWidth: leetroomsWidth });
+});
+const darkModeButton = document.querySelector("#toggle-leetrooms-darkmode");
+darkModeButton.addEventListener("click", () => {
+    const darkModeState = darkModeButton.checked;
+    chrome.storage.local.set({ leetroomsDarkMode: darkModeState });
 });
 
 const instructionsContainer = document.querySelector("#leetrooms-instructions");
@@ -26,13 +33,19 @@ chrome.tabs.query({ currentWindow: true, active: true }, (tabs) => {
             toggleButton.checked = toggleState;
             if (toggleState) {
                 widthSlider.parentElement.style.display = "flex";
+                darkModeButton.parentElement.style.display = "block";
             } else {
                 widthSlider.parentElement.style.display = "none";
+                darkModeButton.parentElement.style.display = "none";
             }
         });
         chrome.storage.local.get("leetroomsWidth", (result) => {
-            const leetroomsWidth = result.leetroomsWidth ?? "525";
+            const leetroomsWidth = result.leetroomsWidth || "525";
             widthSlider.value = leetroomsWidth;
+        });
+        chrome.storage.local.get("leetroomsDarkMode", (result) => {
+            const darkModeState = result.leetroomsDarkMode ?? true;
+            darkModeButton.checked = darkModeState;
         });
     } else {
         settingsContainer.style.display = "none";
