@@ -21,11 +21,17 @@
                 </div>
             </div>
             <div id="leetrooms-settings">
-                <div class="flex-col">
-                    <label class="switch">
-                        <input id="toggle-leetrooms-button" type="checkbox" />
-                        <span class="slider round"></span>
-                    </label>
+                <div class="flex-col-left">
+                    <div class="flex-row">
+                        <label class="switch">
+                            <input
+                                id="toggle-leetrooms-button"
+                                type="checkbox"
+                            />
+                            <span class="slider round"></span>
+                        </label>
+                        <span>Enable LeetRooms</span>
+                    </div>
                     <div id="leetrooms-width-container" class="flex-row">
                         <input
                             type="range"
@@ -36,6 +42,16 @@
                             step="25"
                         />
                         <div>Width</div>
+                    </div>
+                    <div class="flex-row">
+                        <label class="switch">
+                            <input
+                                id="toggle-leetrooms-darkmode"
+                                type="checkbox"
+                            />
+                            <span class="slider round"></span>
+                        </label>
+                        <span>Dark Mode</span>
                     </div>
                 </div>
             </div>

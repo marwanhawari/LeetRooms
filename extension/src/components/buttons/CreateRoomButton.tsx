@@ -42,7 +42,7 @@ export default function CreateRoomButton() {
             id="create-room"
             onClick={handleClickCreateRoom}
             className={`${isLoadingGlobal && "cursor-default"}
-        flex h-[33px] w-[106px] flex-col items-center justify-center rounded-lg bg-lc-green-button font-medium text-white transition-all hover:bg-lc-green-button-hover`}
+        flex h-[33px] w-[106px] flex-col items-center justify-center rounded-lg bg-lc-green-button font-medium text-white transition-all hover:bg-lc-green-button-hover-light dark:hover:bg-lc-green-button-hover`}
         >
             {!isLoading ? "Create room" : <div className="dot-flashing"></div>}
         </button>

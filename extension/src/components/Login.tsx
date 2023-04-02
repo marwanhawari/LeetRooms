@@ -24,7 +24,7 @@ export default function Login() {
 
     if (isLoading) {
         return (
-            <div className="flex h-screen flex-col items-center justify-center border-x-8 border-t-8 border-lc-border bg-lc-bg p-2 text-sm">
+            <div className="flex h-screen flex-col items-center justify-center border-x-8 border-t-8 border-lc-border-light bg-lc-bg-light p-2 text-sm dark:border-lc-border dark:bg-lc-bg">
                 <Spinner />
             </div>
         );
@@ -34,7 +34,7 @@ export default function Login() {
         return <Home session={session} />;
     } else {
         return (
-            <div className="flex h-screen flex-col items-center border-x-8 border-t-8 border-lc-border bg-lc-bg p-2 text-sm">
+            <div className="flex h-screen flex-col items-center border-x-8 border-t-8 border-lc-border-light bg-lc-bg-light p-2 text-sm dark:border-lc-border dark:bg-lc-bg">
                 <a
                     href="https://github.com/marwanhawari/LeetRooms"
                     rel="noopener noreferrer"
@@ -46,7 +46,7 @@ export default function Login() {
                         alt="LeetRooms icon"
                     />
                 </a>
-                <div className="text-xl font-semibold text-white">
+                <div className="text-xl font-semibold text-lc-text-light dark:text-white">
                     LeetRooms
                 </div>
                 <div className="mt-10 flex flex-col items-center justify-center gap-y-3">

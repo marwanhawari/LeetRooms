@@ -38,7 +38,7 @@ export default function Message({ message }: { message: MessageInterface }) {
         case ChatEvent.Join:
         case ChatEvent.Leave:
             return (
-                <li className="flex flex-row items-start gap-x-1 rounded-md bg-[hsl(0,0%,20%)] py-1.5 px-2">
+                <li className="flex flex-row items-start gap-x-1 rounded-md bg-lc-fg-message-light py-1.5 px-2 dark:bg-[hsl(0,0%,20%)]">
                     <span>
                         <span>
                             {`👋`}
@@ -53,7 +53,7 @@ export default function Message({ message }: { message: MessageInterface }) {
             );
         case ChatEvent.Submit:
             return (
-                <li className="flex flex-row items-start gap-x-1 rounded-md bg-[hsl(0,0%,20%)] py-1.5 px-2">
+                <li className="flex flex-row items-start gap-x-1 rounded-md bg-lc-fg-message-light py-1.5 px-2 dark:bg-[hsl(0,0%,20%)]">
                     <span>
                         <span>
                             {`🤞`}
@@ -68,7 +68,7 @@ export default function Message({ message }: { message: MessageInterface }) {
             );
         case ChatEvent.Accepted:
             return (
-                <li className="flex flex-row items-start gap-x-1 rounded-md bg-[hsl(0,0%,20%)] py-1.5 px-2">
+                <li className="flex flex-row items-start gap-x-1 rounded-md bg-lc-fg-message-light py-1.5 px-2 dark:bg-[hsl(0,0%,20%)]">
                     <span>
                         <span>
                             {`💯`}

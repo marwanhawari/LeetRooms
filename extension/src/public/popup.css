@@ -13,6 +13,14 @@ body {
     gap: 0.5rem;
 }
 
+.flex-col-left {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
 .flex-row {
     display: flex;
     align-items: center;
@@ -37,6 +45,7 @@ body {
 
 #leetrooms-width-container {
     margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
 #github-link {

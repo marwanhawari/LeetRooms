@@ -82,6 +82,16 @@ async function main() {
             if (key == "leetroomsWidth") {
                 reactRoot.style.width = `${newValue}px`;
             }
+            if (key == "leetroomsDarkMode" && reactRoot.contentWindow) {
+                reactRoot.contentWindow.postMessage(
+                    {
+                        extension: "leetrooms",
+                        event: "darkMode",
+                        isDarkMode: newValue,
+                    },
+                    APP_URL
+                );
+            }
         }
     });
 }

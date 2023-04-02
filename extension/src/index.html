@@ -25,6 +25,30 @@
         <title>LeetRooms | Multiplayer rooms for LeetCode</title>
     </head>
     <body>
+        <script>
+            const leetroomsDarkMode = localStorage.getItem("leetroomsDarkMode");
+            if (leetroomsDarkMode === "true" || !leetroomsDarkMode) {
+                document.body.classList.add("dark");
+            } else {
+                document.body.classList.remove("dark");
+            }
+
+            window.addEventListener("message", (event) => {
+                if (
+                    event.data?.extension !== "leetrooms" ||
+                    !("isDarkMode" in event.data)
+                ) {
+                    return;
+                }
+                if (event.data.isDarkMode) {
+                    document.body.classList.add("dark");
+                    localStorage.setItem("leetroomsDarkMode", "true");
+                } else {
+                    document.body.classList.remove("dark");
+                    localStorage.setItem("leetroomsDarkMode", "false");
+                }
+            });
+        </script>
         <div id="leetrooms-root"></div>
         <script type="module" src="./main.tsx"></script>
     </body>

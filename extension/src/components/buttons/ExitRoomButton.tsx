@@ -39,7 +39,7 @@ export default function ExitRoomButton() {
         <button
             id="exit-button"
             onClick={handleClickExitRoom}
-            className={`rounded-lg bg-lc-fg p-2 text-gray-400 transition-all hover:bg-lc-hd-bg hover:text-lc-hd-fg ${
+            className={`rounded-lg bg-lc-fg-light p-2 text-gray-400 transition-all hover:bg-lc-hd-bg-light hover:text-lc-hd-fg-light dark:bg-lc-fg dark:hover:bg-lc-hd-bg dark:hover:text-lc-hd-fg ${
                 isLoadingGlobal && "cursor-default"
             }`}
         >
