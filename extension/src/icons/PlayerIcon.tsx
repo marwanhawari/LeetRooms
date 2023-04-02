@@ -1,7 +1,7 @@
 export default function PlayerIcon() {
     return (
         <svg
-            className="h-[14px] w-[14px] fill-current text-white"
+            className="h-[14px] w-[14px] fill-current text-lc-text-light dark:text-white"
             viewBox="0 0 100 100"
             xmlns="http://www.w3.org/2000/svg"
         >

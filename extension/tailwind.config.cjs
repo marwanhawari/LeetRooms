@@ -22,8 +22,10 @@ module.exports = {
                 "lc-md-bg-hover": "hsl(40,26%,27%)",
                 "lc-hd-fg-hover": "hsl(348,100%,71%)",
                 "lc-hd-bg-hover": "hsl(350,25%,28%)",
+
                 "lc-green-button": "hsl(140,61%,45%)",
                 "lc-green-button-hover": "hsl(140,61%,50%)",
+
                 "github-bg": "hsl(210, 12%, 6%)",
                 "github-bg-hover": "hsl(210, 12%, 9%)",
                 "google-bg": "hsl(215, 82%, 51%)",
@@ -32,6 +34,26 @@ module.exports = {
                 "discord-bg-hover": "hsl(235, 86%, 68%)",
                 "twitch-bg": "hsl(264, 100%, 64%)",
                 "twitch-bg-hover": "hsl(264, 100%, 68%)",
+
+                "lc-border-light": "hsl(220,23%,97%)",
+                "lc-bg-light": "hsl(0,0%,100%)",
+                "lc-fg-light": "hsl(240,8%,96%)",
+                "lc-fg-hover-light": "hsl(240,8%,94%)",
+                "lc-fg-message-light": "hsl(240,8%,95%)",
+                "lc-text-light": "hsl(0,0%,15%)",
+                "lc-green-button-hover-light": "hsl(140,61%, 40%)",
+
+                "lc-ez-fg-light": "hsl(173,97%, 35%)",
+                "lc-ez-bg-light": "hsl(168, 41%, 93%)",
+                "lc-ez-bg-hover-light": "hsl(168, 41%, 90%)",
+
+                "lc-md-fg-light": "hsl(43, 100%, 50%)",
+                "lc-md-bg-light": "hsl(38, 100%, 94%)",
+                "lc-md-bg-hover-light": "hsl(38, 100%, 91%)",
+
+                "lc-hd-fg-light": "hsl(349, 100%, 59%)",
+                "lc-hd-bg-light": "hsl(355, 100%, 95%)",
+                "lc-hd-bg-hover-light": "hsl(355, 100%, 92%)",
             },
             borderRadius: {
                 "lc-mini": "21px",

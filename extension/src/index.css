@@ -7,7 +7,7 @@
     overflow-wrap: anywhere;
 }
 
-#leetrooms-chat {
+.dark #leetrooms-chat {
     color-scheme: dark;
 }
 
@@ -63,6 +63,6 @@
     }
 }
 
-#modal {
+.dark #modal {
     color-scheme: dark;
 }

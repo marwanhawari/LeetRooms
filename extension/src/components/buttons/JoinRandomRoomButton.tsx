@@ -42,7 +42,7 @@ export default function JoinRandomRoomButton() {
             onClick={handleClickJoinRandomRoom}
             className={`${
                 isLoadingGlobal && "cursor-default"
-            } flex h-[33px] w-[144px] flex-col items-center justify-center rounded-lg bg-lc-green-button font-medium text-white transition-all hover:bg-lc-green-button-hover`}
+            } flex h-[33px] w-[144px] flex-col items-center justify-center rounded-lg bg-lc-green-button font-medium text-white transition-all hover:bg-lc-green-button-hover-light dark:hover:bg-lc-green-button-hover`}
         >
             {!isLoading ? (
                 "Join random room"
