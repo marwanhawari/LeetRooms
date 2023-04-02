@@ -170,64 +170,6 @@ export async function joinRoomById(
     }
 }
 
-export async function joinRandomRoom(
-    req: Request,
-    res: Response,
-    next: NextFunction
-) {
-    try {
-        await prisma.$transaction(async (prisma) => {
-            if (!req.user) {
-                throw new Error(
-                    "Request authenticated, but user session not found"
-                );
-            }
-
-            let randomlySelectedRoomArray: Room[] =
-                await prisma.$queryRaw`SELECT * FROM "Room" ORDER BY random() LIMIT 1`;
-
-            if (
-                !randomlySelectedRoomArray ||
-                !randomlySelectedRoomArray.length
-            ) {
-                throw new Error(
-                    "No rooms currently available for randomly joining"
-                );
-            }
-            let randomlySelectedRoomId = randomlySelectedRoomArray[0].id;
-
-            let questions: Question[] =
-                await prisma.$queryRaw`SELECT "Question".* FROM "RoomQuestion"
-                    INNER JOIN "Question"
-                    ON "Question".id="RoomQuestion"."questionId"
-                    WHERE "RoomQuestion"."roomId"=${randomlySelectedRoomId}`;
-
-            // Update the user table with the roomId
-            await prisma.user.update({
-                data: {
-                    roomId: randomlySelectedRoomId,
-                },
-                where: {
-                    id: req.user.id,
-                },
-            });
-
-            // Update the session
-            let room = {
-                roomId: randomlySelectedRoomId,
-                questions: questions,
-                userColor: generateRandomUserColor(),
-            };
-            await setUserRoomSession(req.user.id, room);
-            sendJoinRoomMessage(req.user.username, room);
-
-            return res.redirect("../sessions");
-        });
-    } catch (error) {
-        return next(error);
-    }
-}
-
 export async function exitRoom(
     req: Request,
     res: Response,
