@@ -104,7 +104,7 @@ export default function PlayersButton() {
                                         <Spinner />
                                     ) : (
                                         <div className="flex w-full flex-col">
-                                            <div className="flex items-center justify-between border-b-[0.5px] border-gray-500 px-5 py-3">
+                                            <div className="flex items-center justify-between border-b-[0.5px] border-gray-300 px-5 py-3 dark:border-gray-500">
                                                 <div className="flex flex-col gap-y-[2px]">
                                                     <Dialog.Title
                                                         as="h3"
