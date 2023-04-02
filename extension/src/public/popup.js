@@ -4,10 +4,10 @@ toggleButton.addEventListener("click", () => {
     chrome.storage.local.set({ leetroomsToggleState: toggleState });
     if (toggleState) {
         widthSlider.parentElement.style.display = "flex";
-        darkModeButton.parentElement.style.display = "block";
+        darkModeButton.parentElement.parentElement.style.display = "flex";
     } else {
         widthSlider.parentElement.style.display = "none";
-        darkModeButton.parentElement.style.display = "none";
+        darkModeButton.parentElement.parentElement.style.display = "none";
     }
 });
 const widthSlider = document.querySelector("#leetrooms-width");
@@ -33,10 +33,12 @@ chrome.tabs.query({ currentWindow: true, active: true }, (tabs) => {
             toggleButton.checked = toggleState;
             if (toggleState) {
                 widthSlider.parentElement.style.display = "flex";
-                darkModeButton.parentElement.style.display = "block";
+                darkModeButton.parentElement.parentElement.style.display =
+                    "flex";
             } else {
                 widthSlider.parentElement.style.display = "none";
-                darkModeButton.parentElement.style.display = "none";
+                darkModeButton.parentElement.parentElement.style.display =
+                    "none";
             }
         });
         chrome.storage.local.get("leetroomsWidth", (result) => {
