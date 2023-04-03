@@ -14,7 +14,7 @@
         "prisma-migrate": "set -a && . ../.env && set +a && prisma migrate dev",
         "prisma-generate": "set -a && . ../.env && set +a && npm install @prisma/client && prisma generate",
         "prisma-seed": "set -a && . ../.env && set +a && prisma db seed",
-        "prisma-reset": "set -a && . ../.env && set +a && prisma migrate reset --skip-seed --skip-generate && npm run prisma-migrate && npm run prisma-generate && npm run prisma-seed"
+        "prisma-reset": "set -a && . ../.env && set +a && prisma migrate reset --skip-seed"
     },
     "prisma": {
         "seed": "ts-node prisma/seed.ts"

@@ -38,6 +38,7 @@ model Question {
   titleSlug  String         @unique
   difficulty Difficulty
   rooms      RoomQuestion[]
+  tags       String[]
 }
 
 model RoomQuestion {
