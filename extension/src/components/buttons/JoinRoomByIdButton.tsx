@@ -47,7 +47,7 @@ export default function JoinRoomByIdButton() {
     return (
         <div
             id="join-room-by-id"
-            className="flex flex-row items-center justify-between gap-4"
+            className="flex flex-row items-center justify-between gap-2"
         >
             <div className="flex flex-row items-center justify-between gap-x-2 rounded-lg border border-transparent bg-lc-fg-light py-[6px] px-3 text-lc-text-light focus-within:border-blue-500 hover:border-blue-500 dark:bg-lc-fg dark:text-white">
                 <form onSubmit={handleSubmitJoinRoomById}>
@@ -71,7 +71,7 @@ export default function JoinRoomByIdButton() {
                 onClick={handleSubmitJoinRoomById}
                 className={`${
                     isLoadingGlobal && "cursor-default"
-                } flex h-[33px] w-[90px] flex-col items-center justify-center rounded-lg bg-lc-green-button font-medium text-white transition-all hover:bg-lc-green-button-hover-light dark:hover:bg-lc-green-button-hover`}
+                } flex h-[33px] w-[60px] flex-col items-center justify-center rounded-lg bg-lc-green-button font-medium text-white transition-all hover:bg-lc-green-button-hover-light dark:hover:bg-lc-green-button-hover`}
             >
                 {!isLoading ? "Join" : <div className="dot-flashing"></div>}
             </button>
