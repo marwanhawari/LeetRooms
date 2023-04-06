@@ -64,6 +64,9 @@ export default function RoomSettingsButton() {
     }
 
     function saveAndCloseModal() {
+        if (!roomSettings.questionFilter.selections.length) {
+            return;
+        }
         try {
             localStorage.setItem("roomSettings", JSON.stringify(roomSettings));
         } catch (error) {
@@ -146,7 +149,13 @@ export default function RoomSettingsButton() {
                                                 </button>
                                                 <button
                                                     onClick={saveAndCloseModal}
-                                                    className="rounded-lg bg-lc-green-button px-3 py-1.5 text-sm font-medium text-white transition-all hover:bg-lc-green-button-hover-light dark:hover:bg-lc-green-button-hover"
+                                                    className={`${
+                                                        !roomSettings
+                                                            .questionFilter
+                                                            .selections.length
+                                                            ? "cursor-not-allowed bg-lc-fg-modal"
+                                                            : "bg-lc-green-button hover:bg-lc-green-button-hover-light dark:hover:bg-lc-green-button-hover"
+                                                    } rounded-lg px-3 py-1.5 text-sm font-medium text-white transition-all`}
                                                 >
                                                     Save
                                                 </button>
@@ -238,7 +247,7 @@ function TopicSelector({
                 "h-56 overflow-auto rounded-md bg-lc-fg-modal dark:text-white"
             )}
         >
-            <ul className="flex flex-col overflow-auto">
+            <ul className="flex flex-col overflow-auto text-sm">
                 {topics.map((topic) => (
                     <label
                         key={topic}
