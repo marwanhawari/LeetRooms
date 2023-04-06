@@ -33,6 +33,8 @@ async function main() {
             }
         );
 
+    transformedResponse = transformedResponse.filter(Boolean);
+
     await prisma.$transaction([
         prisma.question.deleteMany({}),
         prisma.question.createMany({

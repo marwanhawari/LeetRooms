@@ -1,23 +1,82 @@
 import { Dialog, Transition, Tab } from "@headlessui/react";
-import { Fragment, useState } from "react";
+import { ChangeEvent, Fragment, useCallback, useEffect, useState } from "react";
 import Spinner from "../Spinner";
 import XIcon from "../../icons/XIcon";
 import SettingsIcon from "../../icons/SettingsIcon";
+import {
+    RoomSettings,
+    QuestionFilterKind,
+    topics,
+} from "../../types/RoomSettings";
 
 function classNames(...classes: any[]) {
     return classes.filter(Boolean).join(" ");
 }
 
 export default function RoomSettingsButton() {
-    let [isOpen, setIsOpen] = useState(false);
+    let defaultRoomSettings: RoomSettings = {
+        questionFilter: {
+            kind: QuestionFilterKind.Topics,
+            selections: topics,
+        },
+    };
     let isFetching = false;
+    let [isOpen, setIsOpen] = useState(false);
+    let [roomSettings, setRoomSettings] =
+        useState<RoomSettings>(defaultRoomSettings);
+
+    let loadRoomSettings = useCallback(async () => {
+        let roomSettingsString = localStorage.getItem("roomSettings");
+        // This is a hack to wait for the modal to fade out before updating the checkbox UI in case you cancel without saving
+        if (!isOpen) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+        if (roomSettingsString) {
+            try {
+                let storedRoomSettings: RoomSettings =
+                    JSON.parse(roomSettingsString);
+                setRoomSettings(storedRoomSettings);
+            } catch (error) {
+                console.error(
+                    "Failed to parse room settings from local storage"
+                );
+            }
+        } else {
+            try {
+                localStorage.setItem(
+                    "roomSettings",
+                    JSON.stringify(defaultRoomSettings)
+                );
+                setRoomSettings(defaultRoomSettings);
+            } catch (error) {
+                console.error(
+                    "Failed to save default room settings to local storage"
+                );
+            }
+        }
+    }, [isOpen]);
+
+    useEffect(() => {
+        loadRoomSettings();
+    }, [loadRoomSettings]);
+
+    function openModal() {
+        setIsOpen(true);
+    }
 
     function closeModal() {
         setIsOpen(false);
     }
 
-    function openModal() {
-        setIsOpen(true);
+    function saveAndCloseModal() {
+        try {
+            localStorage.setItem("roomSettings", JSON.stringify(roomSettings));
+        } catch (error) {
+            console.error(
+                "Failed to save updated room settings to local storage"
+            );
+        }
+        setIsOpen(false);
     }
 
     return (
@@ -56,8 +115,8 @@ export default function RoomSettingsButton() {
                                 <Dialog.Panel
                                     className={
                                         isFetching
-                                            ? `flex h-[400px] w-full max-w-md transform items-center justify-center overflow-hidden rounded-2xl bg-lc-fg-light shadow-xl transition-all dark:bg-lc-fg`
-                                            : `flex h-[400px] w-full max-w-md transform overflow-hidden rounded-2xl bg-lc-fg-light shadow-xl transition-all dark:bg-lc-fg`
+                                            ? `flex h-[410px] w-full max-w-md transform items-center justify-center overflow-hidden rounded-2xl bg-lc-fg-light shadow-xl transition-all dark:bg-lc-fg`
+                                            : `flex h-[410px] w-full max-w-md transform overflow-hidden rounded-2xl bg-lc-fg-light shadow-xl transition-all dark:bg-lc-fg`
                                     }
                                 >
                                     {isFetching ? (
@@ -68,28 +127,30 @@ export default function RoomSettingsButton() {
                                                 <div className="flex flex-col gap-y-[2px]">
                                                     <Dialog.Title
                                                         as="h3"
-                                                        className="text-lg font-medium leading-6 text-lc-text-light dark:text-white"
+                                                        className="py-1 text-lg font-medium leading-6 text-lc-text-light dark:text-white"
                                                     >
                                                         Room Settings
                                                     </Dialog.Title>
-                                                    <div className="text-xs text-gray-400">
-                                                        Subheading
-                                                    </div>
                                                 </div>
                                                 <button onClick={closeModal}>
                                                     <XIcon />
                                                 </button>
                                             </div>
-                                            <SettingsTabs />
-                                            <div className="mb-4 mt-2 mr-2 ml-auto flex flex-row items-center gap-4">
+                                            <SettingsTabs
+                                                roomSettings={roomSettings}
+                                                setRoomSettings={
+                                                    setRoomSettings
+                                                }
+                                            />
+                                            <div className="mb-4 ml-auto mr-2 mt-2 flex flex-row items-center gap-3">
                                                 <button
                                                     onClick={closeModal}
-                                                    className="rounded-lg bg-lc-bg px-3 py-1.5 text-sm font-medium text-white transition-all hover:bg-lc-green-button-hover-light dark:hover:bg-lc-green-button-hover"
+                                                    className="hover:bg-lc-fg-modal-hover-light rounded-lg bg-lc-fg-modal px-3 py-1.5 text-sm font-medium text-white transition-all dark:hover:bg-lc-fg-modal-hover"
                                                 >
                                                     Cancel
                                                 </button>
                                                 <button
-                                                    onClick={closeModal}
+                                                    onClick={saveAndCloseModal}
                                                     className="rounded-lg bg-lc-green-button px-3 py-1.5 text-sm font-medium text-white transition-all hover:bg-lc-green-button-hover-light dark:hover:bg-lc-green-button-hover"
                                                 >
                                                     Save
@@ -107,25 +168,27 @@ export default function RoomSettingsButton() {
     );
 }
 
-function SettingsTabs() {
-    let [categories] = useState({
-        Topics: [{}],
-        Questions: [{}],
-    });
+function SettingsTabs({
+    roomSettings,
+    setRoomSettings,
+}: {
+    roomSettings: RoomSettings;
+    setRoomSettings: (roomSettings: RoomSettings) => void;
+}) {
+    let tabs = ["Topics"];
     return (
         <div className="h-full px-2 py-2">
             <Tab.Group>
                 <Tab.List className="flex gap-2">
-                    {Object.keys(categories).map((category) => (
+                    {tabs.map((category) => (
                         <Tab
                             key={category}
                             className={({ selected }) =>
                                 classNames(
                                     "w-full rounded-lg py-2.5 text-sm font-medium text-lc-text-light dark:text-white",
-                                    "focus:outline-none",
                                     selected
-                                        ? "bg-lc-bg"
-                                        : "hover:bg-white/[0.12]"
+                                        ? "bg-lc-fg-modal"
+                                        : "hover:bg-lc-fg-modal"
                                 )
                             }
                         >
@@ -134,63 +197,68 @@ function SettingsTabs() {
                     ))}
                 </Tab.List>
                 <Tab.Panels className="mt-2">
-                    <TopicSelector />
-                    <QuestionSelector />
+                    <TopicSelector
+                        roomSettings={roomSettings}
+                        setRoomSettings={setRoomSettings}
+                    />
                 </Tab.Panels>
             </Tab.Group>
         </div>
     );
 }
 
-function TopicSelector() {
-    return (
-        <Tab.Panel
-            className={classNames(
-                "rounded-xl bg-lc-bg p-3 dark:text-white",
-                "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
-            )}
-        >
-            <ul>
-                {[{ id: "1", name: "hi" }].map((post) => (
-                    <li key={post.id} className="relative rounded-md p-3">
-                        sup
-                        <a
-                            href="#"
-                            className={classNames(
-                                "absolute inset-0 rounded-md",
-                                "ring-blue-400 focus:z-10 focus:outline-none focus:ring-2"
-                            )}
-                        />
-                    </li>
-                ))}
-            </ul>
-        </Tab.Panel>
-    );
-}
+function TopicSelector({
+    roomSettings,
+    setRoomSettings,
+}: {
+    roomSettings: RoomSettings;
+    setRoomSettings: (roomSettings: RoomSettings) => void;
+}) {
+    let { selections } = roomSettings.questionFilter;
 
-function QuestionSelector() {
+    function handleSelect(event: ChangeEvent<HTMLInputElement>) {
+        let newSelection = event.target.value;
+        if (event.target.checked) {
+            setRoomSettings({
+                questionFilter: {
+                    kind: QuestionFilterKind.Topics,
+                    selections: [...selections, newSelection],
+                },
+            });
+        } else {
+            setRoomSettings({
+                questionFilter: {
+                    kind: QuestionFilterKind.Topics,
+                    selections: selections.filter(
+                        (selection) => selection !== newSelection
+                    ),
+                },
+            });
+        }
+    }
+
     return (
         <Tab.Panel
             className={classNames(
-                "rounded-xl bg-white p-3",
-                "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
+                "h-56 overflow-auto rounded-md bg-lc-fg-modal dark:text-white"
             )}
         >
-            <ul>
-                {[{ id: "1", name: "hi" }].map((post) => (
-                    <li
-                        key={post.id}
-                        className="relative rounded-md p-3 hover:bg-gray-100"
+            <ul className="flex flex-col overflow-auto">
+                {topics.map((topic) => (
+                    <label
+                        key={topic}
+                        className="itmes-center flex flex-row gap-3 px-3 py-1 even:bg-[hsl(0,0%,85%)] even:bg-opacity-[45%] dark:even:bg-lc-bg dark:even:bg-opacity-[35%]"
                     >
-                        sup
-                        <a
-                            href="#"
-                            className={classNames(
-                                "absolute inset-0 rounded-md",
-                                "ring-blue-400 focus:z-10 focus:outline-none focus:ring-2"
-                            )}
+                        <input
+                            type="checkbox"
+                            name="topics"
+                            value={topic}
+                            onChange={handleSelect}
+                            checked={selections.includes(topic)}
+                            id={topic}
                         />
-                    </li>
+                        {topic}
+                    </label>
                 ))}
             </ul>
         </Tab.Panel>
