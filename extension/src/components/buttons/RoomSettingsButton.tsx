@@ -7,6 +7,7 @@ import {
     RoomSettings,
     QuestionFilterKind,
     topics,
+    defaultRoomSettings,
 } from "../../types/RoomSettings";
 
 function classNames(...classes: any[]) {
@@ -14,12 +15,6 @@ function classNames(...classes: any[]) {
 }
 
 export default function RoomSettingsButton() {
-    let defaultRoomSettings: RoomSettings = {
-        questionFilter: {
-            kind: QuestionFilterKind.Topics,
-            selections: topics,
-        },
-    };
     let isFetching = false;
     let [isOpen, setIsOpen] = useState(false);
     let [roomSettings, setRoomSettings] =

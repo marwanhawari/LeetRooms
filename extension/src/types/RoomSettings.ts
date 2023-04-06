@@ -84,3 +84,10 @@ export const topics = [
     "Two Pointers",
     "Union Find",
 ];
+
+export const defaultRoomSettings: RoomSettings = {
+    questionFilter: {
+        kind: QuestionFilterKind.Topics,
+        selections: topics,
+    },
+};
