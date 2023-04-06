@@ -25,11 +25,13 @@ model User {
 }
 
 model Room {
-  id        String         @id
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-  users     User[]
-  questions RoomQuestion[]
+  id                       String         @id
+  createdAt                DateTime       @default(now())
+  updatedAt                DateTime       @updatedAt
+  users                    User[]
+  questions                RoomQuestion[]
+  questionFilterKind       String
+  questionFilterSelections String[]
 }
 
 model Question {
