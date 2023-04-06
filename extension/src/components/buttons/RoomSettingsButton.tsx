@@ -143,7 +143,7 @@ export default function RoomSettingsButton() {
                                             <div className="mb-4 ml-auto mr-2 mt-2 flex flex-row items-center gap-3">
                                                 <button
                                                     onClick={closeModal}
-                                                    className="hover:bg-lc-fg-modal-hover-light rounded-lg bg-lc-fg-modal px-3 py-1.5 text-sm font-medium text-white transition-all dark:hover:bg-lc-fg-modal-hover"
+                                                    className="rounded-lg bg-lc-fg-modal-light px-3 py-1.5 text-sm font-medium text-lc-text-light transition-all hover:bg-lc-fg-modal-hover-light dark:bg-lc-fg-modal dark:text-white dark:hover:bg-lc-fg-modal-hover"
                                                 >
                                                     Cancel
                                                 </button>
@@ -153,9 +153,9 @@ export default function RoomSettingsButton() {
                                                         !roomSettings
                                                             .questionFilter
                                                             .selections.length
-                                                            ? "cursor-not-allowed bg-lc-fg-modal"
-                                                            : "bg-lc-green-button hover:bg-lc-green-button-hover-light dark:hover:bg-lc-green-button-hover"
-                                                    } rounded-lg px-3 py-1.5 text-sm font-medium text-white transition-all`}
+                                                            ? "cursor-not-allowed bg-lc-fg-modal-light text-lc-text-light hover:bg-lc-fg-modal-hover-light dark:bg-lc-fg-modal dark:text-white dark:hover:bg-lc-fg-modal-hover"
+                                                            : "bg-lc-green-button text-white hover:bg-lc-green-button-hover-light dark:hover:bg-lc-green-button-hover"
+                                                    } rounded-lg px-3 py-1.5 text-sm font-medium transition-all`}
                                                 >
                                                     Save
                                                 </button>
@@ -191,8 +191,8 @@ function SettingsTabs({
                                 classNames(
                                     "w-full rounded-lg py-2.5 text-sm font-medium text-lc-text-light dark:text-white",
                                     selected
-                                        ? "bg-lc-fg-modal"
-                                        : "hover:bg-lc-fg-modal"
+                                        ? "bg-lc-fg-modal-light dark:bg-lc-fg-modal"
+                                        : "hover:bg-lc-fg-modal-hover-light dark:hover:bg-lc-fg-modal"
                                 )
                             }
                         >
@@ -244,14 +244,14 @@ function TopicSelector({
     return (
         <Tab.Panel
             className={classNames(
-                "h-56 overflow-auto rounded-md bg-lc-fg-modal dark:text-white"
+                "h-56 overflow-auto rounded-md bg-lc-fg-modal-light dark:bg-lc-fg-modal dark:text-white"
             )}
         >
             <ul className="flex flex-col overflow-auto text-sm">
                 {topics.map((topic) => (
                     <label
                         key={topic}
-                        className="itmes-center flex flex-row gap-3 px-3 py-1 even:bg-[hsl(0,0%,85%)] even:bg-opacity-[45%] dark:even:bg-lc-bg dark:even:bg-opacity-[35%]"
+                        className="flex flex-row items-center gap-3 px-3 py-1 even:bg-white even:bg-opacity-[45%] dark:even:bg-lc-bg dark:even:bg-opacity-[35%]"
                     >
                         <input
                             type="checkbox"
