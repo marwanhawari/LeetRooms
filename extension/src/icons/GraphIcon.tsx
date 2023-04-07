@@ -1,7 +1,7 @@
 export default function GraphIcon() {
     return (
         <svg
-            className="h-[18px] w-[18px] fill-current text-white"
+            className="h-[18px] w-[18px] fill-current text-lc-text-light dark:text-white"
             viewBox="0 0 54 54"
             xmlns="http://www.w3.org/2000/svg"
         >

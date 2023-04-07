@@ -1,7 +1,7 @@
 import { io, Socket } from "socket.io-client";
 import { useEffect, useRef, useState } from "react";
 import Question from "./Question";
-import { QuestionInterface } from "../types/Question";
+import { QuestionInterface, SubmissionStatus } from "../types/Question";
 import CopyIcon from "../icons/CopyIcon";
 import CheckMarkIcon from "../icons/CheckMarkIcon";
 import SendIcon from "../icons/SendIcon";
@@ -20,11 +20,6 @@ interface RoomMessagesLocalStorage {
 interface SubmissionRequestBody {
     submissionStatus: SubmissionStatus;
     questionTitleSlug: string;
-}
-
-enum SubmissionStatus {
-    Attempted = "Attempted",
-    Accepted = "Accepted",
 }
 
 let copyIconTimer: number;
@@ -141,7 +136,11 @@ export default function Room({
                 event.origin !== "https://leetcode.com" ||
                 event.data?.extension !== "leetrooms" ||
                 event.data?.button !== "submit" ||
-                !event.data?.event
+                !event.data?.event ||
+                (event.data?.currentProblem &&
+                    !questions
+                        .map((question) => question.titleSlug)
+                        .includes(event.data.currentProblem))
             ) {
                 return;
             }
@@ -268,7 +267,7 @@ export default function Room({
                         />
                     ))}
                 </div>
-                <PlayersButton />
+                <PlayersButton questions={questions} />
             </div>
 
             <div

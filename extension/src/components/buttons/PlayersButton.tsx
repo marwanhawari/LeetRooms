@@ -1,10 +1,14 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
-import PlayerIcon from "../../icons/PlayerIcon";
+import GraphIcon from "../../icons/GraphIcon";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SERVER_URL } from "../../config";
 import Spinner from "../Spinner";
+import { QuestionInterface, SubmissionStatus } from "../../types/Question";
 import XIcon from "../../icons/XIcon";
+import NoSubmissionIcon from "../../icons/NoSubmissionIcon";
+import AcceptedSubmissionIcon from "../../icons/AcceptedSubmissionIcon";
+import AttemptedSubmissionIcon from "../../icons/AttemptedSubmissionIcon";
 
 interface Player {
     id: number;
@@ -16,8 +20,8 @@ interface PlayerSubmission {
     title: string;
     titleSlug: string;
     difficulty: string;
-    status: string;
-    updatedAt: Date;
+    status?: SubmissionStatus;
+    updatedAt?: Date;
 }
 
 interface PlayerWithSubmissions extends Player {
@@ -26,7 +30,11 @@ interface PlayerWithSubmissions extends Player {
 
 let cancelQueryTimer: number;
 
-export default function PlayersButton() {
+export default function PlayersButton({
+    questions,
+}: {
+    questions: QuestionInterface[];
+}) {
     let [isOpen, setIsOpen] = useState(false);
     const queryClient = useQueryClient();
     let {
@@ -56,6 +64,120 @@ export default function PlayersButton() {
 
     let numberOfPlayersOnline = players ? players.length : 0;
 
+    function getPlayersWithSortedSubmissions(
+        players: PlayerWithSubmissions[] | undefined,
+        questions: QuestionInterface[]
+    ) {
+        if (!players) {
+            return undefined;
+        }
+        let playersWithSortedSubmissions: PlayerWithSubmissions[] = [];
+        for (let player of players) {
+            let submissions = player.submissions;
+            let sortedSubmissions = sortSubmissionsByQuestionOrder(
+                submissions,
+                questions
+            );
+            playersWithSortedSubmissions.push({
+                ...player,
+                submissions: sortedSubmissions,
+            });
+        }
+        return playersWithSortedSubmissions;
+    }
+
+    function sortSubmissionsByQuestionOrder(
+        submissions: PlayerSubmission[],
+        questions: QuestionInterface[]
+    ) {
+        let sortedSubmissions = [];
+        for (let question of questions) {
+            let foundSubmission = submissions.find(
+                (submission) => submission.titleSlug === question.titleSlug
+            );
+            if (foundSubmission) {
+                sortedSubmissions.push(foundSubmission);
+            }
+        }
+        return sortedSubmissions;
+    }
+
+    let playersWithSortedSubmissions = getPlayersWithSortedSubmissions(
+        players,
+        questions
+    );
+
+    let rankedPlayers = rankPlayers(playersWithSortedSubmissions);
+
+    function rankPlayers(players: PlayerWithSubmissions[] | undefined) {
+        if (!players) {
+            return undefined;
+        }
+        // Sort players by number of submissions that have a non null status
+        let sortedByNonNullSubmissionStatus = players.sort((a, b) => {
+            let aSubmissions = a.submissions.filter(
+                (submission) => submission.status
+            );
+            let bSubmissions = b.submissions.filter(
+                (submission) => submission.status
+            );
+            return bSubmissions.length - aSubmissions.length;
+        });
+
+        // Sort players by the number of submissions that have a status of SubmissionStatus.Accepted
+        let sortedByAcceptedSubmissionStatus =
+            sortedByNonNullSubmissionStatus.sort((a, b) => {
+                let aSubmissions = a.submissions.filter(
+                    (submission) =>
+                        submission.status === SubmissionStatus.Accepted
+                );
+                let bSubmissions = b.submissions.filter(
+                    (submission) =>
+                        submission.status === SubmissionStatus.Accepted
+                );
+                return bSubmissions.length - aSubmissions.length;
+            });
+
+        // Sort players that have the minimum total submission time if there are multiple players with same number of accepted submissions
+        let sortedByTotalSubmissionTime = sortedByAcceptedSubmissionStatus.sort(
+            (a, b) => {
+                let aSubmissions = a.submissions.filter(
+                    (submission) =>
+                        submission.status === SubmissionStatus.Accepted &&
+                        submission.updatedAt
+                );
+                let bSubmissions = b.submissions.filter(
+                    (submission) =>
+                        submission.status === SubmissionStatus.Accepted &&
+                        submission.updatedAt
+                );
+                let aTotalSubmissionTime = aSubmissions.reduce(
+                    (total, submission) => {
+                        return (
+                            total +
+                            (submission.updatedAt!.getTime() -
+                                a.updatedAt.getTime())
+                        );
+                    },
+                    0
+                );
+                let bTotalSubmissionTime = bSubmissions.reduce(
+                    (total, submission) => {
+                        return (
+                            total +
+                            (submission.updatedAt!.getTime() -
+                                b.updatedAt.getTime())
+                        );
+                    },
+                    0
+                );
+                return aTotalSubmissionTime - bTotalSubmissionTime;
+            }
+        );
+
+        return sortedByTotalSubmissionTime;
+    }
+
     function closeModal() {
         setIsOpen(false);
         cancelQueryTimer = setTimeout(() => {
@@ -75,9 +197,9 @@ export default function PlayersButton() {
                 className="flex cursor-pointer flex-col items-center rounded-lg bg-lc-fg-light px-3 py-[10px] transition-all hover:bg-lc-fg-hover-light dark:bg-lc-fg dark:hover:bg-lc-fg-hover"
                 onClick={openModal}
             >
-                <div className="flex flex-row items-center gap-2">
-                    <PlayerIcon />
-                    <div>Players</div>
+                <div className="flex flex-row items-baseline gap-2">
+                    <GraphIcon />
+                    <div>Scoreboard</div>
                 </div>
             </div>
 
@@ -122,7 +244,7 @@ export default function PlayersButton() {
                                                         as="h3"
                                                         className="text-lg font-medium leading-6 text-lc-text-light dark:text-white"
                                                     >
-                                                        Players
+                                                        Scoreboard
                                                     </Dialog.Title>
                                                     <div className="text-xs text-gray-400">
                                                         {numberOfPlayersOnline}{" "}
@@ -134,7 +256,9 @@ export default function PlayersButton() {
                                                 </button>
                                             </div>
 
-                                            <Players players={players} />
+                                            <Scoreboard
+                                                players={rankedPlayers}
+                                            />
                                         </div>
                                     )}
                                 </Dialog.Panel>
@@ -147,7 +271,7 @@ export default function PlayersButton() {
     );
 }
 
-function Players({
+function Scoreboard({
     players,
 }: {
     players: PlayerWithSubmissions[] | undefined;
@@ -159,14 +283,41 @@ function Players({
                 ? players.map((player) => {
                       return (
                           <div
-                              className=" px-5 py-2 odd:bg-[hsl(0,0%,85%)] odd:bg-opacity-[45%] dark:odd:bg-lc-bg dark:odd:bg-opacity-[45%]"
+                              className=" flex flex-row gap-3 px-5 py-2 odd:bg-[hsl(0,0%,85%)] odd:bg-opacity-[45%] dark:odd:bg-lc-bg dark:odd:bg-opacity-[45%]"
                               key={player.id}
                           >
-                              {player.username}
+                              <div className="w-28 grow truncate">
+                                  {player.username}
+                              </div>
+                              <Scores submissions={player.submissions} />
                           </div>
                       );
                   })
                 : null}
+        </div>
+    );
+}
+
+function Scores({ submissions }: { submissions: PlayerSubmission[] }) {
+    function getSubmissionStatusIcon(status: SubmissionStatus | undefined) {
+        if (status === SubmissionStatus.Accepted) {
+            return <AcceptedSubmissionIcon />;
+        } else if (status === SubmissionStatus.Attempted) {
+            return <AttemptedSubmissionIcon />;
+        } else {
+            return <NoSubmissionIcon />;
+        }
+    }
+
+    return (
+        <div className="flex flex-row gap-1.5">
+            {submissions.map((submission) => {
+                return (
+                    <div key={submission.titleSlug}>
+                        {getSubmissionStatusIcon(submission.status)}
+                    </div>
+                );
+            })}
         </div>
     );
 }
