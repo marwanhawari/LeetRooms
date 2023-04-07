@@ -27,10 +27,13 @@ async function main() {
                         title: question.title,
                         titleSlug: question.titleSlug,
                         difficulty: question.difficulty,
+                        tags: question.topicTags.map((tag: any) => tag.name),
                     };
                 }
             }
         );
+
+    transformedResponse = transformedResponse.filter(Boolean);
 
     await prisma.$transaction([
         prisma.question.deleteMany({}),

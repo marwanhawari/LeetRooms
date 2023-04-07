@@ -11,6 +11,7 @@ import {
 } from "../app";
 import { MessageInterface, ChatEvent } from "../../types/Message";
 import { RoomSession } from "../../types/Session";
+import { QuestionFilterKind, RoomSettings } from "../../types/RoomSettings";
 
 export async function getRoomPlayers(
     req: Request,
@@ -56,13 +57,34 @@ export async function createRoom(
                     "Request authenticated, but user session not found"
                 );
             }
+
+            let roomSettings: RoomSettings = req.body;
+            let { kind: filterKind, selections } = roomSettings.questionFilter;
+            if (filterKind !== QuestionFilterKind.Topics) {
+                throw new Error(`Invalid question filter kind: ${filterKind}`);
+            }
+
+            let filteredQuestions: Question[] = await prisma.question.findMany({
+                where: {
+                    tags: {
+                        hasSome: selections,
+                    },
+                },
+            });
+
             // Select 4 random questions
-            let randomlySelectedEasyQuestions: Question[] =
-                await prisma.$queryRaw`SELECT * FROM "Question" WHERE difficulty = 'Easy' ORDER BY random() LIMIT 1`;
-            let randomlySelectedMediumQuestions: Question[] =
-                await prisma.$queryRaw`SELECT * FROM "Question" WHERE difficulty = 'Medium' ORDER BY random() LIMIT 2`;
-            let randomlySelectedHardQuestions: Question[] =
-                await prisma.$queryRaw`SELECT * FROM "Question" WHERE difficulty = 'Hard' ORDER BY random() LIMIT 1`;
+            let randomlySelectedEasyQuestions: Question[] = filteredQuestions
+                .filter((question) => question.difficulty === "Easy")
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 1);
+            let randomlySelectedMediumQuestions: Question[] = filteredQuestions
+                .filter((question) => question.difficulty === "Medium")
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 2);
+            let randomlySelectedHardQuestions: Question[] = filteredQuestions
+                .filter((question) => question.difficulty === "Hard")
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 1);
 
             let randomlySelectedQuestions =
                 randomlySelectedEasyQuestions.concat(
@@ -77,6 +99,8 @@ export async function createRoom(
             let newRoom = await prisma.room.create({
                 data: {
                     id: newRoomId,
+                    questionFilterKind: filterKind,
+                    questionFilterSelections: selections,
                 },
             });
 
@@ -151,64 +175,6 @@ export async function joinRoomById(
             // Update the session
             let room = {
                 roomId: roomId,
-                questions: questions,
-                userColor: generateRandomUserColor(),
-            };
-            await setUserRoomSession(req.user.id, room);
-            sendJoinRoomMessage(req.user.username, room);
-
-            return res.redirect("../sessions");
-        });
-    } catch (error) {
-        return next(error);
-    }
-}
-
-export async function joinRandomRoom(
-    req: Request,
-    res: Response,
-    next: NextFunction
-) {
-    try {
-        await prisma.$transaction(async (prisma) => {
-            if (!req.user) {
-                throw new Error(
-                    "Request authenticated, but user session not found"
-                );
-            }
-
-            let randomlySelectedRoomArray: Room[] =
-                await prisma.$queryRaw`SELECT * FROM "Room" ORDER BY random() LIMIT 1`;
-
-            if (
-                !randomlySelectedRoomArray ||
-                !randomlySelectedRoomArray.length
-            ) {
-                throw new Error(
-                    "No rooms currently available for randomly joining"
-                );
-            }
-            let randomlySelectedRoomId = randomlySelectedRoomArray[0].id;
-
-            let questions: Question[] =
-                await prisma.$queryRaw`SELECT "Question".* FROM "RoomQuestion"
-                    INNER JOIN "Question"
-                    ON "Question".id="RoomQuestion"."questionId"
-                    WHERE "RoomQuestion"."roomId"=${randomlySelectedRoomId}`;
-
-            // Update the user table with the roomId
-            await prisma.user.update({
-                data: {
-                    roomId: randomlySelectedRoomId,
-                },
-                where: {
-                    id: req.user.id,
-                },
-            });
-
-            // Update the session
-            let room = {
-                roomId: randomlySelectedRoomId,
                 questions: questions,
                 userColor: generateRandomUserColor(),
             };

@@ -60,7 +60,7 @@ export default function PlayersButton() {
     return (
         <>
             <div
-                className="flex cursor-pointer flex-col items-center rounded-lg bg-lc-fg px-3 py-[10px] transition-all hover:bg-lc-fg-hover"
+                className="flex cursor-pointer flex-col items-center rounded-lg bg-lc-fg-light px-3 py-[10px] transition-all hover:bg-lc-fg-hover-light dark:bg-lc-fg dark:hover:bg-lc-fg-hover"
                 onClick={openModal}
             >
                 <div className="flex flex-row items-center gap-2">
@@ -80,7 +80,7 @@ export default function PlayersButton() {
                         leaveFrom="opacity-100"
                         leaveTo="opacity-0"
                     >
-                        <div className="fixed inset-0 bg-lc-bg bg-opacity-50" />
+                        <div className="fixed inset-0 bg-[hsl(0,0%,52%)] bg-opacity-50 dark:bg-lc-bg dark:bg-opacity-50" />
                     </Transition.Child>
                     <div id="modal" className="fixed inset-0 overflow-y-auto">
                         <div className="flex min-h-full items-center justify-center p-6">
@@ -96,19 +96,19 @@ export default function PlayersButton() {
                                 <Dialog.Panel
                                     className={
                                         isFetching
-                                            ? `flex h-[360px] w-full max-w-md transform items-center justify-center overflow-hidden rounded-2xl bg-lc-fg shadow-xl transition-all`
-                                            : `flex h-[360px] w-full max-w-md transform overflow-hidden rounded-2xl bg-lc-fg shadow-xl transition-all`
+                                            ? `flex h-[360px] w-full max-w-md transform items-center justify-center overflow-hidden rounded-2xl bg-lc-fg-light shadow-xl transition-all dark:bg-lc-fg`
+                                            : `flex h-[360px] w-full max-w-md transform overflow-hidden rounded-2xl bg-lc-fg-light shadow-xl transition-all dark:bg-lc-fg`
                                     }
                                 >
                                     {isFetching ? (
                                         <Spinner />
                                     ) : (
                                         <div className="flex w-full flex-col">
-                                            <div className="flex items-center justify-between border-b-[0.5px] border-gray-500 px-5 py-3">
+                                            <div className="flex items-center justify-between border-b-[0.5px] border-gray-300 px-5 py-3 dark:border-gray-500">
                                                 <div className="flex flex-col gap-y-[2px]">
                                                     <Dialog.Title
                                                         as="h3"
-                                                        className="text-lg font-medium leading-6 text-white"
+                                                        className="text-lg font-medium leading-6 text-lc-text-light dark:text-white"
                                                     >
                                                         Players
                                                     </Dialog.Title>
@@ -138,12 +138,12 @@ export default function PlayersButton() {
 function Players({ players }: { players: Player[] | undefined }) {
     // TODO: update the interface and this component
     return (
-        <div className="mt-3 mb-3 flex flex-col overflow-auto text-sm font-medium text-white">
+        <div className="mt-3 mb-3 flex flex-col overflow-auto text-sm font-medium text-lc-text-light dark:text-white">
             {players
                 ? players.map((player) => {
                       return (
                           <div
-                              className=" px-5 py-2 odd:bg-lc-bg odd:bg-opacity-[45%]"
+                              className=" px-5 py-2 odd:bg-[hsl(0,0%,85%)] odd:bg-opacity-[45%] dark:odd:bg-lc-bg dark:odd:bg-opacity-[45%]"
                               key={player.id}
                           >
                               {player.username}

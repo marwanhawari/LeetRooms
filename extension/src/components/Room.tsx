@@ -179,27 +179,30 @@ export default function Room({
     }, [messages]);
 
     return (
-        <div className="flex h-screen flex-col gap-y-2 border-x-8 border-t-8 border-lc-border bg-lc-bg px-2 text-sm text-white">
+        <div className="flex h-screen flex-col gap-y-2 border-x-8 border-t-8 border-lc-border-light bg-lc-bg-light px-2 text-sm text-lc-text-light dark:border-lc-border dark:bg-lc-bg dark:text-white">
             <div className="mx-2 mt-2 flex flex-col" id="first-box">
                 <div
                     className="flex flex-row items-start justify-between"
                     id="first-line"
                 >
-                    <div className="text-gray-2300 flex flex-col gap-y-1 text-gray-400">
+                    <div className="flex flex-col gap-y-1 text-gray-400">
                         <div className="text-xs font-medium">Room code:</div>
 
                         <div
-                            className="flex flex-row items-center gap-x-2 rounded-lg bg-lc-fg py-[6px] pl-3 pr-2 text-xl font-medium"
+                            className="flex flex-row items-center gap-x-2 rounded-lg bg-lc-fg-light py-[6px] pl-3 pr-2 text-xl font-medium dark:bg-lc-fg"
                             id="room-code-and-copy-button"
                         >
-                            <div className="text-white" id="room-code-display">
+                            <div
+                                className="text-lc-text-light dark:text-white"
+                                id="room-code-display"
+                            >
                                 {roomId}
                             </div>
 
                             <div
                                 id="copy-button"
                                 onClick={handleCopy}
-                                className="cursor-pointer rounded-md bg-lc-fg p-2 transition-all hover:bg-zinc-600"
+                                className="cursor-pointer rounded-md bg-lc-fg-light p-2 transition-all hover:bg-zinc-200 dark:bg-lc-fg dark:hover:bg-zinc-600"
                             >
                                 {hasClickedCopyIcon ? (
                                     <CheckMarkIcon />
@@ -237,14 +240,14 @@ export default function Room({
                 </ul>
             </div>
 
-            <div className="mx-2 mb-2.5 flex flex-row items-center justify-between gap-x-2 rounded-lg border border-transparent bg-lc-fg py-[5px] pl-3 pr-2 focus-within:border-blue-500 hover:border-blue-500">
+            <div className="mx-2 mb-2.5 flex flex-row items-center justify-between gap-x-2 rounded-lg border border-transparent bg-lc-fg-light py-[5px] pl-3 pr-2 focus-within:border-blue-500 hover:border-blue-500 dark:bg-lc-fg">
                 <form onSubmit={handleSubmitMessage} className="flex-grow">
                     <input
                         ref={inputRef}
                         type="text"
                         name="chatbox"
                         id="chatbox"
-                        className="w-full bg-lc-fg  outline-none"
+                        className="w-full bg-lc-fg-light outline-none  dark:bg-lc-fg"
                         placeholder="Type a message..."
                         spellCheck="false"
                         autoComplete="off"
@@ -256,7 +259,7 @@ export default function Room({
                     onClick={handleSubmitMessage}
                     className={`${
                         isLoadingGlobal ? "cursor-default" : "cursor-pointer"
-                    } rounded-md bg-lc-fg p-2 transition-all hover:bg-zinc-600`}
+                    } rounded-md bg-lc-fg-light p-2 transition-all hover:bg-zinc-200 dark:bg-lc-fg dark:hover:bg-zinc-600`}
                 >
                     <SendIcon />
                 </div>

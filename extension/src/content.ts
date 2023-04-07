@@ -5,13 +5,25 @@ async function main() {
 
     reactRoot.src = APP_URL;
     reactRoot.id = "leetrooms-iframe";
-    reactRoot.style.width = "525px";
     reactRoot.allow = "clipboard-read; clipboard-write";
+    chrome.storage.local.get("leetroomsToggleState", (result) => {
+        const toggleState = result.leetroomsToggleState ?? true;
+        if (toggleState) {
+            reactRoot.style.display = "block";
+        } else {
+            reactRoot.style.display = "none";
+        }
+    });
+    chrome.storage.local.get("leetroomsWidth", (result) => {
+        const leetroomsWidth = result.leetroomsWidth ?? "525";
+        reactRoot.style.width = `${leetroomsWidth}px`;
+    });
 
     const mainContentContainer = await waitForElement(["#qd-content"]);
     mainContentContainer.insertAdjacentElement("afterend", reactRoot);
 
     const submissionButtonSelectors = [
+        "#qd-content > div > div> div:nth-child(3) > div > div > div > div > div > div:nth-last-child(1) > button:nth-last-child(1)",
         "#__next > div > div > div > div > div > div:nth-child(3) > div > div:nth-child(3) > div > div > div > div > div > div:nth-last-child(1) > button:nth-last-child(1)",
         "#__next > div > div > div > div > div > div:nth-child(3) > div > div:nth-child(3) > div > div > div:nth-child(3) > div > div > div:nth-child(3) > button:nth-last-child(1)",
     ];
@@ -59,6 +71,30 @@ async function main() {
         }, 100);
     }
     submissionButton.addEventListener("click", handleClickSubmitCodeButton);
+    chrome.storage.onChanged.addListener((changes, namespace) => {
+        for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
+            if (key == "leetroomsToggleState") {
+                if (newValue == true) {
+                    reactRoot.style.display = "block";
+                } else {
+                    reactRoot.style.display = "none";
+                }
+            }
+            if (key == "leetroomsWidth") {
+                reactRoot.style.width = `${newValue}px`;
+            }
+            if (key == "leetroomsDarkMode" && reactRoot.contentWindow) {
+                reactRoot.contentWindow.postMessage(
+                    {
+                        extension: "leetrooms",
+                        event: "darkMode",
+                        isDarkMode: newValue,
+                    },
+                    APP_URL
+                );
+            }
+        }
+    });
 }
 
 function waitForElement(selectors: string[]): Promise<Element> {
