@@ -11,6 +11,7 @@ import {
 } from "../app";
 import { MessageInterface, ChatEvent } from "../../types/Message";
 import { RoomSession } from "../../types/Session";
+import { QuestionFilterKind, RoomSettings } from "../../types/RoomSettings";
 
 interface Player {
     id: number;
@@ -62,13 +63,34 @@ export async function createRoom(
                     "Request authenticated, but user session not found"
                 );
             }
+
+            let roomSettings: RoomSettings = req.body;
+            let { kind: filterKind, selections } = roomSettings.questionFilter;
+            if (filterKind !== QuestionFilterKind.Topics) {
+                throw new Error(`Invalid question filter kind: ${filterKind}`);
+            }
+
+            let filteredQuestions: Question[] = await prisma.question.findMany({
+                where: {
+                    tags: {
+                        hasSome: selections,
+                    },
+                },
+            });
+
             // Select 4 random questions
-            let randomlySelectedEasyQuestions: Question[] =
-                await prisma.$queryRaw`SELECT * FROM "Question" WHERE difficulty = 'Easy' ORDER BY random() LIMIT 1`;
-            let randomlySelectedMediumQuestions: Question[] =
-                await prisma.$queryRaw`SELECT * FROM "Question" WHERE difficulty = 'Medium' ORDER BY random() LIMIT 2`;
-            let randomlySelectedHardQuestions: Question[] =
-                await prisma.$queryRaw`SELECT * FROM "Question" WHERE difficulty = 'Hard' ORDER BY random() LIMIT 1`;
+            let randomlySelectedEasyQuestions: Question[] = filteredQuestions
+                .filter((question) => question.difficulty === "Easy")
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 1);
+            let randomlySelectedMediumQuestions: Question[] = filteredQuestions
+                .filter((question) => question.difficulty === "Medium")
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 2);
+            let randomlySelectedHardQuestions: Question[] = filteredQuestions
+                .filter((question) => question.difficulty === "Hard")
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 1);
 
             let randomlySelectedQuestions =
                 randomlySelectedEasyQuestions.concat(
@@ -83,6 +105,8 @@ export async function createRoom(
             let newRoom = await prisma.room.create({
                 data: {
                     id: newRoomId,
+                    questionFilterKind: filterKind,
+                    questionFilterSelections: selections,
                 },
             });
 

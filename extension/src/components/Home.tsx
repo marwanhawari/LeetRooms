@@ -3,6 +3,7 @@ import SignOutButton from "./buttons/SignOutButton";
 import CreateRoomButton from "./buttons/CreateRoomButton";
 import { SessionResponse } from "../types/Session";
 import JoinRoomByIdButton from "./buttons/JoinRoomByIdButton";
+import RoomSettingsButton from "./buttons/RoomSettingsButton";
 
 export default function Home({ session }: { session: SessionResponse }) {
     let { username, picture, room } = session;
@@ -40,7 +41,10 @@ export default function Home({ session }: { session: SessionResponse }) {
                     </div>
 
                     <div className="flex flex-col items-center justify-center gap-y-4 rounded-xl border-[12px] border-lc-fg-light px-6 py-10 dark:border-lc-fg">
-                        <CreateRoomButton />
+                        <div className="flex flex-row items-center gap-2">
+                            <CreateRoomButton />
+                            <RoomSettingsButton />
+                        </div>
                         <div className="text-gray-500">- OR -</div>
                         <JoinRoomByIdButton />
                     </div>

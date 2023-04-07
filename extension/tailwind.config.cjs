@@ -54,6 +54,12 @@ module.exports = {
                 "lc-hd-fg-light": "hsl(349, 100%, 59%)",
                 "lc-hd-bg-light": "hsl(355, 100%, 95%)",
                 "lc-hd-bg-hover-light": "hsl(355, 100%, 92%)",
+
+                "lc-fg-modal": "hsl(0,0%,100%, 11%)",
+                "lc-fg-modal-hover": "hsl(0,0%,100%, 15%)",
+
+                "lc-fg-modal-light": "hsl(180,9%,89%, 100%)",
+                "lc-fg-modal-hover-light": "hsl(180,9%,85%, 100%)",
             },
             borderRadius: {
                 "lc-mini": "21px",
