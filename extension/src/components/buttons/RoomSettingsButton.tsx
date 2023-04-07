@@ -159,6 +159,7 @@ export default function RoomSettingsButton() {
                                                 >
                                                     Save
                                                 </button>
+                                                <DurationSelector />
                                             </div>
                                         </div>
                                     )}
@@ -267,4 +268,8 @@ function TopicSelector({
             </ul>
         </Tab.Panel>
     );
+}
+
+function DurationSelector() {
+    return <div>hello</div>;
 }
