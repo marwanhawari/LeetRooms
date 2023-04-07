@@ -25,18 +25,20 @@ export async function getRoomPlayers(
         }
         let roomId = room.roomId;
         let response: PlayerWithSubmissions[] =
-            await prisma.$queryRaw`SELECT u.id, u.username, u."updatedAt", array_agg(json_build_object(
+            await prisma.$queryRaw`SELECT u.id, u.username, u."updatedAt", json_agg(json_build_object(
+                'questionId', q.id,
                 'title', q.title,
                 'titleSlug', q."titleSlug",
                 'difficulty', q.difficulty,
-                'status', s.status
-            )) as submissions
+                'status', s.status,
+                'updatedAt', s."updatedAt"
+            ))  as submissions
             FROM "User" u
-            JOIN "Submission" s ON s."userId" = u.id
-            JOIN "RoomQuestion" rq ON rq."roomId" = s."roomId" AND rq."questionId" = s."questionId"
-            JOIN "Question" q ON q.id = s."questionId"
+            LEFT JOIN "RoomQuestion" rq ON u."roomId" = rq."roomId"
+            LEFT JOIN "Question" q ON rq."questionId" = q.id
+            LEFT JOIN "Submission" s ON s."questionId" = rq."questionId" AND s."roomId" = rq."roomId" AND s."userId" = u.id
             WHERE rq."roomId" = ${roomId}
-            GROUP BY u.id, u.username, u."updatedAt"`;
+            GROUP BY u.id;`;
         return res.json(response);
     } catch (error) {
         return next(error);

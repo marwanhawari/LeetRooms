@@ -12,6 +12,18 @@ interface Player {
     updatedAt: Date;
 }
 
+interface PlayerSubmission {
+    title: string;
+    titleSlug: string;
+    difficulty: string;
+    status: string;
+    updatedAt: Date;
+}
+
+interface PlayerWithSubmissions extends Player {
+    submissions: PlayerSubmission[];
+}
+
 let cancelQueryTimer: number;
 
 export default function PlayersButton() {
@@ -21,7 +33,7 @@ export default function PlayersButton() {
         data: players,
         isFetching,
         refetch,
-    } = useQuery<Player[]>({
+    } = useQuery<PlayerWithSubmissions[]>({
         queryKey: ["players"],
         queryFn: async ({ signal }) => {
             let response = await fetch(`${SERVER_URL}/rooms/`, {
@@ -135,10 +147,14 @@ export default function PlayersButton() {
     );
 }
 
-function Players({ players }: { players: Player[] | undefined }) {
-    // TODO: update the interface and this component
+function Players({
+    players,
+}: {
+    players: PlayerWithSubmissions[] | undefined;
+}) {
+    // TODO: update this component UI
     return (
-        <div className="mt-3 mb-3 flex flex-col overflow-auto text-sm font-medium text-lc-text-light dark:text-white">
+        <div className="mb-3 mt-3 flex flex-col overflow-auto text-sm font-medium text-lc-text-light dark:text-white">
             {players
                 ? players.map((player) => {
                       return (

@@ -2,6 +2,7 @@ import { SubmissionStatus } from "@prisma/client";
 import { Request, Response, NextFunction } from "express";
 import prisma from "../../index";
 import { getUserRoomSession } from "../app";
+import { SubmissionRequestBody } from "./submissions.model";
 
 export async function createSubmission(
     req: Request,
@@ -9,44 +10,60 @@ export async function createSubmission(
     next: NextFunction
 ) {
     try {
-        // TODO: Stick this all inside a transaction
-        let room = await getUserRoomSession(req.session.passport.user.id);
-        if (!room?.roomId) {
-            throw new Error("Could not find a room for the current user");
-        }
-        let userId = req.session.passport.user.id;
-        let roomId = room.roomId;
-        let questionId = 1; // TODO: Change me
-        let status = SubmissionStatus.Accepted; // TODO: Change me
+        await prisma.$transaction(async (prisma) => {
+            let room = await getUserRoomSession(req.session.passport.user.id);
+            if (!room?.roomId) {
+                throw new Error("Could not find a room for the current user");
+            }
+            let userId = req.session.passport.user.id;
+            let roomId = room.roomId;
 
-        let existingSubmission = await prisma.submission.findUnique({
-            // TODO: Add a uniqueness constraint for the 3 ids
-            where: {
-                userId: userId,
-                roomId: roomId,
-                questionId: questionId,
-            },
-        });
+            let submissionRequestBody: SubmissionRequestBody = req.body;
+            let { submissionStatus, questionTitleSlug } = submissionRequestBody;
 
-        if (existingSubmission?.status == SubmissionStatus.Accepted) {
-            return;
-        }
+            let question = await prisma.question.findUnique({
+                where: {
+                    titleSlug: questionTitleSlug,
+                },
+            });
+            if (!question) {
+                throw new Error(
+                    "Could not find a question with the given titleSlug"
+                );
+            }
+            let questionId = question.id;
+            let existingSubmission = await prisma.submission.findUnique({
+                where: {
+                    userId_questionId_roomId: {
+                        userId: userId,
+                        questionId: questionId,
+                        roomId: roomId,
+                    },
+                },
+            });
 
-        await prisma.submission.upsert({
-            where: {
-                userId: userId,
-                roomId: roomId,
-                questionId: questionId,
-            },
-            update: {
-                status: status,
-            },
-            create: {
-                userId: userId,
-                roomId: roomId,
-                questionId: questionId,
-                status: status,
-            },
+            if (existingSubmission?.status == SubmissionStatus.Accepted) {
+                return;
+            }
+
+            await prisma.submission.upsert({
+                where: {
+                    userId_questionId_roomId: {
+                        userId: userId,
+                        questionId: questionId,
+                        roomId: roomId,
+                    },
+                },
+                update: {
+                    status: submissionStatus,
+                },
+                create: {
+                    userId: userId,
+                    roomId: roomId,
+                    questionId: questionId,
+                    status: submissionStatus,
+                },
+            });
         });
     } catch (error) {
         return next(error);

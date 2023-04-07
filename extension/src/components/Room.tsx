@@ -17,7 +17,24 @@ interface RoomMessagesLocalStorage {
     messages: MessageInterface[];
 }
 
+interface SubmissionRequestBody {
+    submissionStatus: SubmissionStatus;
+    questionTitleSlug: string;
+}
+
+enum SubmissionStatus {
+    Attempted = "Attempted",
+    Accepted = "Accepted",
+}
+
 let copyIconTimer: number;
+
+function kebabToTitle(string: string): string {
+    return string
+        .split("-")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+}
 
 export default function Room({
     username,
@@ -119,15 +136,17 @@ export default function Room({
         // Store the socket in a ref so we can reference it outside this useEffect
         socketRef.current = socket;
 
-        function handleClickSubmitCodeButton(event: MessageEvent) {
+        async function handleClickSubmitCodeButton(event: MessageEvent) {
             if (
                 event.origin !== "https://leetcode.com" ||
                 event.data?.extension !== "leetrooms" ||
-                event.data?.button !== "submit"
+                event.data?.button !== "submit" ||
+                !event.data?.event
             ) {
                 return;
             }
-            switch (event.data?.event) {
+            let submissionStatus: SubmissionStatus | undefined;
+            switch (event.data.event) {
                 case "submit":
                     let newSubmissionMessage: MessageInterface = {
                         timestamp: Date.now(),
@@ -137,21 +156,44 @@ export default function Room({
                         color: userColor,
                     };
                     socket.emit("chat-message", newSubmissionMessage);
-                    // TODO: Post submission to backend
+                    submissionStatus = SubmissionStatus.Attempted;
                     break;
                 case "accepted":
                     let newAcceptedMessage: MessageInterface = {
                         timestamp: Date.now(),
                         username: username,
-                        body: `solved ${event.data.currentProblem}!`,
+                        body: `solved ${kebabToTitle(
+                            event.data.currentProblem
+                        )}!`,
                         chatEvent: ChatEvent.Accepted,
                         color: userColor,
                     };
                     if (event.data?.currentProblem) {
                         socket.emit("chat-message", newAcceptedMessage);
-                        // TODO: Post submission to backend
                     }
+                    submissionStatus = SubmissionStatus.Accepted;
                     break;
+            }
+            if (!submissionStatus || !event.data?.currentProblem) {
+                console.error(
+                    "Did not POST submission because of missing data"
+                );
+                return;
+            }
+            let submissionRequestBody: SubmissionRequestBody = {
+                submissionStatus: submissionStatus,
+                questionTitleSlug: event.data.currentProblem,
+            };
+            let response = await fetch(`${SERVER_URL}/submissions/`, {
+                credentials: "include",
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(submissionRequestBody),
+            });
+            if (!response.ok) {
+                console.error("Failed to POST submission to server");
             }
         }
 

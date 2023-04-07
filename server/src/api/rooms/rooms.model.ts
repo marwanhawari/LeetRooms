@@ -13,6 +13,7 @@ export interface PlayerSubmission {
     titleSlug: string;
     difficulty: string;
     status: string;
+    updatedAt: Date;
 }
 
 export interface PlayerWithSubmissions extends Player {

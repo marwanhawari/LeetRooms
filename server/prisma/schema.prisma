@@ -66,6 +66,8 @@ model Submission {
   room       Room             @relation(fields: [roomId], references: [id], onDelete: Cascade)
   roomId     String
   status     SubmissionStatus
+
+  @@unique([userId, questionId, roomId])
 }
 
 enum Difficulty {

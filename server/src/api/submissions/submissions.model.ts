@@ -1,1 +1,9 @@
-// TODO: Add an interface for the request body
+export interface SubmissionRequestBody {
+    submissionStatus: SubmissionStatus;
+    questionTitleSlug: string;
+}
+
+export enum SubmissionStatus {
+    Attempted = "Attempted",
+    Accepted = "Accepted",
+}
