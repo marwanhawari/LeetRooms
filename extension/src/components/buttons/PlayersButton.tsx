@@ -133,72 +133,50 @@ export default function PlayersButton({
             return undefined;
         }
         // Sort players by number of submissions that have a non null status
-        let sortedByNonNullSubmissionStatus = players.sort((a, b) => {
+        let ranked = players.sort((a, b) => {
             let aSubmissions = a.submissions.filter(
                 (submission) => submission.status
             );
             let bSubmissions = b.submissions.filter(
                 (submission) => submission.status
             );
-            return bSubmissions.length - aSubmissions.length;
+
+            if (aSubmissions.length !== bSubmissions.length) {
+                return bSubmissions.length - aSubmissions.length;
+            }
+
+            let aAccepted = a.submissions.filter(
+                (submission) =>
+                    submission.status === SubmissionStatus.Accepted &&
+                    submission.updatedAt
+            );
+            let bAccepted = b.submissions.filter(
+                (submission) =>
+                    submission.status === SubmissionStatus.Accepted &&
+                    submission.updatedAt
+            );
+
+            if (aAccepted.length !== bAccepted.length) {
+                return bAccepted.length - aAccepted.length;
+            }
+
+            let aTotalSubmissionTime = aAccepted.reduce((total, submission) => {
+                return (
+                    total +
+                    calculateTimeDifference(a.updatedAt, submission.updatedAt!)
+                );
+            }, 0);
+            let bTotalSubmissionTime = bAccepted.reduce((total, submission) => {
+                return (
+                    total +
+                    calculateTimeDifference(b.updatedAt, submission.updatedAt!)
+                );
+            }, 0);
+
+            return aTotalSubmissionTime - bTotalSubmissionTime;
         });
 
-        // Sort players by the number of submissions that have a status of SubmissionStatus.Accepted
-        let sortedByAcceptedSubmissionStatus =
-            sortedByNonNullSubmissionStatus.sort((a, b) => {
-                let aSubmissions = a.submissions.filter(
-                    (submission) =>
-                        submission.status === SubmissionStatus.Accepted
-                );
-                let bSubmissions = b.submissions.filter(
-                    (submission) =>
-                        submission.status === SubmissionStatus.Accepted
-                );
-                return bSubmissions.length - aSubmissions.length;
-            });
-
-        // Sort players that have the minimum total submission time if there are multiple players with same number of accepted submissions
-        let sortedByTotalSubmissionTime = sortedByAcceptedSubmissionStatus.sort(
-            (a, b) => {
-                let aSubmissions = a.submissions.filter(
-                    (submission) =>
-                        submission.status === SubmissionStatus.Accepted &&
-                        submission.updatedAt
-                );
-                let bSubmissions = b.submissions.filter(
-                    (submission) =>
-                        submission.status === SubmissionStatus.Accepted &&
-                        submission.updatedAt
-                );
-                let aTotalSubmissionTime = aSubmissions.reduce(
-                    (total, submission) => {
-                        return (
-                            total +
-                            calculateTimeDifference(
-                                a.updatedAt,
-                                submission.updatedAt!
-                            )
-                        );
-                    },
-                    0
-                );
-                let bTotalSubmissionTime = bSubmissions.reduce(
-                    (total, submission) => {
-                        return (
-                            total +
-                            calculateTimeDifference(
-                                b.updatedAt,
-                                submission.updatedAt!
-                            )
-                        );
-                    },
-                    0
-                );
-                return aTotalSubmissionTime - bTotalSubmissionTime;
-            }
-        );
-
-        return sortedByTotalSubmissionTime;
+        return ranked;
     }
 
     function closeModal() {
