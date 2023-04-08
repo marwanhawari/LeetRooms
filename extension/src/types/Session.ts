@@ -12,5 +12,6 @@ export interface SessionResponse {
     username: string;
     provider: string;
     picture?: string | null;
+    updatedAt: Date;
     room?: RoomSession;
 }

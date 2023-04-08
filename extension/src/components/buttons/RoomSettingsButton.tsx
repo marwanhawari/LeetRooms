@@ -370,7 +370,7 @@ function DurationSelector({
                     className={
                         !roomSettings.duration
                             ? "cursor-not-allowed rounded-tl-md"
-                            : "cursor-pointer rounded-tr-md transition-all hover:bg-lc-fg-modal-hover-light dark:hover:bg-lc-fg-modal-hover"
+                            : "cursor-pointer rounded-tr-md bg-[hsl(180,9%,84%)] transition-all hover:bg-[hsl(180,9%,78%)] dark:bg-[hsl(0,0%,38%)] dark:hover:bg-lc-fg-modal-hover"
                     }
                 >
                     <ChevronIcon />
@@ -380,7 +380,7 @@ function DurationSelector({
                     className={
                         roomSettings.duration && roomSettings.duration <= 15
                             ? `rotate-180 cursor-not-allowed rounded-tl-md`
-                            : `rotate-180 cursor-pointer rounded-tl-md transition-all hover:bg-lc-fg-modal-hover-light dark:hover:bg-lc-fg-modal-hover`
+                            : `rotate-180 cursor-pointer rounded-tl-md bg-[hsl(180,9%,84%)] transition-all hover:bg-[hsl(180,9%,78%)] dark:bg-[hsl(0,0%,38%)] dark:hover:bg-lc-fg-modal-hover`
                     }
                 >
                     <ChevronIcon />

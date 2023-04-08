@@ -103,6 +103,7 @@ export async function createRoom(
                     id: newRoomId,
                     questionFilterKind: filterKind,
                     questionFilterSelections: selections,
+                    duration: roomSettings.duration,
                 },
             });
 
@@ -118,7 +119,7 @@ export async function createRoom(
             });
 
             // Update the user table with the roomId
-            await prisma.user.update({
+            let user = await prisma.user.update({
                 data: {
                     roomId: newRoomId,
                 },
@@ -127,6 +128,10 @@ export async function createRoom(
                 },
             });
 
+            // Update the user session
+            req.user.updatedAt = user.updatedAt;
+
+            // Update the room session
             let roomSession = {
                 roomId: newRoomId,
                 questions: randomlySelectedQuestions,
@@ -134,7 +139,6 @@ export async function createRoom(
                 createdAt: newRoom.createdAt,
                 duration: newRoom.duration,
             };
-            // Update the session
             await setUserRoomSession(req.user.id, roomSession);
             sendJoinRoomMessage(req.user.username, roomSession);
 
@@ -177,7 +181,7 @@ export async function joinRoomById(
                     WHERE "RoomQuestion"."roomId"=${roomId}`;
 
             // Update the user table with the roomId
-            await prisma.user.update({
+            let user = await prisma.user.update({
                 data: {
                     roomId: roomId,
                 },
@@ -186,7 +190,10 @@ export async function joinRoomById(
                 },
             });
 
-            // Update the session
+            // Update the user session
+            req.user.updatedAt = user.updatedAt;
+
+            // Update the room session
             let roomSession: RoomSession = {
                 roomId: roomId,
                 questions: questions,
