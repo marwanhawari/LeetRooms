@@ -9,6 +9,7 @@ import XIcon from "../../icons/XIcon";
 import NoSubmissionIcon from "../../icons/NoSubmissionIcon";
 import AcceptedSubmissionIcon from "../../icons/AcceptedSubmissionIcon";
 import AttemptedSubmissionIcon from "../../icons/AttemptedSubmissionIcon";
+import { Tooltip } from "react-tooltip";
 
 interface Player {
     id: number;
@@ -26,6 +27,24 @@ interface PlayerSubmission {
 
 interface PlayerWithSubmissions extends Player {
     submissions: PlayerSubmission[];
+}
+
+function calculateTimeDifference(playerEnteredAt: Date, submittedAt: Date) {
+    const dateConvertedSubmissionTime = new Date(submittedAt);
+
+    let dateConvertedPlayerEnteredAt = new Date(playerEnteredAt);
+    const userTimezoneOffset =
+        dateConvertedPlayerEnteredAt.getTimezoneOffset() * 60000;
+    dateConvertedPlayerEnteredAt = new Date(
+        dateConvertedPlayerEnteredAt.getTime() +
+            userTimezoneOffset * Math.sign(userTimezoneOffset)
+    );
+
+    const timeDifference =
+        dateConvertedSubmissionTime.getTime() -
+        dateConvertedPlayerEnteredAt.getTime();
+
+    return timeDifference;
 }
 
 let cancelQueryTimer: number;
@@ -155,8 +174,10 @@ export default function PlayersButton({
                     (total, submission) => {
                         return (
                             total +
-                            (submission.updatedAt!.getTime() -
-                                a.updatedAt.getTime())
+                            calculateTimeDifference(
+                                a.updatedAt,
+                                submission.updatedAt!
+                            )
                         );
                     },
                     0
@@ -165,8 +186,10 @@ export default function PlayersButton({
                     (total, submission) => {
                         return (
                             total +
-                            (submission.updatedAt!.getTime() -
-                                b.updatedAt.getTime())
+                            calculateTimeDifference(
+                                b.updatedAt,
+                                submission.updatedAt!
+                            )
                         );
                     },
                     0
@@ -276,7 +299,6 @@ function Scoreboard({
 }: {
     players: PlayerWithSubmissions[] | undefined;
 }) {
-    // TODO: update this component UI
     return (
         <div className="mb-3 mt-3 flex flex-col overflow-auto text-sm font-medium text-lc-text-light dark:text-white">
             {players
@@ -289,7 +311,10 @@ function Scoreboard({
                               <div className="w-28 grow truncate">
                                   {player.username}
                               </div>
-                              <Scores submissions={player.submissions} />
+                              <Scores
+                                  playerEnteredAt={player.updatedAt}
+                                  submissions={player.submissions}
+                              />
                           </div>
                       );
                   })
@@ -298,7 +323,13 @@ function Scoreboard({
     );
 }
 
-function Scores({ submissions }: { submissions: PlayerSubmission[] }) {
+function Scores({
+    playerEnteredAt,
+    submissions,
+}: {
+    playerEnteredAt: Date;
+    submissions: PlayerSubmission[];
+}) {
     function getSubmissionStatusIcon(status: SubmissionStatus | undefined) {
         if (status === SubmissionStatus.Accepted) {
             return <AcceptedSubmissionIcon />;
@@ -309,12 +340,57 @@ function Scores({ submissions }: { submissions: PlayerSubmission[] }) {
         }
     }
 
+    function getSubmissionTime(
+        playerEnteredAt: Date,
+        submission: PlayerSubmission
+    ) {
+        const submissionTime = submission.updatedAt;
+        if (
+            submission.status !== SubmissionStatus.Accepted ||
+            !submissionTime
+        ) {
+            return undefined;
+        }
+
+        const solvedTime = calculateTimeDifference(
+            playerEnteredAt,
+            submissionTime
+        );
+
+        const seconds = Math.floor((solvedTime / 1000) % 60);
+        const minutes = Math.floor((solvedTime / (1000 * 60)) % 60);
+        const hours = Math.floor((solvedTime / (1000 * 60 * 60)) % 24);
+
+        let result = "";
+        if (seconds) {
+            result += `${seconds}s`;
+        }
+        if (minutes) {
+            result = `${minutes}m ${result}`;
+        }
+        if (hours) {
+            result = `${hours}h ${result}`;
+        }
+        return result;
+    }
+
     return (
         <div className="flex flex-row gap-1.5">
             {submissions.map((submission) => {
                 return (
                     <div key={submission.titleSlug}>
-                        {getSubmissionStatusIcon(submission.status)}
+                        <div
+                            data-tooltip-id={submission.titleSlug}
+                            data-tooltip-content={getSubmissionTime(
+                                playerEnteredAt,
+                                submission
+                            )}
+                        >
+                            {getSubmissionStatusIcon(submission.status)}
+                        </div>
+                        {submission.status === SubmissionStatus.Accepted && (
+                            <Tooltip id={submission.titleSlug} />
+                        )}
                     </div>
                 );
             })}
