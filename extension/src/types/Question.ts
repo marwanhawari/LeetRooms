@@ -10,3 +10,8 @@ export enum Difficulty {
     Medium = "Medium",
     Hard = "Hard",
 }
+
+export enum SubmissionStatus {
+    Attempted = "Attempted",
+    Accepted = "Accepted",
+}

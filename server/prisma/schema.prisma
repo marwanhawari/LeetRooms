@@ -11,15 +11,16 @@ datasource db {
 }
 
 model User {
-  id             Int      @id @default(autoincrement())
+  id             Int          @id @default(autoincrement())
   username       String
   provider       String
   providerUserId String
   picture        String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  room           Room?    @relation(fields: [roomId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  room           Room?        @relation(fields: [roomId], references: [id])
   roomId         String?
+  submissions    Submission[]
 
   @@unique([provider, providerUserId])
 }
@@ -32,15 +33,17 @@ model Room {
   questions                RoomQuestion[]
   questionFilterKind       String
   questionFilterSelections String[]
+  submissions              Submission[]
 }
 
 model Question {
-  id         Int            @id
-  title      String         @unique
-  titleSlug  String         @unique
-  difficulty Difficulty
-  rooms      RoomQuestion[]
-  tags       String[]
+  id          Int            @id
+  title       String         @unique
+  titleSlug   String         @unique
+  difficulty  Difficulty
+  rooms       RoomQuestion[]
+  tags        String[]
+  submissions Submission[]
 }
 
 model RoomQuestion {
@@ -52,8 +55,28 @@ model RoomQuestion {
   @@id([roomId, questionId])
 }
 
+model Submission {
+  id         String           @id @default(uuid())
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int
+  question   Question         @relation(fields: [questionId], references: [id])
+  questionId Int
+  room       Room             @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  roomId     String
+  status     SubmissionStatus
+
+  @@unique([userId, questionId, roomId])
+}
+
 enum Difficulty {
   Easy
   Medium
   Hard
+}
+
+enum SubmissionStatus {
+  Attempted
+  Accepted
 }

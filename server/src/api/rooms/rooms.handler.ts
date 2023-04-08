@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { RoomsPathParameter } from "./rooms.model";
+import { RoomsPathParameter, PlayerWithSubmissions } from "./rooms.model";
 import { Question, RoomQuestion, Room } from "@prisma/client";
 import prisma from "../../index";
 import { nanoid } from "nanoid";
@@ -13,15 +13,9 @@ import { MessageInterface, ChatEvent } from "../../types/Message";
 import { RoomSession } from "../../types/Session";
 import { QuestionFilterKind, RoomSettings } from "../../types/RoomSettings";
 
-interface Player {
-    id: number;
-    username: string;
-    updatedAt: Date;
-}
-
 export async function getRoomPlayers(
     req: Request,
-    res: Response<Player[]>,
+    res: Response<PlayerWithSubmissions[]>,
     next: NextFunction
 ) {
     try {
@@ -30,19 +24,21 @@ export async function getRoomPlayers(
             throw new Error("Could not find a room for the current user");
         }
         let roomId = room.roomId;
-        let currentUsers = await prisma.user.findMany({
-            where: {
-                roomId: roomId,
-            },
-        });
-
-        let response = currentUsers.map((currentUser) => {
-            return {
-                id: currentUser.id,
-                username: currentUser.username,
-                updatedAt: currentUser.updatedAt,
-            };
-        });
+        let response: PlayerWithSubmissions[] =
+            await prisma.$queryRaw`SELECT u.id, u.username, u."updatedAt", json_agg(json_build_object(
+                'questionId', q.id,
+                'title', q.title,
+                'titleSlug', q."titleSlug",
+                'difficulty', q.difficulty,
+                'status', s.status,
+                'updatedAt', s."updatedAt"
+            ))  as submissions
+            FROM "User" u
+            LEFT JOIN "RoomQuestion" rq ON u."roomId" = rq."roomId"
+            LEFT JOIN "Question" q ON rq."questionId" = q.id
+            LEFT JOIN "Submission" s ON s."questionId" = rq."questionId" AND s."roomId" = rq."roomId" AND s."userId" = u.id
+            WHERE rq."roomId" = ${roomId}
+            GROUP BY u.id;`;
         return res.json(response);
     } catch (error) {
         return next(error);

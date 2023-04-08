@@ -1,10 +1,15 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
-import PlayerIcon from "../../icons/PlayerIcon";
+import GraphIcon from "../../icons/GraphIcon";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SERVER_URL } from "../../config";
 import Spinner from "../Spinner";
+import { QuestionInterface, SubmissionStatus } from "../../types/Question";
 import XIcon from "../../icons/XIcon";
+import NoSubmissionIcon from "../../icons/NoSubmissionIcon";
+import AcceptedSubmissionIcon from "../../icons/AcceptedSubmissionIcon";
+import AttemptedSubmissionIcon from "../../icons/AttemptedSubmissionIcon";
+import { Tooltip } from "react-tooltip";
 
 interface Player {
     id: number;
@@ -12,16 +17,50 @@ interface Player {
     updatedAt: Date;
 }
 
+interface PlayerSubmission {
+    title: string;
+    titleSlug: string;
+    difficulty: string;
+    status?: SubmissionStatus;
+    updatedAt?: Date;
+}
+
+interface PlayerWithSubmissions extends Player {
+    submissions: PlayerSubmission[];
+}
+
+function calculateTimeDifference(playerEnteredAt: Date, submittedAt: Date) {
+    const dateConvertedSubmissionTime = new Date(submittedAt);
+
+    let dateConvertedPlayerEnteredAt = new Date(playerEnteredAt);
+    const userTimezoneOffset =
+        dateConvertedPlayerEnteredAt.getTimezoneOffset() * 60000;
+    dateConvertedPlayerEnteredAt = new Date(
+        dateConvertedPlayerEnteredAt.getTime() +
+            userTimezoneOffset * Math.sign(userTimezoneOffset)
+    );
+
+    const timeDifference =
+        dateConvertedSubmissionTime.getTime() -
+        dateConvertedPlayerEnteredAt.getTime();
+
+    return timeDifference;
+}
+
 let cancelQueryTimer: number;
 
-export default function PlayersButton() {
+export default function PlayersButton({
+    questions,
+}: {
+    questions: QuestionInterface[];
+}) {
     let [isOpen, setIsOpen] = useState(false);
     const queryClient = useQueryClient();
     let {
         data: players,
         isFetching,
         refetch,
-    } = useQuery<Player[]>({
+    } = useQuery<PlayerWithSubmissions[]>({
         queryKey: ["players"],
         queryFn: async ({ signal }) => {
             let response = await fetch(`${SERVER_URL}/rooms/`, {
@@ -44,6 +83,124 @@ export default function PlayersButton() {
 
     let numberOfPlayersOnline = players ? players.length : 0;
 
+    function getPlayersWithSortedSubmissions(
+        players: PlayerWithSubmissions[] | undefined,
+        questions: QuestionInterface[]
+    ) {
+        if (!players) {
+            return undefined;
+        }
+        let playersWithSortedSubmissions: PlayerWithSubmissions[] = [];
+        for (let player of players) {
+            let submissions = player.submissions;
+            let sortedSubmissions = sortSubmissionsByQuestionOrder(
+                submissions,
+                questions
+            );
+            playersWithSortedSubmissions.push({
+                ...player,
+                submissions: sortedSubmissions,
+            });
+        }
+        return playersWithSortedSubmissions;
+    }
+
+    function sortSubmissionsByQuestionOrder(
+        submissions: PlayerSubmission[],
+        questions: QuestionInterface[]
+    ) {
+        let sortedSubmissions = [];
+        for (let question of questions) {
+            let foundSubmission = submissions.find(
+                (submission) => submission.titleSlug === question.titleSlug
+            );
+            if (foundSubmission) {
+                sortedSubmissions.push(foundSubmission);
+            }
+        }
+        return sortedSubmissions;
+    }
+
+    let playersWithSortedSubmissions = getPlayersWithSortedSubmissions(
+        players,
+        questions
+    );
+
+    let rankedPlayers = rankPlayers(playersWithSortedSubmissions);
+
+    function rankPlayers(players: PlayerWithSubmissions[] | undefined) {
+        if (!players) {
+            return undefined;
+        }
+        // Sort players by number of submissions that have a non null status
+        let sortedByNonNullSubmissionStatus = players.sort((a, b) => {
+            let aSubmissions = a.submissions.filter(
+                (submission) => submission.status
+            );
+            let bSubmissions = b.submissions.filter(
+                (submission) => submission.status
+            );
+            return bSubmissions.length - aSubmissions.length;
+        });
+
+        // Sort players by the number of submissions that have a status of SubmissionStatus.Accepted
+        let sortedByAcceptedSubmissionStatus =
+            sortedByNonNullSubmissionStatus.sort((a, b) => {
+                let aSubmissions = a.submissions.filter(
+                    (submission) =>
+                        submission.status === SubmissionStatus.Accepted
+                );
+                let bSubmissions = b.submissions.filter(
+                    (submission) =>
+                        submission.status === SubmissionStatus.Accepted
+                );
+                return bSubmissions.length - aSubmissions.length;
+            });
+
+        // Sort players that have the minimum total submission time if there are multiple players with same number of accepted submissions
+        let sortedByTotalSubmissionTime = sortedByAcceptedSubmissionStatus.sort(
+            (a, b) => {
+                let aSubmissions = a.submissions.filter(
+                    (submission) =>
+                        submission.status === SubmissionStatus.Accepted &&
+                        submission.updatedAt
+                );
+                let bSubmissions = b.submissions.filter(
+                    (submission) =>
+                        submission.status === SubmissionStatus.Accepted &&
+                        submission.updatedAt
+                );
+                let aTotalSubmissionTime = aSubmissions.reduce(
+                    (total, submission) => {
+                        return (
+                            total +
+                            calculateTimeDifference(
+                                a.updatedAt,
+                                submission.updatedAt!
+                            )
+                        );
+                    },
+                    0
+                );
+                let bTotalSubmissionTime = bSubmissions.reduce(
+                    (total, submission) => {
+                        return (
+                            total +
+                            calculateTimeDifference(
+                                b.updatedAt,
+                                submission.updatedAt!
+                            )
+                        );
+                    },
+                    0
+                );
+                return aTotalSubmissionTime - bTotalSubmissionTime;
+            }
+        );
+
+        return sortedByTotalSubmissionTime;
+    }
+
     function closeModal() {
         setIsOpen(false);
         cancelQueryTimer = setTimeout(() => {
@@ -63,9 +220,9 @@ export default function PlayersButton() {
                 className="flex cursor-pointer flex-col items-center rounded-lg bg-lc-fg-light px-3 py-[10px] transition-all hover:bg-lc-fg-hover-light dark:bg-lc-fg dark:hover:bg-lc-fg-hover"
                 onClick={openModal}
             >
-                <div className="flex flex-row items-center gap-2">
-                    <PlayerIcon />
-                    <div>Players</div>
+                <div className="flex flex-row items-baseline gap-2">
+                    <GraphIcon />
+                    <div>Scoreboard</div>
                 </div>
             </div>
 
@@ -110,7 +267,7 @@ export default function PlayersButton() {
                                                         as="h3"
                                                         className="text-lg font-medium leading-6 text-lc-text-light dark:text-white"
                                                     >
-                                                        Players
+                                                        Scoreboard
                                                     </Dialog.Title>
                                                     <div className="text-xs text-gray-400">
                                                         {numberOfPlayersOnline}{" "}
@@ -122,7 +279,9 @@ export default function PlayersButton() {
                                                 </button>
                                             </div>
 
-                                            <Players players={players} />
+                                            <Scoreboard
+                                                players={rankedPlayers}
+                                            />
                                         </div>
                                     )}
                                 </Dialog.Panel>
@@ -135,21 +294,106 @@ export default function PlayersButton() {
     );
 }
 
-function Players({ players }: { players: Player[] | undefined }) {
+function Scoreboard({
+    players,
+}: {
+    players: PlayerWithSubmissions[] | undefined;
+}) {
     return (
-        <div className="mt-3 mb-3 flex flex-col overflow-auto text-sm font-medium text-lc-text-light dark:text-white">
+        <div className="mb-3 mt-3 flex flex-col overflow-auto text-sm font-medium text-lc-text-light dark:text-white">
             {players
                 ? players.map((player) => {
                       return (
                           <div
-                              className=" px-5 py-2 odd:bg-[hsl(0,0%,85%)] odd:bg-opacity-[45%] dark:odd:bg-lc-bg dark:odd:bg-opacity-[45%]"
+                              className=" flex flex-row gap-3 px-5 py-2 odd:bg-[hsl(0,0%,85%)] odd:bg-opacity-[45%] dark:odd:bg-lc-bg dark:odd:bg-opacity-[45%]"
                               key={player.id}
                           >
-                              {player.username}
+                              <div className="w-28 grow truncate">
+                                  {player.username}
+                              </div>
+                              <Scores
+                                  playerEnteredAt={player.updatedAt}
+                                  submissions={player.submissions}
+                              />
                           </div>
                       );
                   })
                 : null}
+        </div>
+    );
+}
+
+function Scores({
+    playerEnteredAt,
+    submissions,
+}: {
+    playerEnteredAt: Date;
+    submissions: PlayerSubmission[];
+}) {
+    function getSubmissionStatusIcon(status: SubmissionStatus | undefined) {
+        if (status === SubmissionStatus.Accepted) {
+            return <AcceptedSubmissionIcon />;
+        } else if (status === SubmissionStatus.Attempted) {
+            return <AttemptedSubmissionIcon />;
+        } else {
+            return <NoSubmissionIcon />;
+        }
+    }
+
+    function getSubmissionTime(
+        playerEnteredAt: Date,
+        submission: PlayerSubmission
+    ) {
+        const submissionTime = submission.updatedAt;
+        if (
+            submission.status !== SubmissionStatus.Accepted ||
+            !submissionTime
+        ) {
+            return undefined;
+        }
+
+        const solvedTime = calculateTimeDifference(
+            playerEnteredAt,
+            submissionTime
+        );
+
+        const seconds = Math.floor((solvedTime / 1000) % 60);
+        const minutes = Math.floor((solvedTime / (1000 * 60)) % 60);
+        const hours = Math.floor((solvedTime / (1000 * 60 * 60)) % 24);
+
+        let result = "";
+        if (seconds) {
+            result += `${seconds}s`;
+        }
+        if (minutes) {
+            result = `${minutes}m ${result}`;
+        }
+        if (hours) {
+            result = `${hours}h ${result}`;
+        }
+        return result;
+    }
+
+    return (
+        <div className="flex flex-row gap-1.5">
+            {submissions.map((submission) => {
+                return (
+                    <div key={submission.titleSlug}>
+                        <div
+                            data-tooltip-id={submission.titleSlug}
+                            data-tooltip-content={getSubmissionTime(
+                                playerEnteredAt,
+                                submission
+                            )}
+                        >
+                            {getSubmissionStatusIcon(submission.status)}
+                        </div>
+                        {submission.status === SubmissionStatus.Accepted && (
+                            <Tooltip id={submission.titleSlug} />
+                        )}
+                    </div>
+                );
+            })}
         </div>
     );
 }

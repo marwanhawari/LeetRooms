@@ -36,8 +36,14 @@ async function main() {
         if (!reactRoot.contentWindow) {
             return;
         }
+        let currentQuestionTitleSlug = getCurrentQuestionTitleSlug();
         reactRoot.contentWindow.postMessage(
-            { extension: "leetrooms", button: "submit", event: "submit" },
+            {
+                extension: "leetrooms",
+                button: "submit",
+                event: "submit",
+                currentProblem: currentQuestionTitleSlug,
+            },
             APP_URL
         );
 
@@ -52,7 +58,6 @@ async function main() {
             const element = document.querySelector(selector);
             if (element) {
                 clearInterval(submissionButtonTimer);
-                let currentProblem = getCurrentProblem();
                 if (!reactRoot.contentWindow) {
                     return;
                 }
@@ -61,7 +66,7 @@ async function main() {
                         extension: "leetrooms",
                         button: "submit",
                         event: "accepted",
-                        currentProblem: currentProblem,
+                        currentProblem: currentQuestionTitleSlug,
                     },
                     APP_URL
                 );
@@ -117,18 +122,11 @@ function waitForElement(selectors: string[]): Promise<Element> {
     });
 }
 
-function getCurrentProblem(): string | undefined {
+function getCurrentQuestionTitleSlug(): string | undefined {
     const currentUrl = window.location.href;
     if (currentUrl.startsWith("https://leetcode.com/problems/")) {
-        return kebabToTitle(currentUrl.split("/")[4]);
+        return currentUrl.split("/")[4];
     }
-}
-
-function kebabToTitle(string: string): string {
-    return string
-        .split("-")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ");
 }
 
 main();
