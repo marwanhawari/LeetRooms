@@ -127,14 +127,16 @@ export async function createRoom(
                 },
             });
 
-            let room = {
+            let roomSession = {
                 roomId: newRoomId,
                 questions: randomlySelectedQuestions,
                 userColor: generateRandomUserColor(),
+                createdAt: newRoom.createdAt,
+                duration: newRoom.duration,
             };
             // Update the session
-            await setUserRoomSession(req.user.id, room);
-            sendJoinRoomMessage(req.user.username, room);
+            await setUserRoomSession(req.user.id, roomSession);
+            sendJoinRoomMessage(req.user.username, roomSession);
 
             return res.redirect("../sessions");
         });
@@ -158,6 +160,16 @@ export async function joinRoomById(
 
             let roomId = req.params.id;
 
+            let room = await prisma.room.findUnique({
+                where: {
+                    id: roomId,
+                },
+            });
+
+            if (!room) {
+                throw new Error(`Could not find room with id: ${roomId}`);
+            }
+
             let questions: Question[] =
                 await prisma.$queryRaw`SELECT "Question".* FROM "RoomQuestion"
                     INNER JOIN "Question"
@@ -175,13 +187,15 @@ export async function joinRoomById(
             });
 
             // Update the session
-            let room = {
+            let roomSession: RoomSession = {
                 roomId: roomId,
                 questions: questions,
                 userColor: generateRandomUserColor(),
+                createdAt: room.createdAt,
+                duration: room.duration,
             };
-            await setUserRoomSession(req.user.id, room);
-            sendJoinRoomMessage(req.user.username, room);
+            await setUserRoomSession(req.user.id, roomSession);
+            sendJoinRoomMessage(req.user.username, roomSession);
 
             return res.redirect("../sessions");
         });

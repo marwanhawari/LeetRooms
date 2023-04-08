@@ -15,4 +15,6 @@ export interface RoomSession {
     roomId: string;
     questions: Question[];
     userColor: string;
+    createdAt: Date;
+    duration?: number | null;
 }

@@ -34,6 +34,7 @@ model Room {
   questionFilterKind       String
   questionFilterSelections String[]
   submissions              Submission[]
+  duration                 Int?
 }
 
 model Question {
