@@ -308,7 +308,7 @@ function Scoreboard({
                               className=" flex flex-row gap-3 px-5 py-2 odd:bg-[hsl(0,0%,85%)] odd:bg-opacity-[45%] dark:odd:bg-lc-bg dark:odd:bg-opacity-[45%]"
                               key={player.id}
                           >
-                              <div className="w-28 grow truncate">
+                              <div className="w-28 truncate">
                                   {player.username}
                               </div>
                               <Scores
@@ -375,7 +375,7 @@ function Scores({
     }
 
     return (
-        <div className="flex flex-row gap-1.5">
+        <div className="flex flex-1 flex-row justify-around">
             {submissions.map((submission) => {
                 return (
                     <div key={submission.titleSlug}>
@@ -397,3 +397,111 @@ function Scores({
         </div>
     );
 }
+
+let mockPlayers: PlayerWithSubmissions[] = [
+    {
+        id: 1,
+        username: "user1",
+        updatedAt: new Date(),
+        submissions: [
+            {
+                title: "Two Sum",
+                titleSlug: "two-sum",
+                difficulty: "Easy",
+                status: SubmissionStatus.Accepted,
+                updatedAt: new Date(),
+            },
+            {
+                title: "Add Two Numbers",
+                titleSlug: "add-two-numbers",
+                difficulty: "Medium",
+                status: undefined,
+                updatedAt: new Date(),
+            },
+            {
+                title: "Longest Substring Without Repeating Characters",
+                titleSlug: "longest-substring-without-repeating-characters",
+                difficulty: "Medium",
+                status: SubmissionStatus.Attempted,
+                updatedAt: new Date(),
+            },
+            {
+                title: "Median of Two Sorted Arrays",
+                titleSlug: "median-of-two-sorted-arrays",
+                difficulty: "Hard",
+                status: SubmissionStatus.Accepted,
+                updatedAt: new Date(),
+            },
+        ],
+    },
+    {
+        id: 1,
+        username: "asdhasdjhaksjdhakjshdakjhsdkajhsd",
+        updatedAt: new Date(),
+        submissions: [
+            {
+                title: "Two Sum",
+                titleSlug: "two-sum",
+                difficulty: "Easy",
+                status: SubmissionStatus.Accepted,
+                updatedAt: new Date(),
+            },
+            {
+                title: "Add Two Numbers",
+                titleSlug: "add-two-numbers",
+                difficulty: "Medium",
+                status: undefined,
+                updatedAt: new Date(),
+            },
+            {
+                title: "Longest Substring Without Repeating Characters",
+                titleSlug: "longest-substring-without-repeating-characters",
+                difficulty: "Medium",
+                status: SubmissionStatus.Attempted,
+                updatedAt: new Date(),
+            },
+            {
+                title: "Median of Two Sorted Arrays",
+                titleSlug: "median-of-two-sorted-arrays",
+                difficulty: "Hard",
+                status: undefined,
+                updatedAt: new Date(),
+            },
+        ],
+    },
+    {
+        id: 1,
+        username: "asdfqwertqwert",
+        updatedAt: new Date(),
+        submissions: [
+            {
+                title: "Two Sum",
+                titleSlug: "two-sum",
+                difficulty: "Easy",
+                status: SubmissionStatus.Attempted,
+                updatedAt: new Date(),
+            },
+            {
+                title: "Add Two Numbers",
+                titleSlug: "add-two-numbers",
+                difficulty: "Medium",
+                status: undefined,
+                updatedAt: new Date(),
+            },
+            {
+                title: "Longest Substring Without Repeating Characters",
+                titleSlug: "longest-substring-without-repeating-characters",
+                difficulty: "Medium",
+                status: undefined,
+                updatedAt: new Date(),
+            },
+            {
+                title: "Median of Two Sorted Arrays",
+                titleSlug: "median-of-two-sorted-arrays",
+                difficulty: "Hard",
+                status: SubmissionStatus.Accepted,
+                updatedAt: new Date(),
+            },
+        ],
+    },
+];
