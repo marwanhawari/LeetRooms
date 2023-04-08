@@ -281,6 +281,7 @@ app.get(
                 username: req.user.username,
                 provider: req.user.provider,
                 picture: req.user.picture,
+                updatedAt: req.user.updatedAt,
                 room: room,
             };
             return res.json(sessionResponse);

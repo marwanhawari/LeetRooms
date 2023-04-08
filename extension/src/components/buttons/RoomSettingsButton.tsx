@@ -3,6 +3,8 @@ import { ChangeEvent, Fragment, useCallback, useEffect, useState } from "react";
 import Spinner from "../Spinner";
 import XIcon from "../../icons/XIcon";
 import SettingsIcon from "../../icons/SettingsIcon";
+import StopwatchIcon from "../../icons/StopwatchIcon";
+import ChevronIcon from "../../icons/ChevronIcon";
 import {
     RoomSettings,
     QuestionFilterKind,
@@ -140,7 +142,13 @@ export default function RoomSettingsButton() {
                                                     setRoomSettings
                                                 }
                                             />
-                                            <div className="mb-4 ml-auto mr-2 mt-2 flex flex-row items-center gap-3">
+                                            <div className="mb-4 ml-2 mr-2 mt-2 flex flex-row items-center gap-3">
+                                                <DurationSelector
+                                                    roomSettings={roomSettings}
+                                                    setRoomSettings={
+                                                        setRoomSettings
+                                                    }
+                                                />
                                                 <button
                                                     onClick={closeModal}
                                                     className="rounded-lg bg-lc-fg-modal-light px-3 py-1.5 text-sm font-medium text-lc-text-light transition-all hover:bg-lc-fg-modal-hover-light dark:bg-lc-fg-modal dark:text-white dark:hover:bg-lc-fg-modal-hover"
@@ -224,6 +232,7 @@ function TopicSelector({
         let newSelection = event.target.value;
         if (event.target.checked) {
             setRoomSettings({
+                ...roomSettings,
                 questionFilter: {
                     kind: QuestionFilterKind.Topics,
                     selections: [...selections, newSelection],
@@ -231,6 +240,7 @@ function TopicSelector({
             });
         } else {
             setRoomSettings({
+                ...roomSettings,
                 questionFilter: {
                     kind: QuestionFilterKind.Topics,
                     selections: selections.filter(
@@ -244,6 +254,7 @@ function TopicSelector({
     function handleSelectUnselectAll(event: ChangeEvent<HTMLInputElement>) {
         if (event.target.checked) {
             setRoomSettings({
+                ...roomSettings,
                 questionFilter: {
                     kind: QuestionFilterKind.Topics,
                     selections: topics,
@@ -251,6 +262,7 @@ function TopicSelector({
             });
         } else {
             setRoomSettings({
+                ...roomSettings,
                 questionFilter: {
                     kind: QuestionFilterKind.Topics,
                     selections: [],
@@ -297,6 +309,83 @@ function TopicSelector({
                     ))}
                 </ul>
             </Tab.Panel>
+        </div>
+    );
+}
+
+function DurationSelector({
+    roomSettings,
+    setRoomSettings,
+}: {
+    roomSettings: RoomSettings;
+    setRoomSettings: (roomSettings: RoomSettings) => void;
+}) {
+    function handleIncrement() {
+        if (!roomSettings.duration) {
+            return;
+        } else if (roomSettings.duration >= 90) {
+            setRoomSettings({
+                ...roomSettings,
+                duration: null,
+            });
+            return;
+        }
+        setRoomSettings({
+            ...roomSettings,
+            duration: roomSettings.duration + 15,
+        });
+    }
+
+    function handleDecrement() {
+        if (!roomSettings.duration) {
+            setRoomSettings({
+                ...roomSettings,
+                duration: 90,
+            });
+            return;
+        } else if (roomSettings.duration <= 15) {
+            return;
+        }
+        setRoomSettings({
+            ...roomSettings,
+            duration: roomSettings.duration - 15,
+        });
+    }
+
+    return (
+        <div className="flex grow flex-row items-stretch">
+            <div className="flex flex-row items-center gap-1 rounded-l-lg bg-lc-fg-modal-light py-1.5 pl-2 pr-2 text-xs font-medium text-lc-text-light transition-all dark:bg-lc-fg-modal dark:text-white">
+                <StopwatchIcon />
+                <div
+                    className={`w-[31px] text-center ${
+                        roomSettings.duration ? "text-inherit" : "text-sm"
+                    }`}
+                >
+                    {roomSettings.duration ? `${roomSettings.duration}m` : "∞"}
+                </div>
+            </div>
+            <div className="flex flex-col rounded-r-md bg-lc-fg-modal-hover">
+                <button
+                    onClick={handleIncrement}
+                    className={
+                        !roomSettings.duration
+                            ? "cursor-not-allowed rounded-tl-md"
+                            : "cursor-pointer rounded-tr-md bg-[hsl(180,9%,84%)] transition-all hover:bg-[hsl(180,9%,78%)] dark:bg-[hsl(0,0%,38%)] dark:hover:bg-lc-fg-modal-hover"
+                    }
+                >
+                    <ChevronIcon />
+                </button>
+                <button
+                    onClick={handleDecrement}
+                    className={
+                        roomSettings.duration && roomSettings.duration <= 15
+                            ? `rotate-180 cursor-not-allowed rounded-tl-md`
+                            : `rotate-180 cursor-pointer rounded-tl-md bg-[hsl(180,9%,84%)] transition-all hover:bg-[hsl(180,9%,78%)] dark:bg-[hsl(0,0%,38%)] dark:hover:bg-lc-fg-modal-hover`
+                    }
+                >
+                    <ChevronIcon />
+                </button>
+            </div>
         </div>
     );
 }

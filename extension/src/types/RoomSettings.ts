@@ -1,5 +1,6 @@
 export interface RoomSettings {
     questionFilter: QuestionFilter;
+    duration?: number | null;
 }
 
 export interface QuestionFilter {
@@ -90,4 +91,5 @@ export const defaultRoomSettings: RoomSettings = {
         kind: QuestionFilterKind.Topics,
         selections: topics,
     },
+    duration: null,
 };

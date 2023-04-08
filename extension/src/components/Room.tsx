@@ -11,6 +11,7 @@ import ExitRoomButton from "./buttons/ExitRoomButton";
 import { SERVER_URL } from "../config";
 import { useIsMutating } from "@tanstack/react-query";
 import PlayersButton from "./buttons/PlayersButton";
+import Timer from "./Timer";
 
 interface RoomMessagesLocalStorage {
     roomId: string;
@@ -36,11 +37,15 @@ export default function Room({
     roomId,
     questions,
     userColor,
+    createdAt,
+    duration,
 }: {
     username: string;
     roomId: string;
     questions: QuestionInterface[];
     userColor: string;
+    createdAt: Date;
+    duration: number | undefined | null;
 }) {
     const isLoadingGlobal = useIsMutating();
     let inputRef = useRef<HTMLInputElement>(null);
@@ -173,6 +178,23 @@ export default function Room({
                     submissionStatus = SubmissionStatus.Accepted;
                     break;
             }
+
+            if (duration) {
+                let submittedAt = new Date();
+                let dateConvertedSubmittedAt = new Date(submittedAt);
+                let dateConvertedCreatedAt = new Date(createdAt);
+                let submittedAtInSeconds = Math.floor(
+                    dateConvertedSubmittedAt.getTime() / 1000
+                );
+                let createdAtInSeconds = Math.floor(
+                    dateConvertedCreatedAt.getTime() / 1000
+                );
+
+                if (submittedAtInSeconds > createdAtInSeconds + duration * 60) {
+                    return;
+                }
+            }
+
             if (!submissionStatus || !event.data?.currentProblem) {
                 console.error(
                     "Did not POST submission because of missing data"
@@ -268,6 +290,9 @@ export default function Room({
                     ))}
                 </div>
                 <PlayersButton questions={questions} />
+                {duration && (
+                    <Timer createdAt={createdAt} duration={duration} />
+                )}
             </div>
 
             <div
