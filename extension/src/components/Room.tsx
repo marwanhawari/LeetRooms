@@ -36,11 +36,15 @@ export default function Room({
     roomId,
     questions,
     userColor,
+    createdAt,
+    duration,
 }: {
     username: string;
     roomId: string;
     questions: QuestionInterface[];
     userColor: string;
+    createdAt: Date;
+    duration: number | undefined | null;
 }) {
     const isLoadingGlobal = useIsMutating();
     let inputRef = useRef<HTMLInputElement>(null);
@@ -173,6 +177,17 @@ export default function Room({
                     submissionStatus = SubmissionStatus.Accepted;
                     break;
             }
+
+            let submittedAt = new Date();
+
+            // TODO: Make this actually works
+            if (
+                duration &&
+                submittedAt.getTime() > createdAt.getTime() + duration // duration is in minutes
+            ) {
+                return;
+            }
+
             if (!submissionStatus || !event.data?.currentProblem) {
                 console.error(
                     "Did not POST submission because of missing data"

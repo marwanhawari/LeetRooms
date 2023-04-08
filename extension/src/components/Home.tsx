@@ -9,13 +9,15 @@ export default function Home({ session }: { session: SessionResponse }) {
     let { username, picture, room } = session;
 
     if (room) {
-        let { roomId, questions, userColor } = room;
+        let { roomId, questions, userColor, createdAt, duration } = room;
         return (
             <Room
                 username={username}
                 roomId={roomId}
                 questions={questions}
                 userColor={userColor}
+                createdAt={createdAt}
+                duration={duration}
                 key={roomId}
             />
         );
