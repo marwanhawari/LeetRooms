@@ -1,6 +1,13 @@
 export interface RoomSettings {
     questionFilter: QuestionFilter;
     duration?: number | null;
+    difficulty?: RoomDifficulty;
+}
+
+export interface RoomDifficulty {
+    easy: boolean;
+    medium: boolean;
+    hard: boolean;
 }
 
 export interface QuestionFilter {
@@ -92,4 +99,9 @@ export const defaultRoomSettings: RoomSettings = {
         selections: topics,
     },
     duration: null,
+    difficulty: {
+        easy: true,
+        medium: true,
+        hard: true,
+    },
 };

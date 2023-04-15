@@ -272,7 +272,7 @@ function TopicSelector({
     }
 
     return (
-        <div>
+        <Tab.Panel>
             <label className="mb-2 flex flex-row items-center gap-3 rounded-md bg-lc-fg-modal-light px-3 py-1 text-sm text-lc-text-light dark:bg-lc-fg-modal dark:text-white">
                 <input
                     type="checkbox"
@@ -285,7 +285,7 @@ function TopicSelector({
                 {"Select/Unselect All"}
             </label>
 
-            <Tab.Panel
+            <div
                 className={classNames(
                     "h-56 overflow-auto rounded-md bg-lc-fg-modal-light dark:bg-lc-fg-modal dark:text-white"
                 )}
@@ -308,8 +308,8 @@ function TopicSelector({
                         </label>
                     ))}
                 </ul>
-            </Tab.Panel>
-        </div>
+            </div>
+        </Tab.Panel>
     );
 }
 
