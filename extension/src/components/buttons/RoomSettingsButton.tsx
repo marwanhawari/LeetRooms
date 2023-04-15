@@ -10,7 +10,10 @@ import {
     QuestionFilterKind,
     topics,
     defaultRoomSettings,
+    RoomDifficulty,
 } from "../../types/RoomSettings";
+import Question from "../Question";
+import { Difficulty } from "../../types/Question";
 
 function classNames(...classes: any[]) {
     return classes.filter(Boolean).join(" ");
@@ -32,6 +35,14 @@ export default function RoomSettingsButton() {
             try {
                 let storedRoomSettings: RoomSettings =
                     JSON.parse(roomSettingsString);
+                if (!storedRoomSettings.difficulty) {
+                    storedRoomSettings.difficulty =
+                        defaultRoomSettings.difficulty;
+                    localStorage.setItem(
+                        "roomSettings",
+                        JSON.stringify(storedRoomSettings)
+                    );
+                }
                 setRoomSettings(storedRoomSettings);
             } catch (error) {
                 console.error(
@@ -115,8 +126,8 @@ export default function RoomSettingsButton() {
                                 <Dialog.Panel
                                     className={
                                         isFetching
-                                            ? `flex h-[440px] w-full max-w-md transform items-center justify-center overflow-hidden rounded-2xl bg-lc-fg-light shadow-xl transition-all dark:bg-lc-fg`
-                                            : `flex h-[440px] w-full max-w-md transform overflow-hidden rounded-2xl bg-lc-fg-light shadow-xl transition-all dark:bg-lc-fg`
+                                            ? `flex h-[480px] w-full max-w-md transform items-center justify-center overflow-hidden rounded-2xl bg-lc-fg-light shadow-xl transition-all dark:bg-lc-fg`
+                                            : `flex h-[480px] w-full max-w-md transform overflow-hidden rounded-2xl bg-lc-fg-light shadow-xl transition-all dark:bg-lc-fg`
                                     }
                                 >
                                     {isFetching ? (
@@ -271,6 +282,15 @@ function TopicSelector({
         }
     }
 
+    function handleDifficultySelection(difficulty: Difficulty) {
+        const newDifficulty = { ...roomSettings.difficulty };
+        newDifficulty[difficulty] = !newDifficulty[difficulty];
+        setRoomSettings({
+            ...roomSettings,
+            difficulty: newDifficulty,
+        });
+    }
+
     return (
         <Tab.Panel>
             <label className="mb-2 flex flex-row items-center gap-3 rounded-md bg-lc-fg-modal-light px-3 py-1 text-sm text-lc-text-light dark:bg-lc-fg-modal dark:text-white">
@@ -308,6 +328,37 @@ function TopicSelector({
                         </label>
                     ))}
                 </ul>
+            </div>
+
+            <div className="mb-2 mt-3 flex flex-row items-center justify-around gap-3 rounded-md bg-lc-fg-modal-light px-3 py-1 text-sm text-lc-text-light dark:bg-lc-fg-modal dark:text-white">
+                <button
+                    onClick={() => handleDifficultySelection(Difficulty.Easy)}
+                    className={
+                        roomSettings.difficulty.Easy
+                            ? "bg-lc-green-button text-white hover:bg-lc-green-button-hover-light dark:hover:bg-lc-green-button-hover"
+                            : "bg-lc-fg-modal-light dark:bg-lc-fg-modal"
+                    }
+                >
+                    Easy
+                </button>
+                <button
+                    onClick={() => handleDifficultySelection(Difficulty.Medium)}
+                    className={
+                        roomSettings.difficulty.Medium
+                            ? "bg-lc-md-fg text-white"
+                            : "bg-lc-fg-modal-light dark:bg-lc-fg-modal"
+                    }
+                >
+                    Medium
+                </button>
+                <button
+                    onClick={() => handleDifficultySelection(Difficulty.Hard)}
+                    className={
+                        roomSettings.difficulty.Hard ? "bg-lc-hd-fg" : ""
+                    }
+                >
+                    Hard
+                </button>
             </div>
         </Tab.Panel>
     );
