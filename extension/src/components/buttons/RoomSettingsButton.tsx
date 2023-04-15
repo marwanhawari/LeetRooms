@@ -77,7 +77,12 @@ export default function RoomSettingsButton() {
     }
 
     function saveAndCloseModal() {
-        if (!roomSettings.questionFilter.selections.length) {
+        if (
+            !roomSettings.questionFilter.selections.length ||
+            (!roomSettings.difficulty.Easy &&
+                !roomSettings.difficulty.Medium &&
+                !roomSettings.difficulty.Hard)
+        ) {
             return;
         }
         try {
@@ -171,7 +176,16 @@ export default function RoomSettingsButton() {
                                                     className={`${
                                                         !roomSettings
                                                             .questionFilter
-                                                            .selections.length
+                                                            .selections
+                                                            .length ||
+                                                        (!roomSettings
+                                                            .difficulty.Easy &&
+                                                            !roomSettings
+                                                                .difficulty
+                                                                .Medium &&
+                                                            !roomSettings
+                                                                .difficulty
+                                                                .Hard)
                                                             ? "cursor-not-allowed bg-lc-fg-modal-light text-lc-text-light hover:bg-lc-fg-modal-hover-light dark:bg-lc-fg-modal dark:text-white dark:hover:bg-lc-fg-modal-hover"
                                                             : "bg-lc-green-button text-white hover:bg-lc-green-button-hover-light dark:hover:bg-lc-green-button-hover"
                                                     } rounded-lg px-3 py-1.5 text-sm font-medium transition-all`}
