@@ -30,19 +30,23 @@ async function main() {
     const submissionButton = await waitForElement(submissionButtonSelectors);
 
     let submissionButtonTimer: number;
-    async function handleClickSubmitCodeButton() {
+    async function handleClickSubmitCodeButton(submissionId: string) {
         clearInterval(submissionButtonTimer);
-
-        if (!reactRoot.contentWindow) {
+        let currentQuestionTitleSlug = getCurrentQuestionTitleSlug();
+        if (!reactRoot.contentWindow || !currentQuestionTitleSlug) {
             return;
         }
-        let currentQuestionTitleSlug = getCurrentQuestionTitleSlug();
+        let submissionUrl = constructSubmissionUrl(
+            currentQuestionTitleSlug,
+            submissionId
+        );
         reactRoot.contentWindow.postMessage(
             {
                 extension: "leetrooms",
                 button: "submit",
                 event: "submit",
                 currentProblem: currentQuestionTitleSlug,
+                submissionUrl: submissionUrl,
             },
             APP_URL
         );
@@ -58,7 +62,7 @@ async function main() {
             const element = document.querySelector(selector);
             if (element) {
                 clearInterval(submissionButtonTimer);
-                if (!reactRoot.contentWindow) {
+                if (!reactRoot.contentWindow || !currentQuestionTitleSlug) {
                     return;
                 }
                 reactRoot.contentWindow.postMessage(
@@ -67,6 +71,7 @@ async function main() {
                         button: "submit",
                         event: "accepted",
                         currentProblem: currentQuestionTitleSlug,
+                        submissionUrl: submissionUrl,
                     },
                     APP_URL
                 );
@@ -75,7 +80,7 @@ async function main() {
             }
         }, 100);
     }
-    submissionButton.addEventListener("click", handleClickSubmitCodeButton);
+
     chrome.storage.onChanged.addListener((changes, namespace) => {
         for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
             if (key == "leetroomsToggleState") {
@@ -99,6 +104,10 @@ async function main() {
                 );
             }
         }
+    });
+
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+        handleClickSubmitCodeButton(message.submissionId);
     });
 }
 
@@ -127,6 +136,10 @@ function getCurrentQuestionTitleSlug(): string | undefined {
     if (currentUrl.startsWith("https://leetcode.com/problems/")) {
         return currentUrl.split("/")[4];
     }
+}
+
+function constructSubmissionUrl(titleSlug: string, submissionId: string) {
+    return `https://leetcode.com/problems/${titleSlug}/submissions/${submissionId}/`;
 }
 
 main();

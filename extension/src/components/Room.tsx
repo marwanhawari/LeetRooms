@@ -21,6 +21,7 @@ interface RoomMessagesLocalStorage {
 interface SubmissionRequestBody {
     submissionStatus: SubmissionStatus;
     questionTitleSlug: string;
+    url: string;
 }
 
 let copyIconTimer: number;
@@ -195,7 +196,11 @@ export default function Room({
                 }
             }
 
-            if (!submissionStatus || !event.data?.currentProblem) {
+            if (
+                !submissionStatus ||
+                !event.data?.currentProblem ||
+                !event.data?.submissionUrl
+            ) {
                 console.error(
                     "Did not POST submission because of missing data"
                 );
@@ -204,6 +209,7 @@ export default function Room({
             let submissionRequestBody: SubmissionRequestBody = {
                 submissionStatus: submissionStatus,
                 questionTitleSlug: event.data.currentProblem,
+                url: event.data.submissionUrl,
             };
             let response = await fetch(`${SERVER_URL}/submissions/`, {
                 credentials: "include",

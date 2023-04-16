@@ -22,7 +22,11 @@ export async function createSubmission(
             let roomId = room.roomId;
 
             let submissionRequestBody: SubmissionRequestBody = req.body;
-            let { submissionStatus, questionTitleSlug } = submissionRequestBody;
+            let {
+                submissionStatus,
+                questionTitleSlug,
+                url: submissionUrl,
+            } = submissionRequestBody;
 
             let question = await prisma.question.findUnique({
                 where: {
@@ -59,12 +63,14 @@ export async function createSubmission(
                 },
                 update: {
                     status: submissionStatus,
+                    url: submissionUrl,
                 },
                 create: {
                     userId: userId,
                     roomId: roomId,
                     questionId: questionId,
                     status: submissionStatus,
+                    url: submissionUrl,
                 },
             });
 
@@ -79,7 +85,8 @@ export async function createSubmission(
                 'titleSlug', q."titleSlug",
                 'difficulty', q.difficulty,
                 'status', s.status,
-                'updatedAt', s."updatedAt"
+                'updatedAt', s."updatedAt",
+                'url', s.url
             ))  as submissions
             FROM "User" u
             LEFT JOIN "RoomQuestion" rq ON u."roomId" = rq."roomId"

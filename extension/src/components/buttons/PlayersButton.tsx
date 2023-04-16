@@ -23,6 +23,7 @@ interface PlayerSubmission {
     difficulty: string;
     status?: SubmissionStatus;
     updatedAt?: Date;
+    url: string;
 }
 
 interface PlayerWithSubmissions extends Player {
@@ -352,11 +353,26 @@ function Scores({
         return result;
     }
 
+    function handleClickSubmission(submission: PlayerSubmission) {
+        if (submission.status !== SubmissionStatus.Accepted) {
+            return;
+        }
+        window.open(submission.url, "_blank");
+    }
+
     return (
         <div className="flex flex-1 flex-row justify-around">
             {submissions.map((submission) => {
                 return (
-                    <div key={submission.titleSlug}>
+                    <div
+                        onClick={() => handleClickSubmission(submission)}
+                        className={
+                            submission.status === SubmissionStatus.Accepted
+                                ? "cursor-pointer"
+                                : ""
+                        }
+                        key={submission.titleSlug}
+                    >
                         <div
                             data-tooltip-id={submission.titleSlug}
                             data-tooltip-content={getSubmissionTime(
@@ -388,6 +404,7 @@ let mockPlayers: PlayerWithSubmissions[] = [
                 difficulty: "Easy",
                 status: SubmissionStatus.Accepted,
                 updatedAt: new Date(),
+                url: "https://leetcode.com",
             },
             {
                 title: "Add Two Numbers",
@@ -395,6 +412,7 @@ let mockPlayers: PlayerWithSubmissions[] = [
                 difficulty: "Medium",
                 status: undefined,
                 updatedAt: new Date(),
+                url: "https://leetcode.com",
             },
             {
                 title: "Longest Substring Without Repeating Characters",
@@ -402,6 +420,7 @@ let mockPlayers: PlayerWithSubmissions[] = [
                 difficulty: "Medium",
                 status: SubmissionStatus.Attempted,
                 updatedAt: new Date(),
+                url: "https://leetcode.com",
             },
             {
                 title: "Median of Two Sorted Arrays",
@@ -409,6 +428,7 @@ let mockPlayers: PlayerWithSubmissions[] = [
                 difficulty: "Hard",
                 status: SubmissionStatus.Accepted,
                 updatedAt: new Date(),
+                url: "https://leetcode.com",
             },
         ],
     },
@@ -423,6 +443,7 @@ let mockPlayers: PlayerWithSubmissions[] = [
                 difficulty: "Easy",
                 status: SubmissionStatus.Accepted,
                 updatedAt: new Date(),
+                url: "https://leetcode.com",
             },
             {
                 title: "Add Two Numbers",
@@ -430,6 +451,7 @@ let mockPlayers: PlayerWithSubmissions[] = [
                 difficulty: "Medium",
                 status: undefined,
                 updatedAt: new Date(),
+                url: "https://leetcode.com",
             },
             {
                 title: "Longest Substring Without Repeating Characters",
@@ -437,6 +459,7 @@ let mockPlayers: PlayerWithSubmissions[] = [
                 difficulty: "Medium",
                 status: SubmissionStatus.Attempted,
                 updatedAt: new Date(),
+                url: "https://leetcode.com",
             },
             {
                 title: "Median of Two Sorted Arrays",
@@ -444,6 +467,7 @@ let mockPlayers: PlayerWithSubmissions[] = [
                 difficulty: "Hard",
                 status: undefined,
                 updatedAt: new Date(),
+                url: "https://leetcode.com",
             },
         ],
     },
@@ -458,6 +482,7 @@ let mockPlayers: PlayerWithSubmissions[] = [
                 difficulty: "Easy",
                 status: SubmissionStatus.Attempted,
                 updatedAt: new Date(),
+                url: "https://leetcode.com",
             },
             {
                 title: "Add Two Numbers",
@@ -465,6 +490,7 @@ let mockPlayers: PlayerWithSubmissions[] = [
                 difficulty: "Medium",
                 status: undefined,
                 updatedAt: new Date(),
+                url: "https://leetcode.com",
             },
             {
                 title: "Longest Substring Without Repeating Characters",
@@ -472,6 +498,7 @@ let mockPlayers: PlayerWithSubmissions[] = [
                 difficulty: "Medium",
                 status: undefined,
                 updatedAt: new Date(),
+                url: "https://leetcode.com",
             },
             {
                 title: "Median of Two Sorted Arrays",
@@ -479,6 +506,7 @@ let mockPlayers: PlayerWithSubmissions[] = [
                 difficulty: "Hard",
                 status: SubmissionStatus.Accepted,
                 updatedAt: new Date(),
+                url: "https://leetcode.com",
             },
         ],
     },
