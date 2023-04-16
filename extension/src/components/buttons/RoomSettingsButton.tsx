@@ -10,9 +10,7 @@ import {
     QuestionFilterKind,
     topics,
     defaultRoomSettings,
-    RoomDifficulty,
 } from "../../types/RoomSettings";
-import Question from "../Question";
 import { Difficulty } from "../../types/Question";
 
 function classNames(...classes: any[]) {
@@ -131,8 +129,8 @@ export default function RoomSettingsButton() {
                                 <Dialog.Panel
                                     className={
                                         isFetching
-                                            ? `flex h-[480px] w-full max-w-md transform items-center justify-center overflow-hidden rounded-2xl bg-lc-fg-light shadow-xl transition-all dark:bg-lc-fg`
-                                            : `flex h-[480px] w-full max-w-md transform overflow-hidden rounded-2xl bg-lc-fg-light shadow-xl transition-all dark:bg-lc-fg`
+                                            ? `flex h-[525px] w-full max-w-md transform items-center justify-center overflow-hidden rounded-2xl bg-lc-fg-light shadow-xl transition-all dark:bg-lc-fg`
+                                            : `flex h-[525px] w-full max-w-md transform overflow-hidden rounded-2xl bg-lc-fg-light shadow-xl transition-all dark:bg-lc-fg`
                                     }
                                 >
                                     {isFetching ? (
@@ -344,36 +342,47 @@ function TopicSelector({
                 </ul>
             </div>
 
-            <div className="mb-2 mt-3 flex flex-row items-center justify-around gap-3 rounded-md bg-lc-fg-modal-light px-3 py-1 text-sm text-lc-text-light dark:bg-lc-fg-modal dark:text-white">
+            <fieldset className="mt-3 flex flex-row items-center justify-around rounded-lg border-4 border-lc-fg-modal-light p-2 pb-3 text-sm text-lc-text-light dark:border-lc-fg-modal dark:text-white">
+                <legend className="px-2 dark:text-lc-fg-modal-light">
+                    Difficulty
+                </legend>
                 <button
                     onClick={() => handleDifficultySelection(Difficulty.Easy)}
-                    className={
-                        roomSettings.difficulty.Easy
-                            ? "bg-lc-green-button text-white hover:bg-lc-green-button-hover-light dark:hover:bg-lc-green-button-hover"
-                            : "bg-lc-fg-modal-light dark:bg-lc-fg-modal"
-                    }
+                    className={`
+                    rounded-[21px] px-3 py-1.5 font-medium transition-all
+                    ${
+                        !roomSettings.difficulty.Easy
+                            ? "bg-lc-fg-modal-light text-lc-text-light hover:bg-lc-fg-modal-hover-light dark:bg-lc-fg-modal dark:text-white dark:hover:bg-lc-fg-modal-hover"
+                            : "bg-[hsl(168,41%,89%)] text-[hsl(173,97%,35%)] hover:bg-[hsl(168,41%,85%)] dark:bg-[hsl(172,20%,32%)] dark:text-[hsl(173,100%,42%)] dark:hover:bg-[hsl(172,20%,35%)]"
+                    }`}
                 >
                     Easy
                 </button>
                 <button
                     onClick={() => handleDifficultySelection(Difficulty.Medium)}
-                    className={
-                        roomSettings.difficulty.Medium
-                            ? "bg-lc-md-fg text-white"
-                            : "bg-lc-fg-modal-light dark:bg-lc-fg-modal"
-                    }
+                    className={`
+                    rounded-[21px] px-3 py-1.5 font-medium transition-all
+                    ${
+                        !roomSettings.difficulty.Medium
+                            ? "bg-lc-fg-modal-light text-lc-text-light hover:bg-lc-fg-modal-hover-light dark:bg-lc-fg-modal dark:text-white dark:hover:bg-lc-fg-modal-hover"
+                            : "bg-[hsl(38,100%,90%)] text-[hsl(43,100%,50%)] hover:bg-[hsl(38,100%,87%)] dark:bg-[hsl(39,32%,27%)] dark:text-[hsl(43,100%,56%)] dark:hover:bg-[hsl(39,32%,30%)]"
+                    }`}
                 >
                     Medium
                 </button>
                 <button
                     onClick={() => handleDifficultySelection(Difficulty.Hard)}
-                    className={
-                        roomSettings.difficulty.Hard ? "bg-lc-hd-fg" : ""
-                    }
+                    className={`
+                    rounded-[21px] px-3 py-1.5 font-medium transition-all
+                    ${
+                        !roomSettings.difficulty.Hard
+                            ? "bg-lc-fg-modal-light text-lc-text-light hover:bg-lc-fg-modal-hover-light dark:bg-lc-fg-modal dark:text-white dark:hover:bg-lc-fg-modal-hover"
+                            : "bg-[hsl(355,100%,95%)] text-[hsl(349,100%,59%)] hover:bg-[hsl(355,100%,93%)] dark:bg-[hsl(353,27%,26%)] dark:text-[hsl(347,100%,67%)] dark:hover:bg-[hsl(353,27%,28%)]"
+                    }`}
                 >
                     Hard
                 </button>
-            </div>
+            </fieldset>
         </Tab.Panel>
     );
 }
