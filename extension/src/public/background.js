@@ -10,7 +10,7 @@ chrome.webRequest.onBeforeRequest.addListener(
             sendMessage(submissionId);
         }
     },
-    { urls: ["<all_urls>"] }
+    { urls: ["https://leetcode.com/submissions/detail/*/check/"] }
 );
 
 function parseSubmissionId(url) {

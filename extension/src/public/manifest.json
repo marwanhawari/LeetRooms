@@ -5,7 +5,7 @@
     "description": "Multiplayer rooms for LeetCode.",
     "homepage_url": "https://leetrooms.com",
     "permissions": ["activeTab", "storage", "webRequest"],
-    "host_permissions": ["https://leetcode.com/*"],
+    "host_permissions": ["https://leetcode.com/problems/*"],
     "action": {
         "default_icon": {
             "16": "icons/16.png",
