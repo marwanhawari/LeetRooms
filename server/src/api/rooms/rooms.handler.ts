@@ -11,7 +11,12 @@ import {
 } from "../app";
 import { MessageInterface, ChatEvent } from "../../types/Message";
 import { RoomSession } from "../../types/Session";
-import { QuestionFilterKind, RoomSettings } from "../../types/RoomSettings";
+import {
+    QuestionFilterKind,
+    RoomDifficulty,
+    RoomDifficultyNumberOfQuestions,
+    RoomSettings,
+} from "../../types/RoomSettings";
 
 export async function getRoomPlayers(
     req: Request,
@@ -74,19 +79,37 @@ export async function createRoom(
                 },
             });
 
+            let easyQuestions = filteredQuestions.filter(
+                (question) => question.difficulty === "Easy"
+            );
+            let mediumQuestions = filteredQuestions.filter(
+                (question) => question.difficulty === "Medium"
+            );
+            let hardQuestions = filteredQuestions.filter(
+                (question) => question.difficulty === "Hard"
+            );
+
+            let {
+                Easy: numberOfEasy,
+                Medium: numberOfMedium,
+                Hard: numberOfHard,
+            } = getNumberOfQuestionsPerDifficulty(
+                roomSettings.difficulty,
+                easyQuestions,
+                mediumQuestions,
+                hardQuestions
+            );
+
             // Select 4 random questions
-            let randomlySelectedEasyQuestions: Question[] = filteredQuestions
-                .filter((question) => question.difficulty === "Easy")
+            let randomlySelectedEasyQuestions: Question[] = easyQuestions
                 .sort(() => Math.random() - 0.5)
-                .slice(0, 1);
-            let randomlySelectedMediumQuestions: Question[] = filteredQuestions
-                .filter((question) => question.difficulty === "Medium")
+                .slice(0, numberOfEasy);
+            let randomlySelectedMediumQuestions: Question[] = mediumQuestions
                 .sort(() => Math.random() - 0.5)
-                .slice(0, 2);
-            let randomlySelectedHardQuestions: Question[] = filteredQuestions
-                .filter((question) => question.difficulty === "Hard")
+                .slice(0, numberOfMedium);
+            let randomlySelectedHardQuestions: Question[] = hardQuestions
                 .sort(() => Math.random() - 0.5)
-                .slice(0, 1);
+                .slice(0, numberOfHard);
 
             let randomlySelectedQuestions =
                 randomlySelectedEasyQuestions.concat(
@@ -332,4 +355,153 @@ function sendJoinRoomMessage(username: string, room: RoomSession) {
         color: room.userColor,
     };
     io.to(room.roomId).emit("chat-message", newJoinMessage);
+}
+
+function getNumberOfQuestionsPerDifficulty(
+    roomDifficulty: RoomDifficulty,
+    easyQuestions: Question[],
+    mediumQuestions: Question[],
+    hardQuestions: Question[]
+): RoomDifficultyNumberOfQuestions {
+    let { Easy: easy, Medium: medium, Hard: hard } = roomDifficulty;
+    if (easy && medium && hard) {
+        let numberOfQuestions = {
+            Easy: 1,
+            Medium: 2,
+            Hard: 1,
+        };
+
+        // If there are not enough easy questions, get more medium or hard questions.
+        if (easyQuestions.length < numberOfQuestions.Easy) {
+            let diff = numberOfQuestions.Easy - easyQuestions.length;
+            numberOfQuestions.Easy = easyQuestions.length;
+            if (mediumQuestions.length >= numberOfQuestions.Medium + diff) {
+                numberOfQuestions.Medium += diff;
+            } else if (hardQuestions.length >= numberOfQuestions.Hard + diff) {
+                numberOfQuestions.Hard += diff;
+            }
+        }
+
+        // If there are not enough medium questions, get more easy or hard questions.
+        if (mediumQuestions.length < numberOfQuestions.Medium) {
+            let diff = numberOfQuestions.Medium - mediumQuestions.length;
+            numberOfQuestions.Medium = mediumQuestions.length;
+            if (easyQuestions.length >= numberOfQuestions.Easy + diff) {
+                numberOfQuestions.Easy += diff;
+            } else if (hardQuestions.length >= numberOfQuestions.Hard + diff) {
+                numberOfQuestions.Hard += diff;
+            }
+        }
+
+        // If there are not enough hard questions, get more easy or medium questions.
+        if (hardQuestions.length < numberOfQuestions.Hard) {
+            let diff = numberOfQuestions.Hard - hardQuestions.length;
+            numberOfQuestions.Hard = hardQuestions.length;
+            if (easyQuestions.length >= numberOfQuestions.Easy + diff) {
+                numberOfQuestions.Easy += diff;
+            } else if (
+                mediumQuestions.length >=
+                numberOfQuestions.Medium + diff
+            ) {
+                numberOfQuestions.Medium += diff;
+            }
+        }
+
+        return numberOfQuestions;
+    } else if (easy && medium) {
+        let numberOfQuestions = {
+            Easy: 2,
+            Medium: 2,
+            Hard: 0,
+        };
+
+        if (easyQuestions.length < numberOfQuestions.Easy) {
+            let diff = numberOfQuestions.Easy - easyQuestions.length;
+            numberOfQuestions.Easy = easyQuestions.length;
+            if (mediumQuestions.length >= numberOfQuestions.Medium + diff) {
+                numberOfQuestions.Medium += diff;
+            }
+        }
+
+        if (mediumQuestions.length < numberOfQuestions.Medium) {
+            let diff = numberOfQuestions.Medium - mediumQuestions.length;
+            numberOfQuestions.Medium = mediumQuestions.length;
+            if (easyQuestions.length >= numberOfQuestions.Easy + diff) {
+                numberOfQuestions.Easy += diff;
+            }
+        }
+
+        return numberOfQuestions;
+    } else if (easy && hard) {
+        let numberOfQuestions = {
+            Easy: 2,
+            Medium: 0,
+            Hard: 2,
+        };
+
+        if (easyQuestions.length < numberOfQuestions.Easy) {
+            let diff = numberOfQuestions.Easy - easyQuestions.length;
+            numberOfQuestions.Easy = easyQuestions.length;
+            if (hardQuestions.length >= numberOfQuestions.Hard + diff) {
+                numberOfQuestions.Hard += diff;
+            }
+        }
+
+        if (hardQuestions.length < numberOfQuestions.Hard) {
+            let diff = numberOfQuestions.Hard - hardQuestions.length;
+            numberOfQuestions.Hard = hardQuestions.length;
+            if (easyQuestions.length >= numberOfQuestions.Easy + diff) {
+                numberOfQuestions.Easy += diff;
+            }
+        }
+
+        return numberOfQuestions;
+    } else if (medium && hard) {
+        let numberOfQuestions = {
+            Easy: 0,
+            Medium: 2,
+            Hard: 2,
+        };
+
+        if (mediumQuestions.length < numberOfQuestions.Medium) {
+            let diff = numberOfQuestions.Medium - mediumQuestions.length;
+            numberOfQuestions.Medium = mediumQuestions.length;
+            if (hardQuestions.length >= numberOfQuestions.Hard + diff) {
+                numberOfQuestions.Hard += diff;
+            }
+        }
+
+        if (hardQuestions.length < numberOfQuestions.Hard) {
+            let diff = numberOfQuestions.Hard - hardQuestions.length;
+            numberOfQuestions.Hard = hardQuestions.length;
+            if (mediumQuestions.length >= numberOfQuestions.Medium + diff) {
+                numberOfQuestions.Medium += diff;
+            }
+        }
+
+        return numberOfQuestions;
+    } else if (easy) {
+        return {
+            Easy: 4,
+            Medium: 0,
+            Hard: 0,
+        };
+    } else if (medium) {
+        return {
+            Easy: 0,
+            Medium: 4,
+            Hard: 0,
+        };
+    } else if (hard) {
+        return {
+            Easy: 0,
+            Medium: 0,
+            Hard: 4,
+        };
+    }
+    return {
+        Easy: 0,
+        Medium: 0,
+        Hard: 0,
+    };
 }

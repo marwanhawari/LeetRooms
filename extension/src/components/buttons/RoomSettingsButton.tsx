@@ -11,6 +11,7 @@ import {
     topics,
     defaultRoomSettings,
 } from "../../types/RoomSettings";
+import { Difficulty } from "../../types/Question";
 
 function classNames(...classes: any[]) {
     return classes.filter(Boolean).join(" ");
@@ -32,6 +33,14 @@ export default function RoomSettingsButton() {
             try {
                 let storedRoomSettings: RoomSettings =
                     JSON.parse(roomSettingsString);
+                if (!storedRoomSettings.difficulty) {
+                    storedRoomSettings.difficulty =
+                        defaultRoomSettings.difficulty;
+                    localStorage.setItem(
+                        "roomSettings",
+                        JSON.stringify(storedRoomSettings)
+                    );
+                }
                 setRoomSettings(storedRoomSettings);
             } catch (error) {
                 console.error(
@@ -66,7 +75,12 @@ export default function RoomSettingsButton() {
     }
 
     function saveAndCloseModal() {
-        if (!roomSettings.questionFilter.selections.length) {
+        if (
+            !roomSettings.questionFilter.selections.length ||
+            (!roomSettings.difficulty.Easy &&
+                !roomSettings.difficulty.Medium &&
+                !roomSettings.difficulty.Hard)
+        ) {
             return;
         }
         try {
@@ -115,8 +129,8 @@ export default function RoomSettingsButton() {
                                 <Dialog.Panel
                                     className={
                                         isFetching
-                                            ? `flex h-[440px] w-full max-w-md transform items-center justify-center overflow-hidden rounded-2xl bg-lc-fg-light shadow-xl transition-all dark:bg-lc-fg`
-                                            : `flex h-[440px] w-full max-w-md transform overflow-hidden rounded-2xl bg-lc-fg-light shadow-xl transition-all dark:bg-lc-fg`
+                                            ? `flex h-[525px] w-full max-w-md transform items-center justify-center overflow-hidden rounded-2xl bg-lc-fg-light shadow-xl transition-all dark:bg-lc-fg`
+                                            : `flex h-[525px] w-full max-w-md transform overflow-hidden rounded-2xl bg-lc-fg-light shadow-xl transition-all dark:bg-lc-fg`
                                     }
                                 >
                                     {isFetching ? (
@@ -160,7 +174,16 @@ export default function RoomSettingsButton() {
                                                     className={`${
                                                         !roomSettings
                                                             .questionFilter
-                                                            .selections.length
+                                                            .selections
+                                                            .length ||
+                                                        (!roomSettings
+                                                            .difficulty.Easy &&
+                                                            !roomSettings
+                                                                .difficulty
+                                                                .Medium &&
+                                                            !roomSettings
+                                                                .difficulty
+                                                                .Hard)
                                                             ? "cursor-not-allowed bg-lc-fg-modal-light text-lc-text-light hover:bg-lc-fg-modal-hover-light dark:bg-lc-fg-modal dark:text-white dark:hover:bg-lc-fg-modal-hover"
                                                             : "bg-lc-green-button text-white hover:bg-lc-green-button-hover-light dark:hover:bg-lc-green-button-hover"
                                                     } rounded-lg px-3 py-1.5 text-sm font-medium transition-all`}
@@ -271,8 +294,17 @@ function TopicSelector({
         }
     }
 
+    function handleDifficultySelection(difficulty: Difficulty) {
+        const newDifficulty = { ...roomSettings.difficulty };
+        newDifficulty[difficulty] = !newDifficulty[difficulty];
+        setRoomSettings({
+            ...roomSettings,
+            difficulty: newDifficulty,
+        });
+    }
+
     return (
-        <div>
+        <Tab.Panel>
             <label className="mb-2 flex flex-row items-center gap-3 rounded-md bg-lc-fg-modal-light px-3 py-1 text-sm text-lc-text-light dark:bg-lc-fg-modal dark:text-white">
                 <input
                     type="checkbox"
@@ -285,7 +317,7 @@ function TopicSelector({
                 {"Select/Unselect All"}
             </label>
 
-            <Tab.Panel
+            <div
                 className={classNames(
                     "h-56 overflow-auto rounded-md bg-lc-fg-modal-light dark:bg-lc-fg-modal dark:text-white"
                 )}
@@ -308,8 +340,50 @@ function TopicSelector({
                         </label>
                     ))}
                 </ul>
-            </Tab.Panel>
-        </div>
+            </div>
+
+            <fieldset className="mt-3 flex flex-row items-center justify-around rounded-lg border-4 border-lc-fg-modal-light p-2 pb-3 text-sm text-lc-text-light dark:border-lc-fg-modal dark:text-white">
+                <legend className="px-2 dark:text-lc-fg-modal-light">
+                    Difficulty
+                </legend>
+                <button
+                    onClick={() => handleDifficultySelection(Difficulty.Easy)}
+                    className={`
+                    rounded-[21px] px-3 py-1.5 font-medium transition-all
+                    ${
+                        !roomSettings.difficulty.Easy
+                            ? "bg-lc-fg-modal-light text-lc-text-light hover:bg-lc-fg-modal-hover-light dark:bg-lc-fg-modal dark:text-white dark:hover:bg-lc-fg-modal-hover"
+                            : "bg-[hsl(168,41%,89%)] text-[hsl(173,97%,35%)] hover:bg-[hsl(168,41%,85%)] dark:bg-[hsl(172,20%,32%)] dark:text-[hsl(173,100%,42%)] dark:hover:bg-[hsl(172,20%,35%)]"
+                    }`}
+                >
+                    Easy
+                </button>
+                <button
+                    onClick={() => handleDifficultySelection(Difficulty.Medium)}
+                    className={`
+                    rounded-[21px] px-3 py-1.5 font-medium transition-all
+                    ${
+                        !roomSettings.difficulty.Medium
+                            ? "bg-lc-fg-modal-light text-lc-text-light hover:bg-lc-fg-modal-hover-light dark:bg-lc-fg-modal dark:text-white dark:hover:bg-lc-fg-modal-hover"
+                            : "bg-[hsl(38,100%,90%)] text-[hsl(43,100%,50%)] hover:bg-[hsl(38,100%,87%)] dark:bg-[hsl(39,32%,27%)] dark:text-[hsl(43,100%,56%)] dark:hover:bg-[hsl(39,32%,30%)]"
+                    }`}
+                >
+                    Medium
+                </button>
+                <button
+                    onClick={() => handleDifficultySelection(Difficulty.Hard)}
+                    className={`
+                    rounded-[21px] px-3 py-1.5 font-medium transition-all
+                    ${
+                        !roomSettings.difficulty.Hard
+                            ? "bg-lc-fg-modal-light text-lc-text-light hover:bg-lc-fg-modal-hover-light dark:bg-lc-fg-modal dark:text-white dark:hover:bg-lc-fg-modal-hover"
+                            : "bg-[hsl(355,100%,95%)] text-[hsl(349,100%,59%)] hover:bg-[hsl(355,100%,93%)] dark:bg-[hsl(353,27%,26%)] dark:text-[hsl(347,100%,67%)] dark:hover:bg-[hsl(353,27%,28%)]"
+                    }`}
+                >
+                    Hard
+                </button>
+            </fieldset>
+        </Tab.Panel>
     );
 }
 
