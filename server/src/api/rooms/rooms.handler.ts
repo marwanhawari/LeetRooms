@@ -36,7 +36,8 @@ export async function getRoomPlayers(
                 'titleSlug', q."titleSlug",
                 'difficulty', q.difficulty,
                 'status', s.status,
-                'updatedAt', s."updatedAt"
+                'updatedAt', s."updatedAt",
+                'url', s.url
             ))  as submissions
             FROM "User" u
             LEFT JOIN "RoomQuestion" rq ON u."roomId" = rq."roomId"
