@@ -22,13 +22,6 @@ async function main() {
     const mainContentContainer = await waitForElement(["#qd-content"]);
     mainContentContainer.insertAdjacentElement("afterend", reactRoot);
 
-    const submissionButtonSelectors = [
-        "#qd-content > div > div> div:nth-child(3) > div > div > div > div > div > div:nth-last-child(1) > button:nth-last-child(1)",
-        "#__next > div > div > div > div > div > div:nth-child(3) > div > div:nth-child(3) > div > div > div > div > div > div:nth-last-child(1) > button:nth-last-child(1)",
-        "#__next > div > div > div > div > div > div:nth-child(3) > div > div:nth-child(3) > div > div > div:nth-child(3) > div > div > div:nth-child(3) > button:nth-last-child(1)",
-    ];
-    const submissionButton = await waitForElement(submissionButtonSelectors);
-
     let submissionButtonTimer: number;
     async function handleClickSubmitCodeButton(submissionId: string) {
         clearInterval(submissionButtonTimer);
