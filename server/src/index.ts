@@ -1,9 +1,14 @@
-import app from "./api/app";
 import { PrismaClient } from "@prisma/client";
+import app from "./api/app";
 import { logger } from "./logger";
 
 const PORT = process.env.PORT || 5050;
-const prisma = new PrismaClient();
+
+const prisma: PrismaClient = new PrismaClient()
+
+// Use the PrismaClient instance to interact with your database
+
+
 
 async function main() {
     app.listen(PORT, () =>
