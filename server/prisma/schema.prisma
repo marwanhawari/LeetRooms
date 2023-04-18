@@ -67,6 +67,7 @@ model Submission {
   room       Room             @relation(fields: [roomId], references: [id], onDelete: Cascade)
   roomId     String
   status     SubmissionStatus
+  url        String
 
   @@unique([userId, questionId, roomId])
 }

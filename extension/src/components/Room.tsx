@@ -21,6 +21,7 @@ interface RoomMessagesLocalStorage {
 interface SubmissionRequestBody {
     submissionStatus: SubmissionStatus;
     questionTitleSlug: string;
+    url: string;
 }
 
 let copyIconTimer: number;
@@ -61,6 +62,7 @@ export default function Room({
     ]);
     let [hasClickedCopyIcon, setHasClickedCopyIcon] = useState(false);
     let socketRef = useRef<Socket | null>(null);
+    let previousSubmissionUrl = useRef<string | null>(null);
 
     function handleSubmitMessage(event: React.SyntheticEvent) {
         event.preventDefault();
@@ -142,6 +144,10 @@ export default function Room({
                 event.data?.extension !== "leetrooms" ||
                 event.data?.button !== "submit" ||
                 !event.data?.event ||
+                (previousSubmissionUrl &&
+                    previousSubmissionUrl.current ===
+                        event.data?.submissionUrl &&
+                    event.data?.event !== "accepted") ||
                 (event.data?.currentProblem &&
                     !questions
                         .map((question) => question.titleSlug)
@@ -195,15 +201,21 @@ export default function Room({
                 }
             }
 
-            if (!submissionStatus || !event.data?.currentProblem) {
+            if (
+                !submissionStatus ||
+                !event.data?.currentProblem ||
+                !event.data?.submissionUrl
+            ) {
                 console.error(
                     "Did not POST submission because of missing data"
                 );
                 return;
             }
+            previousSubmissionUrl.current = event.data.submissionUrl;
             let submissionRequestBody: SubmissionRequestBody = {
                 submissionStatus: submissionStatus,
                 questionTitleSlug: event.data.currentProblem,
+                url: event.data.submissionUrl,
             };
             let response = await fetch(`${SERVER_URL}/submissions/`, {
                 credentials: "include",
