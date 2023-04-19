@@ -31,20 +31,24 @@ export default function Timer({
     let intervalRef = useRef<number>();
 
     useEffect(() => {
+        let isMounted = true;
         function decrementTime() {
-            setDisplayTime((prevTime) => {
-                if (prevTime <= 0) {
-                    clearInterval(intervalRef.current);
-                    return 0;
-                }
-                return prevTime - 1;
-            });
+          setDisplayTime((prevTime) => {
+            if (prevTime <= 0) {
+              clearInterval(intervalRef.current);
+              isMounted = false;
+              return 0;
+            }
+            return prevTime - 1;
+          });
         }
         intervalRef.current = setInterval(decrementTime, 1000);
         return () => {
+          if (isMounted) {
             clearInterval(intervalRef.current);
+          }
         };
-    }, []);
+      }, []); 
 
     return (
         <div
