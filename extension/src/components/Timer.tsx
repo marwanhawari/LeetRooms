@@ -30,6 +30,12 @@ export default function Timer({
     let [displayTime, setDisplayTime] = useState(getTimeRemaining());
     let intervalRef = useRef<number>();
 
+    const handleVisibilityChange = useCallback(() => {
+        if (document.visibilityState === "visible") {
+            setDisplayTime(getTimeRemaining());
+        }
+    }, [getTimeRemaining]);
+
     useEffect(() => {
         function decrementTime() {
             setDisplayTime((prevTime) => {
@@ -40,11 +46,16 @@ export default function Timer({
                 return prevTime - 1;
             });
         }
+
         intervalRef.current = setInterval(decrementTime, 1000);
+
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+
         return () => {
             clearInterval(intervalRef.current);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
-    }, []);
+    }, [handleVisibilityChange]);
 
     return (
         <div
