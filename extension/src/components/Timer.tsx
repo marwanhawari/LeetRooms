@@ -8,6 +8,13 @@ export default function Timer({
     createdAt: Date;
     duration: number | undefined | null;
 }) {
+
+    function handleVisibilityChange() {
+        if (!document.hidden) {
+          setDisplayTime(getTimeRemaining());
+        }
+    }
+
     let getTimeRemaining = useCallback(() => {
         if (!duration) {
             return 0;
@@ -40,9 +47,14 @@ export default function Timer({
                 return prevTime - 1;
             });
         }
+
         intervalRef.current = setInterval(decrementTime, 1000);
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
         return () => {
             clearInterval(intervalRef.current);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
     }, []);
 
