@@ -8,13 +8,6 @@ export default function Timer({
     createdAt: Date;
     duration: number | undefined | null;
 }) {
-
-    function handleVisibilityChange() {
-        if (!document.hidden) {
-          setDisplayTime(getTimeRemaining());
-        }
-    }
-
     let getTimeRemaining = useCallback(() => {
         if (!duration) {
             return 0;
@@ -37,6 +30,12 @@ export default function Timer({
     let [displayTime, setDisplayTime] = useState(getTimeRemaining());
     let intervalRef = useRef<number>();
 
+    const handleVisibilityChange = useCallback(() => {
+        if (document.visibilityState === "visible") {
+            setDisplayTime(getTimeRemaining());
+        }
+    }, [getTimeRemaining]);
+
     useEffect(() => {
         function decrementTime() {
             setDisplayTime((prevTime) => {
@@ -50,13 +49,13 @@ export default function Timer({
 
         intervalRef.current = setInterval(decrementTime, 1000);
 
-        document.addEventListener('visibilitychange', handleVisibilityChange);
+        document.addEventListener("visibilitychange", handleVisibilityChange);
 
         return () => {
             clearInterval(intervalRef.current);
             document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
-    }, []);
+    }, [handleVisibilityChange]);
 
     return (
         <div
