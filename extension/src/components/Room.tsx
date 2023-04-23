@@ -61,8 +61,10 @@ export default function Room({
         padding: '10px',
         borderRadius: '5px',
         opacity: showNotification ? 1 : 0,
-        transition: 'opacity 0.3s',
+        transition: 'opacity 0.5s',
         pointerEvents: 'none',
+        fontSize: '12px',
+        whiteSpace: 'nowrap'
       };
 
 
