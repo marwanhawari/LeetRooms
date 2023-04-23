@@ -1,5 +1,5 @@
 import { io, Socket } from "socket.io-client";
-import { useEffect, useRef, useState } from "react";
+import { CSSProperties, useEffect, useRef, useState } from "react";
 import Question from "./Question";
 import { QuestionInterface, SubmissionStatus } from "../types/Question";
 import CopyIcon from "../icons/CopyIcon";
@@ -49,6 +49,23 @@ export default function Room({
     duration: number | undefined | null;
 }) {
     const isLoadingGlobal = useIsMutating();
+    const [autoScroll, setAutoScroll] = useState(true);
+    const [showNotification, setShowNotification] = useState(false);
+    const notificationStyles: CSSProperties = {
+        position: 'absolute',
+        bottom: '60px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        backgroundColor: '#444',
+        color: 'white',
+        padding: '10px',
+        borderRadius: '5px',
+        opacity: showNotification ? 1 : 0,
+        transition: 'opacity 0.3s',
+        pointerEvents: 'none',
+      };
+
+
     let inputRef = useRef<HTMLInputElement>(null);
     let messagesRef = useRef<HTMLUListElement>(null);
     let [messages, setMessages] = useState<MessageInterface[]>([
@@ -245,13 +262,24 @@ export default function Room({
             }
 
             let latestMessage = messagesRef.current.lastElementChild;
-            latestMessage?.scrollIntoView({
-                behavior: "auto",
-            });
+            if(autoScroll) {
+                latestMessage?.scrollIntoView({
+                    behavior: "auto",
+                });
+            }
         }
 
         autoScrollToLatestMessage();
-    }, [messages]);
+    }, [messages, autoScroll]);
+
+    // Add scroll event handler with the correct type for 'e'
+    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+        const threshold = 50;
+        const atBottom = scrollHeight - scrollTop <= clientHeight + threshold;
+        setAutoScroll(atBottom);
+        setShowNotification(!atBottom);
+    };
 
     return (
         <div className="flex h-screen flex-col gap-y-2 border-x-8 border-t-8 border-lc-border-light bg-lc-bg-light px-2 text-sm text-lc-text-light dark:border-lc-border dark:bg-lc-bg dark:text-white">
@@ -310,12 +338,16 @@ export default function Room({
             <div
                 id="leetrooms-chat"
                 className="mx-2 grow overflow-auto border border-transparent px-3 py-[10px]"
+                onScroll={handleScroll}
             >
                 <ul ref={messagesRef} className="flex flex-col gap-y-1.5">
                     {messages.map((message, index) => (
                         <Message key={index} message={message} />
                     ))}
                 </ul>
+                <div style={notificationStyles}>
+                    Chat paused. Scroll down to resume.
+                </div>
             </div>
 
             <div className="mx-2 mb-2.5 flex flex-row items-center justify-between gap-x-2 rounded-lg border border-transparent bg-lc-fg-light py-[5px] pl-3 pr-2 focus-within:border-blue-500 hover:border-blue-500 dark:bg-lc-fg">
