@@ -49,24 +49,7 @@ export default function Room({
     duration: number | undefined | null;
 }) {
     const isLoadingGlobal = useIsMutating();
-    const [autoScroll, setAutoScroll] = useState(true);
-    const [showNotification, setShowNotification] = useState(false);
-    const notificationStyles: CSSProperties = {
-        position: 'absolute',
-        bottom: '60px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        backgroundColor: '#444',
-        color: 'white',
-        padding: '10px',
-        borderRadius: '5px',
-        opacity: showNotification ? 1 : 0,
-        transition: 'opacity 0.5s',
-        pointerEvents: 'none',
-        fontSize: '12px',
-        whiteSpace: 'nowrap'
-      };
-
+    const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
 
     let inputRef = useRef<HTMLInputElement>(null);
     let messagesRef = useRef<HTMLUListElement>(null);
@@ -257,31 +240,27 @@ export default function Room({
         };
     }, [roomId]);
 
+    function handleScroll(e: React.UIEvent<HTMLDivElement>) {
+        const target = e.target as HTMLDivElement;
+        const threshold = 50;
+        const isAtBottom = target.scrollHeight - target.scrollTop - threshold <= target.clientHeight; 
+        setIsAutoScrollEnabled(isAtBottom);
+    }
+
     useEffect(() => {
         function autoScrollToLatestMessage() {
-            if (!messagesRef.current) {
+            if (!messagesRef.current || !isAutoScrollEnabled) {
                 return;
             }
 
             let latestMessage = messagesRef.current.lastElementChild;
-            if(autoScroll) {
-                latestMessage?.scrollIntoView({
-                    behavior: "auto",
-                });
-            }
+            latestMessage?.scrollIntoView({
+                behavior: "auto",
+            });
         }
-
-        autoScrollToLatestMessage();
-    }, [messages, autoScroll]);
-
-    // Add scroll event handler with the correct type for 'e'
-    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-        const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-        const threshold = 50;
-        const atBottom = scrollHeight - scrollTop <= clientHeight + threshold;
-        setAutoScroll(atBottom);
-        setShowNotification(!atBottom);
-    };
+        if(isAutoScrollEnabled)
+            autoScrollToLatestMessage();
+    }, [messages, isAutoScrollEnabled]);
 
     return (
         <div className="flex h-screen flex-col gap-y-2 border-x-8 border-t-8 border-lc-border-light bg-lc-bg-light px-2 text-sm text-lc-text-light dark:border-lc-border dark:bg-lc-bg dark:text-white">
@@ -337,6 +316,7 @@ export default function Room({
                 )}
             </div>
 
+
             <div
                 id="leetrooms-chat"
                 className="mx-2 grow overflow-auto border border-transparent px-3 py-[10px]"
@@ -347,9 +327,11 @@ export default function Room({
                         <Message key={index} message={message} />
                     ))}
                 </ul>
-                <div style={notificationStyles}>
-                    Chat paused. Scroll down to resume.
-                </div>
+                {!isAutoScrollEnabled && (
+                    <div  className="fixed left-1/2 bottom-0 transform -translate-x-1/2 mx-2 mb-16 bg-blue-200 text-blue-800 px-4 py-2 rounded-md shadow-md whitespace-nowrap">
+                        Auto-scroll paused. Scroll down to resume.
+                    </div>
+                )}
             </div>
 
             <div className="mx-2 mb-2.5 flex flex-row items-center justify-between gap-x-2 rounded-lg border border-transparent bg-lc-fg-light py-[5px] pl-3 pr-2 focus-within:border-blue-500 hover:border-blue-500 dark:bg-lc-fg">
