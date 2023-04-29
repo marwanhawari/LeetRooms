@@ -133,19 +133,8 @@ export default function PlayersButton({
         if (!players) {
             return undefined;
         }
-        // Sort players by number of submissions that have a non null status
+        // Sort players by number of accepted, then by number of acceptted + attempted, then by total submission time
         let ranked = players.sort((a, b) => {
-            let aSubmissions = a.submissions.filter(
-                (submission) => submission.status
-            );
-            let bSubmissions = b.submissions.filter(
-                (submission) => submission.status
-            );
-
-            if (aSubmissions.length !== bSubmissions.length) {
-                return bSubmissions.length - aSubmissions.length;
-            }
-
             let aAccepted = a.submissions.filter(
                 (submission) =>
                     submission.status === SubmissionStatus.Accepted &&
@@ -159,6 +148,17 @@ export default function PlayersButton({
 
             if (aAccepted.length !== bAccepted.length) {
                 return bAccepted.length - aAccepted.length;
+            }
+
+            let aSubmissions = a.submissions.filter(
+                (submission) => submission.status
+            );
+            let bSubmissions = b.submissions.filter(
+                (submission) => submission.status
+            );
+
+            if (aSubmissions.length !== bSubmissions.length) {
+                return bSubmissions.length - aSubmissions.length;
             }
 
             let aTotalSubmissionTime = aAccepted.reduce((total, submission) => {
