@@ -359,9 +359,9 @@ io.use((socket, next) => {
     }
 });
 
-const CLOSED_WINDOW_CACHE_EXPIRATION = 180; // 3 minutes (in sec)
-const CLOSED_WINDOW_TIMEOUT = 5_400_000; // 90 minutes (in ms)
-const IDLE_WINDOW_TIMEOUT = 7_200_000; // 120 minutes (in ms)
+const CLOSED_WINDOW_CACHE_EXPIRATION = 360; // 6 minutes (in sec)
+const CLOSED_WINDOW_TIMEOUT = 10_800_000; // 180 minutes (in ms)
+const IDLE_WINDOW_TIMEOUT = 14_400_000; // 240 minutes (in ms)
 
 io.on("connection", async (socket) => {
     socket.use((__, next) => {
