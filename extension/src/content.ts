@@ -1,6 +1,7 @@
 const APP_URL = import.meta.env.VITE_APP_URL;
 
 async function main() {
+    let previousSubmissionId = "";
     const reactRoot = document.createElement("iframe");
 
     reactRoot.src = APP_URL;
@@ -100,6 +101,10 @@ async function main() {
     });
 
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+        if (previousSubmissionId == message.submissionId) {
+            return;
+        }
+        previousSubmissionId = message.submissionId;
         handleClickSubmitCodeButton(message.submissionId);
     });
 }
