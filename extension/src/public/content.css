@@ -1,0 +1,11 @@
+#leetrooms-handlebar {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+#leetrooms-handlebar:hover {
+    background-color: rgb(0, 132, 255);
+}
+
+#leetrooms-handlebar:active {
+    background-color: rgb(0, 132, 255);
+}

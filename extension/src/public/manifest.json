@@ -22,6 +22,7 @@
     "content_scripts": [
         {
             "matches": ["https://leetcode.com/problems/*"],
+            "css": ["content.css"],
             "js": ["content.js"]
         }
     ]

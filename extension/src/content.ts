@@ -16,9 +16,9 @@ async function main() {
     wrapper.style.height = "100%";
 
     const handlebar = document.createElement("div");
+    handlebar.id = "leetrooms-handlebar";
     handlebar.style.minWidth = "10px";
     handlebar.style.cursor = "col-resize";
-    handlebar.style.backgroundColor = "rgba(0, 0, 0, 0.2)";
     handlebar.style.zIndex = "10";
     handlebar.style.userSelect = "none"; // Add this line to disable text selection on the handlebar
 
