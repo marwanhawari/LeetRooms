@@ -389,7 +389,10 @@ function sendJoinRoomMessage(username: string, room: RoomSession) {
         chatEvent: ChatEvent.Join,
         color: room.userColor,
     };
-    io.to(room.roomId).emit("chat-message", newJoinMessage);
+    // Delay by 500ms so that the user can see the join room message when re-entering
+    setTimeout(() => {
+        io.to(room.roomId).emit("chat-message", newJoinMessage);
+    }, 500);
 }
 
 function getNumberOfQuestionsPerDifficulty(
