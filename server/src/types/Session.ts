@@ -18,4 +18,5 @@ export interface RoomSession {
     userColor: string;
     createdAt: Date;
     duration?: number | null;
+    joinedAt: Date;
 }

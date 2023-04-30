@@ -11,7 +11,12 @@ import {
 } from "../app";
 import { MessageInterface, ChatEvent } from "../../types/Message";
 import { RoomSession } from "../../types/Session";
-import { QuestionFilterKind, RoomSettings } from "../../types/RoomSettings";
+import {
+    QuestionFilterKind,
+    RoomDifficulty,
+    RoomDifficultyNumberOfQuestions,
+    RoomSettings,
+} from "../../types/RoomSettings";
 
 export async function getRoomPlayers(
     req: Request,
@@ -25,20 +30,22 @@ export async function getRoomPlayers(
         }
         let roomId = room.roomId;
         let response: PlayerWithSubmissions[] =
-            await prisma.$queryRaw`SELECT u.id, u.username, u."updatedAt", json_agg(json_build_object(
+            await prisma.$queryRaw`SELECT u.id, u.username, ru."joinedAt" AS "updatedAt", json_agg(json_build_object(
                 'questionId', q.id,
                 'title', q.title,
                 'titleSlug', q."titleSlug",
                 'difficulty', q.difficulty,
                 'status', s.status,
-                'updatedAt', s."updatedAt"
+                'updatedAt', s."updatedAt",
+                'url', s.url
             ))  as submissions
             FROM "User" u
             LEFT JOIN "RoomQuestion" rq ON u."roomId" = rq."roomId"
             LEFT JOIN "Question" q ON rq."questionId" = q.id
+            LEFT JOIN "RoomUser" ru ON ru."roomId" = u."roomId" AND ru."userId" = u.id
             LEFT JOIN "Submission" s ON s."questionId" = rq."questionId" AND s."roomId" = rq."roomId" AND s."userId" = u.id
             WHERE rq."roomId" = ${roomId}
-            GROUP BY u.id;`;
+            GROUP BY u.id, ru."joinedAt";`;
         return res.json(response);
     } catch (error) {
         return next(error);
@@ -74,19 +81,37 @@ export async function createRoom(
                 },
             });
 
+            let easyQuestions = filteredQuestions.filter(
+                (question) => question.difficulty === "Easy"
+            );
+            let mediumQuestions = filteredQuestions.filter(
+                (question) => question.difficulty === "Medium"
+            );
+            let hardQuestions = filteredQuestions.filter(
+                (question) => question.difficulty === "Hard"
+            );
+
+            let {
+                Easy: numberOfEasy,
+                Medium: numberOfMedium,
+                Hard: numberOfHard,
+            } = getNumberOfQuestionsPerDifficulty(
+                roomSettings.difficulty,
+                easyQuestions,
+                mediumQuestions,
+                hardQuestions
+            );
+
             // Select 4 random questions
-            let randomlySelectedEasyQuestions: Question[] = filteredQuestions
-                .filter((question) => question.difficulty === "Easy")
+            let randomlySelectedEasyQuestions: Question[] = easyQuestions
                 .sort(() => Math.random() - 0.5)
-                .slice(0, 1);
-            let randomlySelectedMediumQuestions: Question[] = filteredQuestions
-                .filter((question) => question.difficulty === "Medium")
+                .slice(0, numberOfEasy);
+            let randomlySelectedMediumQuestions: Question[] = mediumQuestions
                 .sort(() => Math.random() - 0.5)
-                .slice(0, 2);
-            let randomlySelectedHardQuestions: Question[] = filteredQuestions
-                .filter((question) => question.difficulty === "Hard")
+                .slice(0, numberOfMedium);
+            let randomlySelectedHardQuestions: Question[] = hardQuestions
                 .sort(() => Math.random() - 0.5)
-                .slice(0, 1);
+                .slice(0, numberOfHard);
 
             let randomlySelectedQuestions =
                 randomlySelectedEasyQuestions.concat(
@@ -128,16 +153,25 @@ export async function createRoom(
                 },
             });
 
+            // Update the room user table with the join time
+            const { joinedAt } = await prisma.roomUser.create({
+                data: {
+                    userId: user.id,
+                    roomId: newRoomId,
+                },
+            });
+
             // Update the user session
             req.user.updatedAt = user.updatedAt;
 
             // Update the room session
-            let roomSession = {
+            let roomSession: RoomSession = {
                 roomId: newRoomId,
                 questions: randomlySelectedQuestions,
                 userColor: generateRandomUserColor(),
                 createdAt: newRoom.createdAt,
                 duration: newRoom.duration,
+                joinedAt,
             };
             await setUserRoomSession(req.user.id, roomSession);
             sendJoinRoomMessage(req.user.username, roomSession);
@@ -193,6 +227,29 @@ export async function joinRoomById(
             // Update the user session
             req.user.updatedAt = user.updatedAt;
 
+            let roomUser = await prisma.roomUser.findUnique({
+                where: {
+                    roomId_userId: {
+                        roomId: roomId,
+                        userId: user.id,
+                    },
+                },
+            });
+
+            let joinedAt: Date;
+            if (!roomUser) {
+                // Update the room user table with the join time
+                let roomUser = await prisma.roomUser.create({
+                    data: {
+                        userId: user.id,
+                        roomId: roomId,
+                    },
+                });
+                joinedAt = roomUser.joinedAt;
+            } else {
+                joinedAt = roomUser.joinedAt;
+            }
+
             // Update the room session
             let roomSession: RoomSession = {
                 roomId: roomId,
@@ -200,6 +257,7 @@ export async function joinRoomById(
                 userColor: generateRandomUserColor(),
                 createdAt: room.createdAt,
                 duration: room.duration,
+                joinedAt: joinedAt,
             };
             await setUserRoomSession(req.user.id, roomSession);
             sendJoinRoomMessage(req.user.username, roomSession);
@@ -331,5 +389,157 @@ function sendJoinRoomMessage(username: string, room: RoomSession) {
         chatEvent: ChatEvent.Join,
         color: room.userColor,
     };
-    io.to(room.roomId).emit("chat-message", newJoinMessage);
+    // Delay by 500ms so that the user can see the join room message when re-entering
+    setTimeout(() => {
+        io.to(room.roomId).emit("chat-message", newJoinMessage);
+    }, 500);
+}
+
+function getNumberOfQuestionsPerDifficulty(
+    roomDifficulty: RoomDifficulty,
+    easyQuestions: Question[],
+    mediumQuestions: Question[],
+    hardQuestions: Question[]
+): RoomDifficultyNumberOfQuestions {
+    let { Easy: easy, Medium: medium, Hard: hard } = roomDifficulty;
+    if (easy && medium && hard) {
+        let numberOfQuestions = {
+            Easy: 1,
+            Medium: 2,
+            Hard: 1,
+        };
+
+        // If there are not enough easy questions, get more medium or hard questions.
+        if (easyQuestions.length < numberOfQuestions.Easy) {
+            let diff = numberOfQuestions.Easy - easyQuestions.length;
+            numberOfQuestions.Easy = easyQuestions.length;
+            if (mediumQuestions.length >= numberOfQuestions.Medium + diff) {
+                numberOfQuestions.Medium += diff;
+            } else if (hardQuestions.length >= numberOfQuestions.Hard + diff) {
+                numberOfQuestions.Hard += diff;
+            }
+        }
+
+        // If there are not enough medium questions, get more easy or hard questions.
+        if (mediumQuestions.length < numberOfQuestions.Medium) {
+            let diff = numberOfQuestions.Medium - mediumQuestions.length;
+            numberOfQuestions.Medium = mediumQuestions.length;
+            if (easyQuestions.length >= numberOfQuestions.Easy + diff) {
+                numberOfQuestions.Easy += diff;
+            } else if (hardQuestions.length >= numberOfQuestions.Hard + diff) {
+                numberOfQuestions.Hard += diff;
+            }
+        }
+
+        // If there are not enough hard questions, get more easy or medium questions.
+        if (hardQuestions.length < numberOfQuestions.Hard) {
+            let diff = numberOfQuestions.Hard - hardQuestions.length;
+            numberOfQuestions.Hard = hardQuestions.length;
+            if (easyQuestions.length >= numberOfQuestions.Easy + diff) {
+                numberOfQuestions.Easy += diff;
+            } else if (
+                mediumQuestions.length >=
+                numberOfQuestions.Medium + diff
+            ) {
+                numberOfQuestions.Medium += diff;
+            }
+        }
+
+        return numberOfQuestions;
+    } else if (easy && medium) {
+        let numberOfQuestions = {
+            Easy: 2,
+            Medium: 2,
+            Hard: 0,
+        };
+
+        if (easyQuestions.length < numberOfQuestions.Easy) {
+            let diff = numberOfQuestions.Easy - easyQuestions.length;
+            numberOfQuestions.Easy = easyQuestions.length;
+            if (mediumQuestions.length >= numberOfQuestions.Medium + diff) {
+                numberOfQuestions.Medium += diff;
+            }
+        }
+
+        if (mediumQuestions.length < numberOfQuestions.Medium) {
+            let diff = numberOfQuestions.Medium - mediumQuestions.length;
+            numberOfQuestions.Medium = mediumQuestions.length;
+            if (easyQuestions.length >= numberOfQuestions.Easy + diff) {
+                numberOfQuestions.Easy += diff;
+            }
+        }
+
+        return numberOfQuestions;
+    } else if (easy && hard) {
+        let numberOfQuestions = {
+            Easy: 2,
+            Medium: 0,
+            Hard: 2,
+        };
+
+        if (easyQuestions.length < numberOfQuestions.Easy) {
+            let diff = numberOfQuestions.Easy - easyQuestions.length;
+            numberOfQuestions.Easy = easyQuestions.length;
+            if (hardQuestions.length >= numberOfQuestions.Hard + diff) {
+                numberOfQuestions.Hard += diff;
+            }
+        }
+
+        if (hardQuestions.length < numberOfQuestions.Hard) {
+            let diff = numberOfQuestions.Hard - hardQuestions.length;
+            numberOfQuestions.Hard = hardQuestions.length;
+            if (easyQuestions.length >= numberOfQuestions.Easy + diff) {
+                numberOfQuestions.Easy += diff;
+            }
+        }
+
+        return numberOfQuestions;
+    } else if (medium && hard) {
+        let numberOfQuestions = {
+            Easy: 0,
+            Medium: 2,
+            Hard: 2,
+        };
+
+        if (mediumQuestions.length < numberOfQuestions.Medium) {
+            let diff = numberOfQuestions.Medium - mediumQuestions.length;
+            numberOfQuestions.Medium = mediumQuestions.length;
+            if (hardQuestions.length >= numberOfQuestions.Hard + diff) {
+                numberOfQuestions.Hard += diff;
+            }
+        }
+
+        if (hardQuestions.length < numberOfQuestions.Hard) {
+            let diff = numberOfQuestions.Hard - hardQuestions.length;
+            numberOfQuestions.Hard = hardQuestions.length;
+            if (mediumQuestions.length >= numberOfQuestions.Medium + diff) {
+                numberOfQuestions.Medium += diff;
+            }
+        }
+
+        return numberOfQuestions;
+    } else if (easy) {
+        return {
+            Easy: 4,
+            Medium: 0,
+            Hard: 0,
+        };
+    } else if (medium) {
+        return {
+            Easy: 0,
+            Medium: 4,
+            Hard: 0,
+        };
+    } else if (hard) {
+        return {
+            Easy: 0,
+            Medium: 0,
+            Hard: 4,
+        };
+    }
+    return {
+        Easy: 0,
+        Medium: 0,
+        Hard: 0,
+    };
 }

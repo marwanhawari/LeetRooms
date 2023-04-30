@@ -1,10 +1,11 @@
 {
     "manifest_version": 3,
     "name": "LeetRooms",
-    "version": "0.1.6",
+    "version": "0.1.8",
     "description": "Multiplayer rooms for LeetCode.",
     "homepage_url": "https://leetrooms.com",
-    "permissions": ["activeTab", "storage"],
+    "permissions": ["activeTab", "storage", "webRequest"],
+    "host_permissions": ["https://leetcode.com/problems/*"],
     "action": {
         "default_icon": {
             "16": "icons/16.png",
@@ -25,5 +26,8 @@
             "css": ["content.css"],
             "js": ["content.js"]
         }
-    ]
+    ],
+    "background": {
+        "service_worker": "background.js"
+    }
 }
