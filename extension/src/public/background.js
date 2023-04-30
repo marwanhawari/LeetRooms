@@ -1,12 +1,7 @@
-const SUBMISSION_DELAY = 1000;
-let lastSentTime = 0;
-let sendInProgress = false;
-
 chrome.webRequest.onBeforeRequest.addListener(
     (details) => {
         let submissionId = parseSubmissionId(details.url);
-        const currentTime = Date.now();
-        if (submissionId && currentTime - lastSentTime >= SUBMISSION_DELAY) {
+        if (submissionId) {
             sendMessage(submissionId);
         }
     },
@@ -30,20 +25,11 @@ function parseSubmissionId(url) {
 }
 
 function sendMessage(submissionId) {
-    if (!sendInProgress) {
-        sendInProgress = true;
-        lastSentTime = Date.now();
-
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            if (tabs[0]) {
-                chrome.tabs.sendMessage(tabs[0].id, {
-                    submissionId: submissionId,
-                });
-            }
-        });
-
-        setTimeout(() => {
-            sendInProgress = false;
-        }, SUBMISSION_DELAY);
-    }
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs[0]) {
+            chrome.tabs.sendMessage(tabs[0].id, {
+                submissionId: submissionId,
+            });
+        }
+    });
 }

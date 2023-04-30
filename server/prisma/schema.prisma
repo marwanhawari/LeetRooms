@@ -21,6 +21,7 @@ model User {
   room           Room?        @relation(fields: [roomId], references: [id])
   roomId         String?
   submissions    Submission[]
+  RoomUser       RoomUser[]
 
   @@unique([provider, providerUserId])
 }
@@ -35,6 +36,17 @@ model Room {
   questionFilterSelections String[]
   submissions              Submission[]
   duration                 Int?
+  RoomUser                 RoomUser[]
+}
+
+model RoomUser {
+  room     Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  roomId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   Int
+  joinedAt DateTime @default(now())
+
+  @@id([roomId, userId])
 }
 
 model Question {

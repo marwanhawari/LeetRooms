@@ -48,6 +48,8 @@ const resizeElementHTML = `
 
 async function main() {
 
+    let previousSubmissionId = "";
+
     // Inject CSS
     var element = document.createElement("style");
     element.id = "resizeElementStyle";
@@ -159,6 +161,10 @@ async function main() {
     });
 
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+        if (previousSubmissionId == message.submissionId) {
+            return;
+        }
+        previousSubmissionId = message.submissionId;
         handleClickSubmitCodeButton(message.submissionId);
     });
 

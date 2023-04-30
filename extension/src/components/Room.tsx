@@ -51,15 +51,7 @@ export default function Room({
     const isLoadingGlobal = useIsMutating();
     let inputRef = useRef<HTMLInputElement>(null);
     let messagesRef = useRef<HTMLUListElement>(null);
-    let [messages, setMessages] = useState<MessageInterface[]>([
-        {
-            timestamp: Date.now(),
-            username: username,
-            body: "joined the room!",
-            chatEvent: ChatEvent.Join,
-            color: userColor,
-        },
-    ]);
+    let [messages, setMessages] = useState<MessageInterface[]>([]);
     let [hasClickedCopyIcon, setHasClickedCopyIcon] = useState(false);
     let socketRef = useRef<Socket | null>(null);
     let previousSubmissionUrl = useRef<string | null>(null);
