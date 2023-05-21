@@ -19,18 +19,20 @@ async function main() {
     reactRoot.id = "leetrooms-iframe";
     reactRoot.allow = "clipboard-read; clipboard-write";
 
-    const wrapper = document.createElement("div");
-    wrapper.style.overflow = "hidden";
-    wrapper.style.display = "flex";
-    wrapper.style.position = "relative";
-    wrapper.style.flexDirection = "row";
-    wrapper.style.height = "100%";
+    // const wrapper = document.createElement("div");
+    // wrapper.style.overflow = "hidden";
+    // wrapper.style.display = "flex";
+    // wrapper.style.position = "relative";
+    // wrapper.style.flexDirection = "row";
+    // wrapper.style.height = "100%";
 
     const handlebar = document.createElement("div");
     handlebar.id = "leetrooms-handlebar";
-    handlebar.style.minWidth = "10px";
+    handlebar.style.minWidth = "8px";
     handlebar.style.zIndex = "10";
     handlebar.style.userSelect = "none"; // Add this line to disable text selection on the handlebar
+    handlebar.style.position = "relative";
+    handlebar.style.left = "-4px";
 
     const overlay = document.createElement("div");
     overlay.style.position = "absolute";
@@ -40,9 +42,9 @@ async function main() {
     overlay.style.height = "100%";
     overlay.style.display = "none";
 
-    wrapper.appendChild(handlebar);
-    wrapper.appendChild(reactRoot);
-    wrapper.appendChild(overlay);
+    // wrapper.appendChild(handlebar);
+    // wrapper.appendChild(reactRoot);
+    // wrapper.appendChild(overlay);
 
     let isResizing = false;
     let initialMousePosition = 0;
@@ -175,7 +177,10 @@ async function main() {
 
     const mainContentContainer = await waitForElement(["#qd-content"]);
     // mainContentContainer.insertAdjacentElement("afterend", reactRoot);
-    mainContentContainer.insertAdjacentElement("afterend", wrapper);
+    // mainContentContainer.insertAdjacentElement("afterend", wrapper);
+    mainContentContainer.insertAdjacentElement("afterend", overlay);
+    mainContentContainer.insertAdjacentElement("afterend", reactRoot);
+    mainContentContainer.insertAdjacentElement("afterend", handlebar);
 
     let submissionButtonTimer: number;
     async function handleClickSubmitCodeButton(submissionId: string) {
