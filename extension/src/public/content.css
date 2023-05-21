@@ -1,9 +1,22 @@
 #leetrooms-handlebar {
     background-color: rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 8px;
+    margin-bottom: 8px;
 }
 
 #leetrooms-handlebar:hover {
     background-color: rgb(0, 132, 255);
+}
+
+#drag-handlebar-svg {
+    margin-bottom: 48px;
+}
+
+#open-handlebar-svg {
+    transform: rotate(180deg);
 }
 
 #leetrooms-handlebar:active {

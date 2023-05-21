@@ -1,6 +1,16 @@
 //@ts-nocheck
 const APP_URL = import.meta.env.VITE_APP_URL;
 
+const dragHandlebarSVG = `<svg id="drag-handlebar-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2 14" width="2" height="14" fill="white">
+    <circle r="1" transform="matrix(4.37114e-08 -1 -1 -4.37114e-08 1 1)"></circle>
+    <circle r="1" transform="matrix(4.37114e-08 -1 -1 -4.37114e-08 1 7)"></circle>
+    <circle r="1" transform="matrix(4.37114e-08 -1 -1 -4.37114e-08 1 13)"></circle>
+    </svg>`;
+
+const openHandlebarSVG = `<svg id="open-handlebar-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="white">
+    <path fill-rule="evenodd" d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z" clip-rule="evenodd"></path>
+    </svg>`;
+
 async function main() {
     let previousSubmissionId = "";
     const reactRoot = document.createElement("iframe");
@@ -19,7 +29,6 @@ async function main() {
     const handlebar = document.createElement("div");
     handlebar.id = "leetrooms-handlebar";
     handlebar.style.minWidth = "10px";
-    handlebar.style.cursor = "col-resize";
     handlebar.style.zIndex = "10";
     handlebar.style.userSelect = "none"; // Add this line to disable text selection on the handlebar
 
@@ -37,9 +46,11 @@ async function main() {
 
     let isResizing = false;
     let initialMousePosition = 0;
+    let initialClientX = 0;
 
     const startResizing = (event) => {
         isResizing = true;
+        initialClientX = event.clientX;
         initialMousePosition = event.clientX;
         overlay.style.display = "block"; // Show the overlay
         // overlay.style.backgroundColor = "red";
@@ -47,6 +58,31 @@ async function main() {
 
     handlebar.addEventListener("mousedown", startResizing);
     handlebar.addEventListener("dragstart", (event) => event.preventDefault()); // Prevent the default drag behavior
+
+    function setToggleState(toggleState: boolean) {
+        if (toggleState) {
+            reactRoot.style.display = "block";
+            handlebar.innerHTML = dragHandlebarSVG;
+            handlebar.style.cursor = "col-resize";
+            chrome.storage.local.set({ leetroomsToggleState: true });
+        } else {
+            reactRoot.style.display = "none";
+            handlebar.innerHTML = openHandlebarSVG;
+            handlebar.style.cursor = "pointer";
+            chrome.storage.local.set({ leetroomsToggleState: false });
+        }
+    }
+
+    handlebar.addEventListener("dblclick", () => {
+        chrome.storage.local.get("leetroomsToggleState", (result) => {
+            const toggleState = result.leetroomsToggleState ?? true;
+            if (toggleState) {
+                setToggleState(false);
+            } else {
+                setToggleState(true);
+            }
+        });
+    });
 
     const stopResizing = () => {
         isResizing = false;
@@ -74,6 +110,14 @@ async function main() {
         const currentWidth = parseInt(reactRoot.style.width);
         let newWidth = currentWidth + deltaX;
 
+        if (
+            currentWidth === MIN_WIDTH &&
+            initialClientX - event.clientX < -250
+        ) {
+            setToggleState(false);
+            stopResizing();
+            return;
+        }
         if (newWidth < MIN_WIDTH) {
             newWidth = MIN_WIDTH;
             if (
@@ -119,9 +163,9 @@ async function main() {
     chrome.storage.local.get("leetroomsToggleState", (result) => {
         const toggleState = result.leetroomsToggleState ?? true;
         if (toggleState) {
-            reactRoot.style.display = "block";
+            setToggleState(true);
         } else {
-            reactRoot.style.display = "none";
+            setToggleState(false);
         }
     });
     chrome.storage.local.get("leetroomsWidth", (result) => {
