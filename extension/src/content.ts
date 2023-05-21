@@ -1,4 +1,3 @@
-//@ts-nocheck
 const APP_URL = import.meta.env.VITE_APP_URL;
 
 const dragHandlebarSVG = `<svg class="handlebar-svg" id="drag-handlebar-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2 14" width="2" height="14">
@@ -38,11 +37,11 @@ async function main() {
     let initialMousePosition = 0;
     let isOpen = true;
 
-    const startResizing = (event) => {
+    function startResizing(event: MouseEvent) {
         isResizing = true;
         initialMousePosition = event.clientX;
         overlay.style.display = "block";
-    };
+    }
 
     handlebar.addEventListener("mousedown", (event) => {
         if (!isOpen) {
@@ -77,26 +76,26 @@ async function main() {
         }
     });
 
-    const stopResizing = () => {
+    function stopResizing() {
         isResizing = false;
         overlay.style.display = "none"; // Hide the overlay
-    };
+    }
 
-    const throttle = (func, limit) => {
-        let inThrottle;
-        return (...args) => {
+    function throttle(func: any, limit: number) {
+        let inThrottle: boolean;
+        return (...args: any) => {
             if (!inThrottle) {
                 func.apply(null, args);
                 inThrottle = true;
                 setTimeout(() => (inThrottle = false), limit);
             }
         };
-    };
+    }
 
     const MIN_WIDTH = 400;
     const MAX_WIDTH = 800;
 
-    const updateWidth = (event) => {
+    function updateWidth(event: MouseEvent) {
         if (!isResizing) return;
         const deltaX = initialMousePosition - event.clientX;
         initialMousePosition = event.clientX;
@@ -149,7 +148,7 @@ async function main() {
 
         reactRoot.style.width = `${newWidth}px`;
         chrome.storage.local.set({ leetroomsWidth: newWidth });
-    };
+    }
     window.addEventListener("mousemove", throttle(updateWidth, 16));
     window.addEventListener("mouseup", stopResizing);
 
