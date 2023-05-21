@@ -1,20 +1,3 @@
-const toggleButton = document.querySelector("#toggle-leetrooms-button");
-toggleButton.addEventListener("click", () => {
-    const toggleState = toggleButton.checked;
-    chrome.storage.local.set({ leetroomsToggleState: toggleState });
-    if (toggleState) {
-        widthSlider.parentElement.style.display = "flex";
-        darkModeButton.parentElement.parentElement.style.display = "flex";
-    } else {
-        widthSlider.parentElement.style.display = "none";
-        darkModeButton.parentElement.parentElement.style.display = "none";
-    }
-});
-const widthSlider = document.querySelector("#leetrooms-width");
-widthSlider.addEventListener("input", (event) => {
-    const leetroomsWidth = event.target.value;
-    chrome.storage.local.set({ leetroomsWidth: leetroomsWidth });
-});
 const darkModeButton = document.querySelector("#toggle-leetrooms-darkmode");
 darkModeButton.addEventListener("click", () => {
     const darkModeState = darkModeButton.checked;
@@ -28,23 +11,6 @@ chrome.tabs.query({ currentWindow: true, active: true }, (tabs) => {
     if (currentUrl.includes("https://leetcode.com/problems/")) {
         settingsContainer.style.display = "block";
         instructionsContainer.style.display = "none";
-        chrome.storage.local.get("leetroomsToggleState", (result) => {
-            const toggleState = result.leetroomsToggleState ?? true;
-            toggleButton.checked = toggleState;
-            if (toggleState) {
-                widthSlider.parentElement.style.display = "flex";
-                darkModeButton.parentElement.parentElement.style.display =
-                    "flex";
-            } else {
-                widthSlider.parentElement.style.display = "none";
-                darkModeButton.parentElement.parentElement.style.display =
-                    "none";
-            }
-        });
-        chrome.storage.local.get("leetroomsWidth", (result) => {
-            const leetroomsWidth = result.leetroomsWidth || "525";
-            widthSlider.value = leetroomsWidth;
-        });
         chrome.storage.local.get("leetroomsDarkMode", (result) => {
             const darkModeState = result.leetroomsDarkMode ?? true;
             darkModeButton.checked = darkModeState;
