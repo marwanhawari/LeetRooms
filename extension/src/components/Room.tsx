@@ -246,7 +246,7 @@ export default function Room({
     }, [messages]);
 
     return (
-        <div className="flex h-screen flex-col gap-y-2 border-x-8 border-t-8 border-lc-border-light bg-lc-bg-light px-2 text-sm text-lc-text-light dark:border-lc-border dark:bg-lc-bg dark:text-white">
+        <div className="flex h-screen flex-col gap-y-2 border-y-8 border-r-8 border-lc-border-light bg-lc-bg-light px-2 text-sm text-lc-text-light dark:border-lc-border dark:bg-lc-bg dark:text-white">
             <div className="mx-2 mt-2 flex flex-col" id="first-box">
                 <div
                     className="flex flex-row items-start justify-between"
