@@ -19,17 +19,10 @@ async function main() {
     reactRoot.id = "leetrooms-iframe";
     reactRoot.allow = "clipboard-read; clipboard-write";
 
-    // const wrapper = document.createElement("div");
-    // wrapper.style.overflow = "hidden";
-    // wrapper.style.display = "flex";
-    // wrapper.style.position = "relative";
-    // wrapper.style.flexDirection = "row";
-    // wrapper.style.height = "100%";
-
     const handlebar = document.createElement("div");
     handlebar.id = "leetrooms-handlebar";
     handlebar.style.minWidth = "8px";
-    handlebar.style.userSelect = "none"; // Add this line to disable text selection on the handlebar
+    handlebar.style.userSelect = "none"; // This line disables text selection on the handlebar
     handlebar.style.position = "relative";
     handlebar.style.left = "-4px";
 
@@ -41,10 +34,6 @@ async function main() {
     overlay.style.height = "100%";
     overlay.style.display = "none";
 
-    // wrapper.appendChild(handlebar);
-    // wrapper.appendChild(reactRoot);
-    // wrapper.appendChild(overlay);
-
     let isResizing = false;
     let initialMousePosition = 0;
     let isOpen = true;
@@ -52,8 +41,7 @@ async function main() {
     const startResizing = (event) => {
         isResizing = true;
         initialMousePosition = event.clientX;
-        overlay.style.display = "block"; // Show the overlay
-        // overlay.style.backgroundColor = "red";
+        overlay.style.display = "block";
     };
 
     handlebar.addEventListener("mousedown", (event) => {
@@ -105,8 +93,8 @@ async function main() {
         };
     };
 
-    const MIN_WIDTH = 400; // Minimum width constraint
-    const MAX_WIDTH = 800; // Maximum width constraint
+    const MIN_WIDTH = 400;
+    const MAX_WIDTH = 800;
 
     const updateWidth = (event) => {
         if (!isResizing) return;
@@ -165,10 +153,6 @@ async function main() {
     window.addEventListener("mousemove", throttle(updateWidth, 16));
     window.addEventListener("mouseup", stopResizing);
 
-    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
     chrome.storage.local.get("leetroomsToggleState", (result) => {
         const toggleState = result.leetroomsToggleState ?? true;
         if (toggleState) {
@@ -183,8 +167,6 @@ async function main() {
     });
 
     const mainContentContainer = await waitForElement(["#qd-content"]);
-    // mainContentContainer.insertAdjacentElement("afterend", reactRoot);
-    // mainContentContainer.insertAdjacentElement("afterend", wrapper);
     mainContentContainer.insertAdjacentElement("afterend", overlay);
     mainContentContainer.insertAdjacentElement("afterend", reactRoot);
     mainContentContainer.insertAdjacentElement("afterend", handlebar);
