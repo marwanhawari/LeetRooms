@@ -116,7 +116,7 @@ export default function RoomSettingsButton() {
                         <div className="fixed inset-0 bg-[hsl(0,0%,52%)] bg-opacity-50 dark:bg-lc-bg dark:bg-opacity-50" />
                     </Transition.Child>
                     <div id="modal" className="fixed inset-0 overflow-y-auto">
-                        <div className="flex min-h-full items-center justify-center p-6">
+                        <div className="flex min-h-full items-center justify-center pl-4 pr-6">
                             <Transition.Child
                                 as={Fragment}
                                 enter="ease-out duration-300"
