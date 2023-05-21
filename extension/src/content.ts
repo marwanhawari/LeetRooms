@@ -29,7 +29,6 @@ async function main() {
     const handlebar = document.createElement("div");
     handlebar.id = "leetrooms-handlebar";
     handlebar.style.minWidth = "8px";
-    handlebar.style.zIndex = "10";
     handlebar.style.userSelect = "none"; // Add this line to disable text selection on the handlebar
     handlebar.style.position = "relative";
     handlebar.style.left = "-4px";
@@ -48,6 +47,7 @@ async function main() {
 
     let isResizing = false;
     let initialMousePosition = 0;
+    let isOpen = true;
 
     const startResizing = (event) => {
         isResizing = true;
@@ -56,7 +56,13 @@ async function main() {
         // overlay.style.backgroundColor = "red";
     };
 
-    handlebar.addEventListener("mousedown", startResizing);
+    handlebar.addEventListener("mousedown", (event) => {
+        if (!isOpen) {
+            setToggleState(true);
+            return;
+        }
+        startResizing(event);
+    });
     handlebar.addEventListener("dragstart", (event) => event.preventDefault()); // Prevent the default drag behavior
 
     function setToggleState(toggleState: boolean) {
@@ -65,23 +71,22 @@ async function main() {
             handlebar.innerHTML = dragHandlebarSVG;
             handlebar.style.cursor = "col-resize";
             chrome.storage.local.set({ leetroomsToggleState: true });
+            isOpen = true;
+            handlebar.style.zIndex = "10";
         } else {
             reactRoot.style.display = "none";
             handlebar.innerHTML = openHandlebarSVG;
             handlebar.style.cursor = "pointer";
             chrome.storage.local.set({ leetroomsToggleState: false });
+            isOpen = false;
+            handlebar.style.zIndex = "0";
         }
     }
 
     handlebar.addEventListener("dblclick", () => {
-        chrome.storage.local.get("leetroomsToggleState", (result) => {
-            const toggleState = result.leetroomsToggleState ?? true;
-            if (toggleState) {
-                setToggleState(false);
-            } else {
-                setToggleState(true);
-            }
-        });
+        if (isOpen) {
+            setToggleState(false);
+        }
     });
 
     const stopResizing = () => {
@@ -109,9 +114,17 @@ async function main() {
         initialMousePosition = event.clientX;
         const currentWidth = parseInt(reactRoot.style.width);
         let newWidth = currentWidth + deltaX;
-        if (initialMousePosition - window.innerWidth - MIN_WIDTH > -500) {
+        if (
+            isOpen &&
+            initialMousePosition - window.innerWidth - MIN_WIDTH > -500
+        ) {
             setToggleState(false);
-            stopResizing();
+            return;
+        } else if (
+            !isOpen &&
+            initialMousePosition - window.innerWidth - MIN_WIDTH < -500
+        ) {
+            setToggleState(true);
             return;
         }
         if (newWidth < MIN_WIDTH) {
