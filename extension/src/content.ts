@@ -48,11 +48,9 @@ async function main() {
 
     let isResizing = false;
     let initialMousePosition = 0;
-    let initialClientX = 0;
 
     const startResizing = (event) => {
         isResizing = true;
-        initialClientX = event.clientX;
         initialMousePosition = event.clientX;
         overlay.style.display = "block"; // Show the overlay
         // overlay.style.backgroundColor = "red";
@@ -111,11 +109,7 @@ async function main() {
         initialMousePosition = event.clientX;
         const currentWidth = parseInt(reactRoot.style.width);
         let newWidth = currentWidth + deltaX;
-
-        if (
-            currentWidth === MIN_WIDTH &&
-            initialClientX - event.clientX < -250
-        ) {
+        if (initialMousePosition - window.innerWidth - MIN_WIDTH > -500) {
             setToggleState(false);
             stopResizing();
             return;
