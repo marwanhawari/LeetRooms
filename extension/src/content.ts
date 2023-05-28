@@ -1,5 +1,14 @@
 const APP_URL = import.meta.env.VITE_APP_URL;
 
+const XIconSVG = `
+<svg xmlns="http://www.w3.org/2000/svg" class="xicon-svg" viewBox="0 0 24 24" width="18" height="18">
+<path
+    fill-rule="evenodd"
+    clip-rule="evenodd"
+    d="M13.414 12L19 17.586A1 1 0 0117.586 19L12 13.414 6.414 19A1 1 0 015 17.586L10.586 12 5 6.414A1 1 0 116.414 5L12 10.586 17.586 5A1 1 0 1119 6.414L13.414 12z"
+></path>
+</svg>`;
+
 const dragHandlebarSVG = `<svg class="handlebar-svg" id="drag-handlebar-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2 14" width="2" height="14">
 <circle r="1" transform="matrix(4.37114e-08 -1 -1 -4.37114e-08 1 1)"></circle>
 <circle r="1" transform="matrix(4.37114e-08 -1 -1 -4.37114e-08 1 7)"></circle>
@@ -164,6 +173,59 @@ async function main() {
         const leetroomsWidth = result.leetroomsWidth ?? "525";
         reactRoot.style.width = `${leetroomsWidth}px`;
     });
+
+    const oldUIElement = document.querySelector("#app");
+    if (oldUIElement) {
+        chrome.storage.local.get("dismissedOldUIWarningAt", (result) => {
+            const dismissedOldUIWarningAt = result.dismissedOldUIWarningAt;
+            if (!dismissedOldUIWarningAt) {
+                return;
+            }
+            const currentTimeInMilliseconds = new Date().getTime();
+            const timeSinceDismissalInMilliseconds =
+                currentTimeInMilliseconds - dismissedOldUIWarningAt;
+            // Only show the warning if it has been dismissed for more than 1 month (2419200000 milliseconds)
+            if (timeSinceDismissalInMilliseconds < 2419200000) {
+                return;
+            }
+
+            const newUIWarningBanner = document.createElement("div");
+            newUIWarningBanner.style.display = "flex";
+            newUIWarningBanner.style.justifyContent = "center";
+            newUIWarningBanner.style.alignItems = "center";
+            newUIWarningBanner.style.backgroundColor = "#f0ad4e";
+            newUIWarningBanner.style.color = "#fff";
+            newUIWarningBanner.style.padding = "8px";
+            newUIWarningBanner.style.textAlign = "center";
+
+            const warningText = document.createElement("div");
+            warningText.textContent =
+                "LeetRooms is not compatible with the old LeetCode UI. Please switch to the new UI to use LeetRooms.";
+            warningText.style.flexGrow = "1";
+            warningText.style.paddingLeft = "96px";
+            newUIWarningBanner.appendChild(warningText);
+
+            const closeButton = document.createElement("div");
+            closeButton.innerHTML = XIconSVG;
+            closeButton.style.cursor = "pointer";
+            closeButton.style.paddingTop = "5px";
+            closeButton.style.paddingRight = "8px";
+            closeButton.style.fill = "#fff";
+            newUIWarningBanner.appendChild(closeButton);
+
+            closeButton.addEventListener("click", () => {
+                newUIWarningBanner.style.display = "none";
+                const dismissedOldUIWarningAt = new Date().getTime();
+                chrome.storage.local.set({
+                    dismissedOldUIWarningAt: dismissedOldUIWarningAt,
+                });
+            });
+
+            oldUIElement.prepend(newUIWarningBanner);
+            return;
+        });
+        return;
+    }
 
     const mainContentContainer = await waitForElement(["#qd-content"]);
     mainContentContainer.insertAdjacentElement("afterend", overlay);
