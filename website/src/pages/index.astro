@@ -1,6 +1,9 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import LeetRoomScreenshot from "../assets/LeetRoomsScreenshot.png";
+import LeetRoomScreenshot from "../assets/LeetRoomsScreenshot.svg";
+import RoomSettingsScreenshot from "../assets/RoomSettingsScreenshot.svg";
+import ScoreboardScreenshot from "../assets/ScoreboardScreenshot.svg";
+import EventsScreenshot from "../assets/EventsScreenshot.svg";
 import LeetRoomsIcon from "../assets/LeetRoomsIcon.png";
 import GitHubIcon from "../assets/github.svg";
 import ChromeIcon from "../assets/ChromeIcon.svg";
@@ -43,11 +46,18 @@ import PrivacyIcon from "../assets/PrivacyIcon.svg";
             <div class="text-slate-200 text-lg font-semibold">Download for</div>
             <img src={ChromeIcon} alt="Download for Chrome" class="w-7" />
         </a>
-        <img
-            src={LeetRoomScreenshot}
-            alt="LeetRooms screenshot"
-            class="w-3/4 rounded-2xl border-slate-600 border-[1px]"
-        />
+        <div class="relative mx-8 lg:mx-28">
+            <div
+                class="absolute -inset-6 bg-gradient-radial from-yellow-700 to-[hsl(0,0%,12%)] blur-[64px]"
+            >
+            </div>
+            <img
+                src={LeetRoomScreenshot}
+                id="leetrooms-screenshot"
+                alt="LeetRooms screenshot"
+                class="relative rounded-xl border-slate-600 border-[1px]"
+            />
+        </div>
         <div
             class="flex flex-row flex-wrap text-slate-200 px-28 lg:gap-x-36 gap-x-16 gap-y-12 items-start justify-center mt-14 mb-14"
         >
@@ -79,7 +89,144 @@ import PrivacyIcon from "../assets/PrivacyIcon.svg";
                 </div>
             </div>
         </div>
-        <div
+        <div class="flex flex-col w-full gap-y-14">
+            <div
+                class="flex flex-row items-center justify-center gap-20 flex-wrap"
+            >
+                <div class="relative">
+                    <div
+                        class="absolute inset-0 bg-gradient-radial from-yellow-700 to-[hsl(0,0%,12%)] blur-[64px]"
+                    >
+                    </div>
+                    <img
+                        class="relative left-card rounded-[20px] border-slate-600 border-[1px]"
+                        src={RoomSettingsScreenshot}
+                        alt="Room settings screenshot"
+                    />
+                </div>
+                <div class="flex flex-col gap-y-10 px-4">
+                    <div
+                        class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-300 to-orange-200"
+                    >
+                        Customize the room settings
+                    </div>
+                    <ul class="pl-2 text-lg">
+                        <span class="flex flex-row items-center gap-x-2">
+                            <span class="text-lg">✓</span>
+                            <li>Select specific topics to practice</li>
+                        </span>
+                        <span class="flex flex-row items-center gap-x-2">
+                            <span class="text-lg">✓</span>
+                            <li>Filter questions by difficulty</li>
+                        </span>
+                        <span class="flex flex-row items-center gap-x-2">
+                            <span class="text-lg">✓</span>
+                            <li>Set a room timer to simulate contests</li>
+                        </span>
+                    </ul>
+                </div>
+            </div>
+            <div
+                class="flex flex-row items-center justify-center gap-20 flex-wrap"
+            >
+                <div class="flex flex-col gap-y-10 px-4">
+                    <div
+                        class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-l from-slate-300 to-orange-200"
+                    >
+                        Keep track with the scoreboard
+                    </div>
+                    <ul class="pl-2 text-lg">
+                        <span class="flex flex-row items-center gap-x-2">
+                            <span class="text-lg">✓</span>
+                            <li>Ranked by completion time</li>
+                        </span>
+                        <span class="flex flex-row items-center gap-x-2">
+                            <span class="text-lg">✓</span>
+                            <li>
+                                Hover over accepted submissions to see their
+                                time
+                            </li>
+                        </span>
+                        <span class="flex flex-row items-center gap-x-2">
+                            <span class="text-lg">✓</span>
+                            <li>
+                                Click on accepted submissions to view their code
+                            </li>
+                        </span>
+                    </ul>
+                </div>
+                <div class="relative">
+                    <div
+                        class="absolute inset-0 bg-gradient-radial from-yellow-700 to-[hsl(0,0%,12%)] blur-[72px]"
+                    >
+                    </div>
+                    <img
+                        class="relative right-card rounded-[20px] border-slate-600 border-[1px]"
+                        src={ScoreboardScreenshot}
+                        alt="Scoreboard screenshot"
+                    />
+                </div>
+            </div>
+            <div
+                class="flex flex-row items-center justify-center gap-20 flex-wrap"
+            >
+                <div class="relative">
+                    <div
+                        class="absolute inset-0 bg-gradient-radial from-yellow-700 to-[hsl(0,0%,12%)] blur-[72px]"
+                    >
+                    </div>
+                    <img
+                        class="relative left-card rounded-[20px] border-slate-600 border-[1px]"
+                        src={EventsScreenshot}
+                        alt="Events screenshot"
+                    />
+                </div>
+                <div class="flex flex-col gap-y-10 px-4">
+                    <div
+                        class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-300 to-orange-200"
+                    >
+                        Experience real-time events
+                    </div>
+                    <ul class="pl-2 text-lg">
+                        <span class="flex flex-row items-center gap-x-2">
+                            <span class="text-lg">✓</span>
+                            <li>Question submitted</li>
+                        </span>
+                        <span class="flex flex-row items-center gap-x-2">
+                            <span class="text-lg">✓</span>
+                            <li>Question accepted</li>
+                        </span>
+                        <span class="flex flex-row items-center gap-x-2">
+                            <span class="text-lg">✓</span>
+                            <li>Room completed</li>
+                        </span>
+                        <span class="flex flex-row items-center gap-x-2">
+                            <span class="text-lg">✓</span>
+                            <li>And more...</li>
+                        </span>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-col items-center justify-center gap-8 mt-20">
+            <div
+                class="text-center font-bold text-5xl text-transparent bg-clip-text bg-gradient-to-l from-slate-300 to-orange-200"
+            >
+                Get started
+            </div>
+            <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://chrome.google.com/webstore/detail/leetrooms/ekldadcjhbmljcefnilihgagmnmmlfcd"
+                class="flex flex-row items-center justify-center bg-[hsl(0,0%,16%)] hover:bg-[hsl(0,0%,19%)] transition-all p-4 rounded-lg gap-x-2"
+            >
+                <div class="text-slate-200 text-lg font-semibold">
+                    Download for
+                </div>
+                <img src={ChromeIcon} alt="Download for Chrome" class="w-7" />
+            </a>
+        </div>
+        <footer
             class="text-slate-200 flex flex-row flex-wrap text-sm gap-x-4 pb-8 items-center justify-center"
         >
             <a
@@ -120,11 +267,36 @@ import PrivacyIcon from "../assets/PrivacyIcon.svg";
             >
                 Cookies policy
             </a>
-        </div>
+        </footer>
     </main>
 </Layout>
 
 <script>
+    import VanillaTilt from "vanilla-tilt";
+
+    const leftCards = Array.from(
+        document.querySelectorAll<HTMLImageElement>(".left-card")
+    );
+    const rightCards = Array.from(
+        document.querySelectorAll<HTMLImageElement>(".right-card")
+    );
+    if (leftCards) {
+        VanillaTilt.init(leftCards, {
+            scale: 1.1,
+            speed: 2000,
+            startX: -8,
+            startY: 4,
+        });
+    }
+    if (rightCards) {
+        VanillaTilt.init(rightCards, {
+            scale: 1.1,
+            speed: 2000,
+            startX: 8,
+            startY: 4,
+        });
+    }
+
     let navBar = document.querySelector("header");
     let blurClasses = ["bg-opacity-50", "shadow-lg", "backdrop-blur-sm"];
     function blurNavBar() {

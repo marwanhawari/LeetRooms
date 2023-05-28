@@ -1,0 +1,18 @@
+{"roomId":"miyQ9AZbBm","messages":[
+    {"timestamp":1685219515093,"username":"L3tt3r5","body":"fake message text","chatEvent":"Message","color":"text-cyan-400"},
+    {"timestamp":1685219515093,"username":"L3tt3r5","body":"fake message text","chatEvent":"Message","color":"text-cyan-400"},
+    {"timestamp":1685219515093,"username":"L3tt3r5","body":"fake message text","chatEvent":"Message","color":"text-cyan-400"},
+    {"timestamp":1685219515093,"username":"L3tt3r5","body":"fake message text","chatEvent":"Message","color":"text-cyan-400"},
+    {"timestamp":1685219407942,"username":"pineflamingo","body":"submitted.","chatEvent":"Submit","color":"text-cyan-400"},
+    {"timestamp":1685219409344,"username":"L3tt3r5","body":"solved Invert Binary Tree!","chatEvent":"Accepted","color":"text-emerald-400"},
+    {"timestamp":1685219491911,"username":"L3tt3r5","body":"submitted.","chatEvent":"Submit","color":"text-emerald-400"},
+    {"timestamp":1685219497787,"username":"turing_machine","body":"submitted.","chatEvent":"Submit","color":"text-red-400"},
+    {"timestamp":1685219498406,"username":"turing_machine","body":"solved Invert Binary Tree!","chatEvent":"Accepted","color":"text-red-400"},
+    {"timestamp":1685219403145,"username":"curly_fries6","body":"joined the room!","chatEvent":"Join","color":"text-fuchsia-400"},
+    {"timestamp":1685219514058,"username":"marwanhawari","body":"Can you use DFS for Q3?","chatEvent":"Message","color":"text-cyan-400"},
+    {"timestamp":1685219514597,"username":"rat_code","body":"I'm just using BFS...","chatEvent":"Message","color":"text-orange-400"},
+    {"timestamp":1685219504990,"username":"marwanhawari","body":"submitted.","chatEvent":"Submit","color":"text-cyan-400"},
+    {"timestamp":1685219506696,"username":"marwanhawari","body":"solved Binary Tree Zigzag Level Order Traversal!","chatEvent":"Accepted","color":"text-cyan-400"},
+    {"timestamp":1685219506735,"username":"marwanhawari","body":"completed the room in 34m 27s!","chatEvent":"Complete","color":"text-cyan-400"}
+]}
+
