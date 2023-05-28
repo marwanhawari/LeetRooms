@@ -101,7 +101,7 @@ async function main() {
         };
     }
 
-    const MIN_WIDTH = 400;
+    const MIN_WIDTH = 350;
     const MAX_WIDTH = 800;
 
     function updateWidth(event: MouseEvent) {
@@ -112,13 +112,13 @@ async function main() {
         let newWidth = currentWidth + deltaX;
         if (
             isOpen &&
-            initialMousePosition - window.innerWidth - MIN_WIDTH > -500
+            initialMousePosition - window.innerWidth - MIN_WIDTH > -450
         ) {
             setToggleState(false);
             return;
         } else if (
             !isOpen &&
-            initialMousePosition - window.innerWidth - MIN_WIDTH < -500
+            initialMousePosition - window.innerWidth - MIN_WIDTH < -450
         ) {
             setToggleState(true);
             return;
@@ -288,9 +288,9 @@ async function main() {
         for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
             if (key == "leetroomsToggleState") {
                 if (newValue == true) {
-                    reactRoot.style.display = "block";
+                    setToggleState(true);
                 } else {
-                    reactRoot.style.display = "none";
+                    setToggleState(false);
                 }
             }
             if (key == "leetroomsWidth") {
