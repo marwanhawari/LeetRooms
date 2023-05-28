@@ -26,11 +26,19 @@
     </head>
     <body>
         <script>
-            const leetroomsDarkMode = localStorage.getItem("leetroomsDarkMode");
-            if (leetroomsDarkMode === "true" || !leetroomsDarkMode) {
+            try {
+                const leetroomsDarkMode =
+                    localStorage.getItem("leetroomsDarkMode");
+                if (leetroomsDarkMode === "true" || !leetroomsDarkMode) {
+                    document.body.classList.add("dark");
+                } else {
+                    document.body.classList.remove("dark");
+                }
+            } catch (error) {
                 document.body.classList.add("dark");
-            } else {
-                document.body.classList.remove("dark");
+                console.error(
+                    "Unable to read from local storage while third-party cookies are disabled"
+                );
             }
 
             window.addEventListener("message", (event) => {
@@ -40,12 +48,16 @@
                 ) {
                     return;
                 }
-                if (event.data.isDarkMode) {
-                    document.body.classList.add("dark");
-                    localStorage.setItem("leetroomsDarkMode", "true");
-                } else {
-                    document.body.classList.remove("dark");
-                    localStorage.setItem("leetroomsDarkMode", "false");
+                try {
+                    if (event.data.isDarkMode) {
+                        document.body.classList.add("dark");
+                        localStorage.setItem("leetroomsDarkMode", "true");
+                    } else {
+                        document.body.classList.remove("dark");
+                        localStorage.setItem("leetroomsDarkMode", "false");
+                    }
+                } catch (error) {
+                    console.error("Unable to write to local storage");
                 }
             });
         </script>

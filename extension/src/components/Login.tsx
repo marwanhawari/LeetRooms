@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import Home from "./Home";
+import CookiesWarning from "./CookiesWarning";
 import { SERVER_URL, authProviders } from "../config";
 import SignInButton from "./buttons/SignInButton";
 import { SessionResponse } from "../types/Session";
@@ -7,6 +8,12 @@ import LeetRoomsIcon from "../assets/LeetRoomsIcon.png";
 import Spinner from "./Spinner";
 
 async function fetchSession() {
+    // Detect if third-party cookies are enabled
+    document.cookie = "testCookie=testValue; SameSite=None; Secure";
+    const cookieEnabled = document.cookie.indexOf("testCookie") != -1;
+    if (!cookieEnabled) {
+        return false;
+    }
     let response = await fetch(`${SERVER_URL}/sessions`, {
         credentials: "include",
     });
@@ -17,7 +24,7 @@ async function fetchSession() {
 }
 
 export default function Login() {
-    let { data: session, isLoading } = useQuery<SessionResponse>(
+    let { data: session, isLoading } = useQuery<SessionResponse | boolean>(
         ["session"],
         fetchSession
     );
@@ -30,7 +37,9 @@ export default function Login() {
         );
     }
 
-    if (session) {
+    if (session === false) {
+        return <CookiesWarning />;
+    } else if (session && typeof session === "object") {
         return <Home session={session} />;
     } else {
         return (
