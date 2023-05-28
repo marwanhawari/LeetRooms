@@ -184,8 +184,8 @@ async function main() {
             const currentTimeInMilliseconds = new Date().getTime();
             const timeSinceDismissalInMilliseconds =
                 currentTimeInMilliseconds - dismissedOldUIWarningAt;
-            // Only show the warning if it has been dismissed for more than 1 week (604800000 milliseconds)
-            if (timeSinceDismissalInMilliseconds < 604800000) {
+            // Only show the warning if it has been dismissed for more than 1 month (2419200000 milliseconds)
+            if (timeSinceDismissalInMilliseconds < 2419200000) {
                 return;
             }
 
