@@ -1,0 +1,101 @@
+#leetrooms-panel-container {
+    width: 325px;
+    height: 625px;
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    z-index: 999;
+    border-top: 2px solid #cccccc;
+    border-left: 2px solid #cccccc;
+    border-bottom: 2px solid #cccccc;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    padding-left: 8px;
+    background-color: hsl(220, 23%, 97%);
+    color: black;
+}
+
+.leetrooms-dark #leetrooms-panel-container {
+    border-top: 2px solid #666666;
+    border-left: 2px solid #666666;
+    border-bottom: 2px solid #666666;
+}
+
+#leetrooms-panel-tab {
+    height: 6%;
+    width: 100%;
+    cursor: pointer;
+    background-color: hsl(0, 0%, 100%);
+    border-top: 8px solid hsl(220, 23%, 97%);
+    border-right: 8px solid hsl(220, 23%, 97%);
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    color: rgb(156 163 175);
+}
+
+.leetrooms-dark #leetrooms-panel-tab {
+    background-color: hsl(0, 0%, 16%);
+    border-top: 8px solid hsl(0, 0%, 10%);
+    border-right: 8px solid hsl(0, 0%, 10%);
+}
+
+#leetrooms-iframe {
+    height: 94%;
+    width: 100%;
+    border: none;
+}
+
+#leetrooms-open-panel-tab {
+    width: 42px;
+    height: 170px;
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    z-index: 999;
+    border-top: 2px solid #666666;
+    border-left: 2px solid #666666;
+    border-bottom: 2px solid #666666;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    background-color: hsl(0, 0%, 10%, 60%);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#leetrooms-open-panel-tab-text {
+    transform: rotate(90deg);
+    white-space: nowrap;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    gap: 10px;
+    padding-right: 8px;
+    font-weight: bold;
+}
+
+.leetrooms-dark #leetrooms-panel-container {
+    background-color: hsl(0, 0%, 10%);
+    color: white;
+}
+
+.chevron-icon-svg {
+    fill: white;
+    vertical-align: middle;
+}
+
+#leetrooms-panel-tab .chevron-icon-svg {
+    transform: rotate(90deg);
+    fill: rgb(156 163 175);
+}
+
+#leetrooms-open-panel-tab .chevron-icon-svg {
+    transform: rotate(180deg);
+}

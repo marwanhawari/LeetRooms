@@ -11,11 +11,13 @@ export default defineConfig({
         rollupOptions: {
             input: {
                 content: "./src/content.ts",
+                panel: "./src/panel.ts",
                 index: "./src/index.html",
             },
             output: {
                 entryFileNames: (assetInfo) => {
-                    return assetInfo.name === "content"
+                    return assetInfo.name === "content" ||
+                        assetInfo.name === "panel"
                         ? "[name].js"
                         : "assets/[name].js";
                 },

@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "LeetRooms",
-    "version": "0.1.10",
+    "version": "0.1.11",
     "description": "Multiplayer rooms for LeetCode.",
     "homepage_url": "https://leetrooms.com",
     "permissions": ["activeTab", "storage", "webRequest"],
@@ -25,6 +25,12 @@
             "matches": ["https://leetcode.com/problems/*"],
             "css": ["content.css"],
             "js": ["content.js"]
+        },
+        {
+            "matches": ["https://leetcode.com/*"],
+            "exclude_matches": ["https://leetcode.com/problems/*"],
+            "css": ["panel.css"],
+            "js": ["panel.js"]
         }
     ],
     "background": {
