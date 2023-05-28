@@ -8,7 +8,7 @@ const instructionsContainer = document.querySelector("#leetrooms-instructions");
 const settingsContainer = document.querySelector("#leetrooms-settings");
 chrome.tabs.query({ currentWindow: true, active: true }, (tabs) => {
     const currentUrl = tabs[0].url;
-    if (currentUrl.includes("https://leetcode.com/problems/")) {
+    if (currentUrl.includes("https://leetcode.com")) {
         settingsContainer.style.display = "block";
         instructionsContainer.style.display = "none";
         chrome.storage.local.get("leetroomsDarkMode", (result) => {
