@@ -1,7 +1,9 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import LeetRoomScreenshot from "../assets/LeetRoomsScreenshot.png";
-import RoomSettingsScreenshot from "../assets/RoomSettingsScreenshot.png";
+import LeetRoomScreenshot from "../assets/LeetRoomsScreenshot.svg";
+import RoomSettingsScreenshot from "../assets/RoomSettingsScreenshot.svg";
+import ScoreboardScreenshot from "../assets/ScoreboardScreenshot.svg";
+import EventsScreenshot from "../assets/EventsScreenshot.svg";
 import LeetRoomsIcon from "../assets/LeetRoomsIcon.png";
 import GitHubIcon from "../assets/github.svg";
 import ChromeIcon from "../assets/ChromeIcon.svg";
@@ -53,7 +55,7 @@ import PrivacyIcon from "../assets/PrivacyIcon.svg";
                 src={LeetRoomScreenshot}
                 id="leetrooms-screenshot"
                 alt="LeetRooms screenshot"
-                class="relative rounded-2xl border-slate-600 border-[1px]"
+                class="relative rounded-xl border-slate-600 border-[1px]"
             />
         </div>
         <div
@@ -97,7 +99,7 @@ import PrivacyIcon from "../assets/PrivacyIcon.svg";
                     >
                     </div>
                     <img
-                        class="relative left-card rounded-2xl border-slate-600 border-[1px]"
+                        class="relative left-card rounded-[20px] border-slate-600 border-[1px]"
                         src={RoomSettingsScreenshot}
                         alt="Room settings screenshot"
                     />
@@ -106,7 +108,7 @@ import PrivacyIcon from "../assets/PrivacyIcon.svg";
                     <div
                         class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-300 to-orange-200"
                     >
-                        Customize room settings
+                        Customize the room settings
                     </div>
                     <ul class="pl-2 text-lg">
                         <span class="flex flex-row items-center gap-x-2">
@@ -159,9 +161,9 @@ import PrivacyIcon from "../assets/PrivacyIcon.svg";
                     >
                     </div>
                     <img
-                        class="relative right-card rounded-2xl border-slate-600 border-[1px]"
-                        src={RoomSettingsScreenshot}
-                        alt="Room settings screenshot"
+                        class="relative right-card rounded-[20px] border-slate-600 border-[1px]"
+                        src={ScoreboardScreenshot}
+                        alt="Scoreboard screenshot"
                     />
                 </div>
             </div>
@@ -174,9 +176,9 @@ import PrivacyIcon from "../assets/PrivacyIcon.svg";
                     >
                     </div>
                     <img
-                        class="relative left-card rounded-2xl border-slate-600 border-[1px]"
-                        src={RoomSettingsScreenshot}
-                        alt="Room settings screenshot"
+                        class="relative left-card rounded-[20px] border-slate-600 border-[1px]"
+                        src={EventsScreenshot}
+                        alt="Events screenshot"
                     />
                 </div>
                 <div class="flex flex-col gap-y-10">
@@ -208,7 +210,7 @@ import PrivacyIcon from "../assets/PrivacyIcon.svg";
         </div>
         <div class="flex flex-col items-center justify-center gap-8 mt-20">
             <div
-                class="text-center font-bold text-5xl text-transparent bg-clip-text bg-gradient-to-r from-slate-300 to-orange-200"
+                class="text-center font-bold text-5xl text-transparent bg-clip-text bg-gradient-to-l from-slate-300 to-orange-200"
             >
                 Get started
             </div>
