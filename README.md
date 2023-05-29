@@ -11,7 +11,7 @@
 # Features
 * Create contest-style multiplayer rooms
 * Live chat with other users
-* Easily share room codes
+* Customize the room settings to practice specific topics
 * Sign in with GitHub, Google, Discord, or Twitch
 
 # Installation
@@ -22,5 +22,5 @@ See the [CONTRIBUTING.md](https://github.com/marwanhawari/LeetRooms/blob/main/CO
 
 <br>
 <p align="center">
-  <img width=100% height=auto src="https://github.com/marwanhawari/LeetRooms/blob/main/website/src/assets/LeetRoomsScreenshot.png" alt="LeetRooms screenshot"/>
+  <img width=100% height=auto src="https://github.com/marwanhawari/LeetRooms/blob/main/website/src/assets/LeetRoomsScreenshot.svg" alt="LeetRooms screenshot"/>
 </p>
