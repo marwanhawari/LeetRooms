@@ -29,23 +29,29 @@ export async function getRoomPlayers(
             throw new Error("Could not find a room for the current user");
         }
         let roomId = room.roomId;
-        let response: PlayerWithSubmissions[] =
-            await prisma.$queryRaw`SELECT u.id, u.username, ru."joinedAt" AS "updatedAt", json_agg(json_build_object(
-                'questionId', q.id,
-                'title', q.title,
+        let response: PlayerWithSubmissions[] = await prisma.$queryRaw`SELECT 
+        u."id",
+        u."username",
+        u."roomId",
+        ru."joinedAt" as "updatedAt",
+        json_agg(
+            json_build_object(
+                'questionId', q."id", 
+                'title', q."title",
                 'titleSlug', q."titleSlug",
-                'difficulty', q.difficulty,
-                'status', s.status,
+                'difficulty', q."difficulty",
+                'status', s."status",
                 'updatedAt', s."updatedAt",
-                'url', s.url
-            ))  as submissions
-            FROM "User" u
-            LEFT JOIN "RoomQuestion" rq ON u."roomId" = rq."roomId"
-            LEFT JOIN "Question" q ON rq."questionId" = q.id
-            LEFT JOIN "RoomUser" ru ON ru."roomId" = u."roomId" AND ru."userId" = u.id
-            LEFT JOIN "Submission" s ON s."questionId" = rq."questionId" AND s."roomId" = rq."roomId" AND s."userId" = u.id
-            WHERE rq."roomId" = ${roomId}
-            GROUP BY u.id, ru."joinedAt";`;
+                'url', s."url"
+            )
+        ) AS submissions
+    FROM "User" u
+    JOIN "RoomUser" ru ON u."id" = ru."userId"
+    JOIN "Room" r ON r."id" = ${roomId} AND ru."roomId" = r."id"
+    JOIN "RoomQuestion" rq ON r."id" = rq."roomId"
+    JOIN "Question" q ON rq."questionId" = q."id"
+    LEFT JOIN "Submission" s ON u."id" = s."userId" AND s."questionId" = q."id" AND s."roomId" = r."id"
+    GROUP BY u."id", ru."joinedAt", u."roomId";`;
         return res.json(response);
     } catch (error) {
         return next(error);
