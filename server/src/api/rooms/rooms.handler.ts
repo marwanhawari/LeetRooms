@@ -30,35 +30,28 @@ export async function getRoomPlayers(
         }
         let roomId = room.roomId;
         let response: PlayerWithSubmissions[] = await prisma.$queryRaw`SELECT 
-        "User"."id",
-        "User"."username",
-        "User"."roomId",
-        "RoomUser"."joinedAt" as "updatedAt",
+        u."id",
+        u."username",
+        u."roomId",
+        ru."joinedAt" as "updatedAt",
         json_agg(
             json_build_object(
-                'questionId', "Question"."id", 
-                'title', "Question"."title",
-                'titleSlug', "Question"."titleSlug",
-                'difficulty', "Question"."difficulty",
-                'status', "Submission"."status",
-                'updatedAt', "Submission"."updatedAt",
-                'url', "Submission"."url"
+                'questionId', q."id", 
+                'title', q."title",
+                'titleSlug', q."titleSlug",
+                'difficulty', q."difficulty",
+                'status', s."status",
+                'updatedAt', s."updatedAt",
+                'url', s."url"
             )
         ) AS submissions
-    FROM
-        "User"
-    JOIN
-        "RoomUser" ON "User"."id" = "RoomUser"."userId"
-    JOIN
-        "Room" ON "Room"."id" = ${roomId} AND "RoomUser"."roomId" = "Room"."id"
-    JOIN 
-        "RoomQuestion" ON "Room"."id" = "RoomQuestion"."roomId"
-    JOIN 
-        "Question" ON "RoomQuestion"."questionId" = "Question"."id"
-    LEFT JOIN
-        "Submission" ON "User"."id" = "Submission"."userId" AND "Submission"."questionId" = "Question"."id" AND "Submission"."roomId" = "Room"."id"
-    GROUP BY
-        "User"."id", "RoomUser"."joinedAt", "User"."roomId";`;
+    FROM "User" u
+    JOIN "RoomUser" ru ON u."id" = ru."userId"
+    JOIN "Room" r ON r."id" = ${roomId} AND ru."roomId" = r."id"
+    JOIN "RoomQuestion" rq ON r."id" = rq."roomId"
+    JOIN "Question" q ON rq."questionId" = q."id"
+    LEFT JOIN "Submission" s ON u."id" = s."userId" AND s."questionId" = q."id" AND s."roomId" = r."id"
+    GROUP BY u."id", ru."joinedAt", u."roomId";`;
         return res.json(response);
     } catch (error) {
         return next(error);
