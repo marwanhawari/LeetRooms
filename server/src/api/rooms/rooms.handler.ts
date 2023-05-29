@@ -29,23 +29,36 @@ export async function getRoomPlayers(
             throw new Error("Could not find a room for the current user");
         }
         let roomId = room.roomId;
-        let response: PlayerWithSubmissions[] =
-            await prisma.$queryRaw`SELECT u.id, u.username, ru."joinedAt" AS "updatedAt", json_agg(json_build_object(
-                'questionId', q.id,
-                'title', q.title,
-                'titleSlug', q."titleSlug",
-                'difficulty', q.difficulty,
-                'status', s.status,
-                'updatedAt', s."updatedAt",
-                'url', s.url
-            ))  as submissions
-            FROM "User" u
-            LEFT JOIN "RoomQuestion" rq ON u."roomId" = rq."roomId"
-            LEFT JOIN "Question" q ON rq."questionId" = q.id
-            LEFT JOIN "RoomUser" ru ON ru."roomId" = u."roomId" AND ru."userId" = u.id
-            LEFT JOIN "Submission" s ON s."questionId" = rq."questionId" AND s."roomId" = rq."roomId" AND s."userId" = u.id
-            WHERE rq."roomId" = ${roomId}
-            GROUP BY u.id, ru."joinedAt";`;
+        let response: PlayerWithSubmissions[] = await prisma.$queryRaw`SELECT 
+        "User"."id",
+        "User"."username",
+        "User"."roomId",
+        "RoomUser"."joinedAt" as "updatedAt",
+        json_agg(
+            json_build_object(
+                'questionId', "Question"."id", 
+                'title', "Question"."title",
+                'titleSlug', "Question"."titleSlug",
+                'difficulty', "Question"."difficulty",
+                'status', "Submission"."status",
+                'updatedAt', "Submission"."updatedAt",
+                'url', "Submission"."url"
+            )
+        ) AS submissions
+    FROM
+        "User"
+    JOIN
+        "RoomUser" ON "User"."id" = "RoomUser"."userId"
+    JOIN
+        "Room" ON "Room"."id" = ${roomId} AND "RoomUser"."roomId" = "Room"."id"
+    JOIN 
+        "RoomQuestion" ON "Room"."id" = "RoomQuestion"."roomId"
+    JOIN 
+        "Question" ON "RoomQuestion"."questionId" = "Question"."id"
+    LEFT JOIN
+        "Submission" ON "User"."id" = "Submission"."userId" AND "Submission"."questionId" = "Question"."id" AND "Submission"."roomId" = "Room"."id"
+    GROUP BY
+        "User"."id", "RoomUser"."joinedAt", "User"."roomId";`;
         return res.json(response);
     } catch (error) {
         return next(error);

@@ -293,7 +293,7 @@ export default function Room({
                         />
                     ))}
                 </div>
-                <PlayersButton questions={questions} />
+                <PlayersButton questions={questions} roomId={roomId} />
                 {duration && (
                     <Timer createdAt={createdAt} duration={duration} />
                 )}

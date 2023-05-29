@@ -15,6 +15,7 @@ interface Player {
     id: number;
     username: string;
     updatedAt: Date;
+    roomId: string;
 }
 
 interface PlayerSubmission {
@@ -52,8 +53,10 @@ let cancelQueryTimer: number;
 
 export default function PlayersButton({
     questions,
+    roomId,
 }: {
     questions: QuestionInterface[];
+    roomId: string;
 }) {
     let [isOpen, setIsOpen] = useState(false);
     const queryClient = useQueryClient();
@@ -82,7 +85,9 @@ export default function PlayersButton({
         keepPreviousData: false,
     });
 
-    let numberOfPlayersOnline = players ? players.length : 0;
+    let numberOfPlayersOnline = players
+        ? players.filter((player) => player.roomId == roomId).length
+        : 0;
 
     function getPlayersWithSortedSubmissions(
         players: PlayerWithSubmissions[] | undefined,
@@ -260,6 +265,7 @@ export default function PlayersButton({
 
                                             <Scoreboard
                                                 players={rankedPlayers}
+                                                roomId={roomId}
                                             />
                                         </div>
                                     )}
@@ -275,8 +281,10 @@ export default function PlayersButton({
 
 function Scoreboard({
     players,
+    roomId,
 }: {
     players: PlayerWithSubmissions[] | undefined;
+    roomId: string;
 }) {
     return (
         <div className="mb-3 mt-3 flex flex-col overflow-auto text-sm font-medium text-lc-text-light dark:text-white">
@@ -284,10 +292,16 @@ function Scoreboard({
                 ? players.map((player) => {
                       return (
                           <div
-                              className=" flex flex-row gap-3 px-5 py-2 odd:bg-[hsl(0,0%,85%)] odd:bg-opacity-[45%] dark:odd:bg-lc-bg dark:odd:bg-opacity-[45%]"
+                              className="odd:bg-[hsl(0,0%,85%)] odd:bg-opacity-[45%] dark:odd:bg-opacity-[45%] flex flex-row gap-3 px-5 py-2 dark:odd:bg-lc-bg"
                               key={player.id}
                           >
-                              <div className="w-28 truncate">
+                              <div
+                                  className={`w-28 truncate ${
+                                      player.roomId === roomId
+                                          ? ""
+                                          : "dark:text-[hsl(0,0%,100%,30%)] text-[hsl(0,0%,15%,37%)]"
+                                  }`}
+                              >
                                   {player.username}
                               </div>
                               <Scores
@@ -397,6 +411,7 @@ let mockPlayers: PlayerWithSubmissions[] = [
         id: 0,
         username: "turing_machine",
         updatedAt: new Date(),
+        roomId: "uWOHVqaJc3",
         submissions: [
             {
                 title: "Two Sum",
@@ -436,6 +451,7 @@ let mockPlayers: PlayerWithSubmissions[] = [
         id: 1,
         username: "L3tt3r5",
         updatedAt: new Date(),
+        roomId: "uWOHVqaJc3",
         submissions: [
             {
                 title: "Two Sum",
@@ -475,6 +491,7 @@ let mockPlayers: PlayerWithSubmissions[] = [
         id: 2,
         username: "marwanhawari",
         updatedAt: new Date(),
+        roomId: "uWOHVqaJc3",
         submissions: [
             {
                 title: "Two Sum",
@@ -514,6 +531,7 @@ let mockPlayers: PlayerWithSubmissions[] = [
         id: 3,
         username: "curly_fries6",
         updatedAt: new Date(),
+        roomId: "uWOHVqaJc3",
         submissions: [
             {
                 title: "Two Sum",
@@ -553,6 +571,7 @@ let mockPlayers: PlayerWithSubmissions[] = [
         id: 4,
         username: "pineflamingo",
         updatedAt: new Date(),
+        roomId: "uWOHVqaJc3",
         submissions: [
             {
                 title: "Two Sum",
@@ -592,6 +611,7 @@ let mockPlayers: PlayerWithSubmissions[] = [
         id: 5,
         username: "rat_code",
         updatedAt: new Date(),
+        roomId: "uWOHVqaJc3",
         submissions: [
             {
                 title: "Two Sum",
@@ -631,6 +651,7 @@ let mockPlayers: PlayerWithSubmissions[] = [
         id: 6,
         username: "mangotree22",
         updatedAt: new Date(),
+        roomId: "uWOHVqaJc3",
         submissions: [
             {
                 title: "Two Sum",

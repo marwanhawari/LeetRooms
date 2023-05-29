@@ -8,6 +8,7 @@ export interface Player {
     id: number;
     username: string;
     updatedAt: Date;
+    roomId: string;
 }
 
 export interface PlayerSubmission {
