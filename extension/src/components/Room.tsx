@@ -12,6 +12,7 @@ import { SERVER_URL } from "../config";
 import { useIsMutating } from "@tanstack/react-query";
 import PlayersButton from "./buttons/PlayersButton";
 import Timer from "./Timer";
+import EmojiPicker from "./buttons/EmojiPickerButton";
 
 interface RoomMessagesLocalStorage {
     roomId: string;
@@ -55,6 +56,8 @@ export default function Room({
     let [hasClickedCopyIcon, setHasClickedCopyIcon] = useState(false);
     let socketRef = useRef<Socket | null>(null);
     let previousSubmissionUrl = useRef<string | null>(null);
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const pickerWrapperRef = useRef<HTMLDivElement>(null);
 
     function handleSubmitMessage(event: React.SyntheticEvent) {
         event.preventDefault();
@@ -91,6 +94,23 @@ export default function Room({
             setHasClickedCopyIcon(() => false);
         }, 2000);
     }
+
+    function onEmojiSelect(emoji: Record<string, any>) {
+        const input = inputRef.current;
+
+        if (!input) return;
+
+        const startIndex = input.selectionStart || input.value.length;
+        const endIndex = input.selectionEnd || input.value.length;
+
+        const newValue = input.value.slice(0, startIndex)
+            + emoji.native
+            + input.value.slice(endIndex);
+        
+        input.value = newValue;
+        input.focus();
+        input.setSelectionRange(startIndex + emoji.native.length, startIndex + emoji.native.length);
+    };
 
     useEffect(() => {
         let socket: Socket = io(SERVER_URL, {
@@ -245,6 +265,25 @@ export default function Room({
         autoScrollToLatestMessage();
     }, [messages]);
 
+    useEffect(() => {
+        const handleClickOutsideEvent = (event: Record<string, any>) => {
+            if (
+                pickerWrapperRef.current &&
+                !pickerWrapperRef.current.contains(event.target) &&
+                showEmojiPicker
+            ) {
+                setShowEmojiPicker(false);
+            }  
+        };
+
+        document.addEventListener('click', handleClickOutsideEvent);
+
+        return () => {
+            document.removeEventListener('click', handleClickOutsideEvent);
+        };
+        
+    }, [showEmojiPicker]);
+
     return (
         <div className="flex h-screen flex-col gap-y-2 border-y-8 border-r-8 border-lc-border-light bg-lc-bg-light px-2 text-sm text-lc-text-light dark:border-lc-border dark:bg-lc-bg dark:text-white">
             <div className="mx-2 mt-2 flex flex-col" id="first-box">
@@ -317,7 +356,7 @@ export default function Room({
                         type="text"
                         name="chatbox"
                         id="chatbox"
-                        className="w-full bg-lc-fg-light outline-none  dark:bg-lc-fg"
+                        className="w-full bg-lc-fg-light outline-none dark:bg-lc-fg"
                         placeholder="Type a message..."
                         spellCheck="false"
                         autoComplete="off"
@@ -325,6 +364,9 @@ export default function Room({
                         autoCorrect="off"
                     />
                 </form>
+                <div ref={pickerWrapperRef}>
+                    <EmojiPicker showEmojiPicker={showEmojiPicker} setShowEmojiPicker={setShowEmojiPicker} onSelectEmoji={onEmojiSelect}/>
+                </div>
                 <div
                     onClick={handleSubmitMessage}
                     className={`${
