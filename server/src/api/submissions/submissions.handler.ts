@@ -142,16 +142,12 @@ function sendCompletedRoomMessage(
     io.to(room.roomId).emit("chat-message", completedRoomMessage);
 }
 
-function calculateTimeDifference(playerEnteredAt: Date, submittedAt: Date) {
+function calculateTimeDifference(playerEnteredAt: string | Date, submittedAt: string | Date) {
+    const normalizedPlayerEnteredAt = typeof playerEnteredAt === 'string' ? playerEnteredAt.replace(/Z?$/, 'Z') : playerEnteredAt;
+    const normalizedSubmittedAt = typeof submittedAt === 'string' ? submittedAt.replace(/Z?$/, 'Z') : submittedAt;
+    
     const dateConvertedSubmissionTime = new Date(submittedAt);
-
     let dateConvertedPlayerEnteredAt = new Date(playerEnteredAt);
-    const userTimezoneOffset =
-        dateConvertedPlayerEnteredAt.getTimezoneOffset() * 60000;
-    dateConvertedPlayerEnteredAt = new Date(
-        dateConvertedPlayerEnteredAt.getTime() +
-            userTimezoneOffset * Math.sign(userTimezoneOffset)
-    );
 
     const timeDifference =
         dateConvertedSubmissionTime.getTime() -
