@@ -105,10 +105,11 @@ export async function createRoom(
                 roomSettings.difficulty,
                 easyQuestions,
                 mediumQuestions,
-                hardQuestions
+                hardQuestions,
+                roomSettings.numberOfQuestions,
             );
 
-            // Select 4 random questions
+            // Select random questions
             let randomlySelectedEasyQuestions: Question[] = easyQuestions
                 .sort(() => Math.random() - 0.5)
                 .slice(0, numberOfEasy);
@@ -405,14 +406,16 @@ function getNumberOfQuestionsPerDifficulty(
     roomDifficulty: RoomDifficulty,
     easyQuestions: Question[],
     mediumQuestions: Question[],
-    hardQuestions: Question[]
+    hardQuestions: Question[],
+    totalQuestions: number,
 ): RoomDifficultyNumberOfQuestions {
     let { Easy: easy, Medium: medium, Hard: hard } = roomDifficulty;
     if (easy && medium && hard) {
+        let distributions = getDistribution([3, 5, 3], totalQuestions);
         let numberOfQuestions = {
-            Easy: 1,
-            Medium: 2,
-            Hard: 1,
+            Easy: distributions[0],
+            Medium: distributions[1],
+            Hard: distributions[2],
         };
 
         // If there are not enough easy questions, get more medium or hard questions.
@@ -453,9 +456,10 @@ function getNumberOfQuestionsPerDifficulty(
 
         return numberOfQuestions;
     } else if (easy && medium) {
+        let distributions = getDistribution([5, 5, 0], totalQuestions);
         let numberOfQuestions = {
-            Easy: 2,
-            Medium: 2,
+            Easy: distributions[0],
+            Medium: distributions[1],
             Hard: 0,
         };
 
@@ -477,10 +481,11 @@ function getNumberOfQuestionsPerDifficulty(
 
         return numberOfQuestions;
     } else if (easy && hard) {
+        let distributions = getDistribution([5, 0, 5], totalQuestions);
         let numberOfQuestions = {
-            Easy: 2,
+            Easy: distributions[0],
             Medium: 0,
-            Hard: 2,
+            Hard: distributions[2],
         };
 
         if (easyQuestions.length < numberOfQuestions.Easy) {
@@ -501,10 +506,11 @@ function getNumberOfQuestionsPerDifficulty(
 
         return numberOfQuestions;
     } else if (medium && hard) {
+        let distribution = getDistribution([0, 6, 4], totalQuestions);
         let numberOfQuestions = {
             Easy: 0,
-            Medium: 2,
-            Hard: 2,
+            Medium: distribution[1],
+            Hard: distribution[2],
         };
 
         if (mediumQuestions.length < numberOfQuestions.Medium) {
@@ -526,21 +532,21 @@ function getNumberOfQuestionsPerDifficulty(
         return numberOfQuestions;
     } else if (easy) {
         return {
-            Easy: 4,
+            Easy: totalQuestions,
             Medium: 0,
             Hard: 0,
         };
     } else if (medium) {
         return {
             Easy: 0,
-            Medium: 4,
+            Medium: totalQuestions,
             Hard: 0,
         };
     } else if (hard) {
         return {
             Easy: 0,
             Medium: 0,
-            Hard: 4,
+            Hard: totalQuestions,
         };
     }
     return {
@@ -548,4 +554,31 @@ function getNumberOfQuestionsPerDifficulty(
         Medium: 0,
         Hard: 0,
     };
+}
+
+function weightedRandomizer(
+    weights: number[]
+    ): number {
+    const totalWeight = weights.reduce((acc, weight) => acc + weight, 0);
+    const randomValue = Math.random() * totalWeight;
+    let cumulativeWeight = 0;
+  
+    for (let i = 0; i < weights.length; i++) {
+        cumulativeWeight += weights[i];
+        if (randomValue < cumulativeWeight) {
+            return i;
+        }
+    }
+    return 0;
+}
+
+function getDistribution(
+    weights: number[],
+    totalQuestions: number,
+    ): number[] {
+    var distributions = [0, 0, 0];
+    for (let i = 0; i < totalQuestions; i++) {
+        distributions[weightedRandomizer(weights)] += 1;
+    }
+    return distributions;
 }

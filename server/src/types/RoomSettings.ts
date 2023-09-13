@@ -2,6 +2,7 @@ export interface RoomSettings {
     questionFilter: QuestionFilter;
     duration?: number | null;
     difficulty: RoomDifficulty;
+    numberOfQuestions: number;
 }
 
 export interface RoomDifficulty {
@@ -110,4 +111,5 @@ export const defaultRoomSettings: RoomSettings = {
         Medium: true,
         Hard: true,
     },
+    numberOfQuestions: 4,
 };

@@ -163,6 +163,12 @@ export default function RoomSettingsButton() {
                                                         setRoomSettings
                                                     }
                                                 />
+                                                <NumberOfQuestionsSelector
+                                                    roomSettings={roomSettings}
+                                                    setRoomSettings={
+                                                        setRoomSettings
+                                                    }
+                                                />
                                                 <button
                                                     onClick={closeModal}
                                                     className="rounded-lg bg-lc-fg-modal-light px-3 py-1.5 text-sm font-medium text-lc-text-light transition-all hover:bg-lc-fg-modal-hover-light dark:bg-lc-fg-modal dark:text-white dark:hover:bg-lc-fg-modal-hover"
@@ -453,6 +459,70 @@ function DurationSelector({
                     onClick={handleDecrement}
                     className={
                         roomSettings.duration && roomSettings.duration <= 15
+                            ? `rotate-180 cursor-not-allowed rounded-tl-md`
+                            : `rotate-180 cursor-pointer rounded-tl-md bg-[hsl(180,9%,84%)] transition-all hover:bg-[hsl(180,9%,78%)] dark:bg-[hsl(0,0%,38%)] dark:hover:bg-lc-fg-modal-hover`
+                    }
+                >
+                    <ChevronIcon />
+                </button>
+            </div>
+        </div>
+    );
+}
+
+function NumberOfQuestionsSelector({
+    roomSettings,
+    setRoomSettings,
+}: {
+    roomSettings: RoomSettings;
+    setRoomSettings: (roomSettings: RoomSettings) => void;
+}) {
+    function handleIncrement() {
+        if (roomSettings.numberOfQuestions >= 8) {
+            return;
+        }
+        setRoomSettings({
+            ...roomSettings,
+            duration: roomSettings.numberOfQuestions + 1,
+        });
+    }
+
+    function handleDecrement() {
+        if (roomSettings.numberOfQuestions <= 1) {
+            return;
+        }
+        setRoomSettings({
+            ...roomSettings,
+            duration: roomSettings.numberOfQuestions - 1,
+        });
+    }
+
+    return (
+        <div className="flex grow flex-row items-stretch">
+            <div className="flex flex-row items-center gap-1 rounded-l-lg bg-lc-fg-modal-light py-1.5 pl-2 pr-2 text-xs font-medium text-lc-text-light transition-all dark:bg-lc-fg-modal dark:text-white">
+                <div
+                    className={`w-[31px] text-center ${
+                        roomSettings.numberOfQuestions ? "text-inherit" : "text-sm"
+                    }`}
+                >
+                    {roomSettings.numberOfQuestions}
+                </div>
+            </div>
+            <div className="flex flex-col rounded-r-md bg-lc-fg-modal-hover">
+                <button
+                    onClick={handleIncrement}
+                    className={
+                        !roomSettings.numberOfQuestions
+                            ? "cursor-not-allowed rounded-tl-md"
+                            : "cursor-pointer rounded-tr-md bg-[hsl(180,9%,84%)] transition-all hover:bg-[hsl(180,9%,78%)] dark:bg-[hsl(0,0%,38%)] dark:hover:bg-lc-fg-modal-hover"
+                    }
+                >
+                    <ChevronIcon />
+                </button>
+                <button
+                    onClick={handleDecrement}
+                    className={
+                        roomSettings.numberOfQuestions && roomSettings.numberOfQuestions <= 15
                             ? `rotate-180 cursor-not-allowed rounded-tl-md`
                             : `rotate-180 cursor-pointer rounded-tl-md bg-[hsl(180,9%,84%)] transition-all hover:bg-[hsl(180,9%,78%)] dark:bg-[hsl(0,0%,38%)] dark:hover:bg-lc-fg-modal-hover`
                     }
