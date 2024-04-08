@@ -254,16 +254,11 @@ async function main() {
             APP_URL
         );
 
-        const acceptedSolutionSelectors = [
-            "#qd-content > div.h-full.flex-col > div > div > div > div.flex.h-full.w-full.overflow-y-auto > div > div.flex.flex-col > div > div.flex.items-center > div > svg",
-            "#qd-content > div.h-full.flex-col > div > div > div > div.flex.h-full.w-full.overflow-y-auto > div > div.flex.flex-col > div > div.flex.items-center > div > span",
-        ];
         const startTime = Date.now();
-        const selector = acceptedSolutionSelectors[0];
         const timeout = 20_000;
         submissionButtonTimer = setInterval(() => {
-            const element = document.querySelector(selector);
-            if (element) {
+            const element = document.querySelector("[data-e2e-locator='submission-result']");
+            if (element?.innerHTML === "Accepted") {
                 clearInterval(submissionButtonTimer);
                 if (!reactRoot.contentWindow || !currentQuestionTitleSlug) {
                     return;
