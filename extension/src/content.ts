@@ -79,6 +79,20 @@ async function main() {
         }
     }
 
+    function showPanel() {
+        chrome.storage.local.set({ shouldShowPanel: true });
+        setToggleState(true);
+        reactRoot.style.display = "block";
+        handlebar.style.display = "flex";
+    }
+
+    function hidePanel() {
+        chrome.storage.local.set({ shouldShowPanel: false });
+        setToggleState(false);
+        reactRoot.style.display = "none";
+        handlebar.style.display = "none";
+    }
+
     handlebar.addEventListener("dblclick", () => {
         if (isOpen) {
             setToggleState(false);
@@ -161,6 +175,14 @@ async function main() {
     window.addEventListener("mousemove", throttle(updateWidth, 16));
     window.addEventListener("mouseup", stopResizing);
 
+    chrome.storage.local.get("shouldShowPanel", (result) => {
+        const shouldShowPanel = result.shouldShowPanel ?? true;
+        if (shouldShowPanel) {
+            showPanel();
+        } else {
+            hidePanel();
+        }
+    });
     chrome.storage.local.get("leetroomsToggleState", (result) => {
         const toggleState = result.leetroomsToggleState ?? true;
         if (toggleState) {
@@ -257,7 +279,9 @@ async function main() {
         const startTime = Date.now();
         const timeout = 20_000;
         submissionButtonTimer = setInterval(() => {
-            const element = document.querySelector("[data-e2e-locator='submission-result']");
+            const element = document.querySelector(
+                "[data-e2e-locator='submission-result']"
+            );
             if (element?.innerHTML === "Accepted") {
                 clearInterval(submissionButtonTimer);
                 if (!reactRoot.contentWindow || !currentQuestionTitleSlug) {
@@ -281,6 +305,13 @@ async function main() {
 
     chrome.storage.onChanged.addListener((changes, namespace) => {
         for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
+            if (key == "shouldShowPanel") {
+                if (newValue == true) {
+                    showPanel();
+                } else {
+                    hidePanel();
+                }
+            }
             if (key == "leetroomsToggleState") {
                 if (newValue == true) {
                     setToggleState(true);
