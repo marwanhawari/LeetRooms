@@ -9,9 +9,16 @@
         <script defer src="popup.js"></script>
     </head>
     <body>
-        <div class="flex-col">
-            <h2>LeetRooms</h2>
-            <div id="leetrooms-instructions">
+        <div id="root" class="flex-col-root">
+            <div class="flex-row">
+                <img
+                    id="leetrooms-icon"
+                    src="icons/128.png"
+                    alt="LeetRooms icon"
+                />
+                <h2>LeetRooms</h2>
+            </div>
+            <div id="leetrooms-instructions" class="flex-col">
                 <div id="leetrooms-instructions-text">
                     To use LeetRooms, go to any LeetCode problem and refresh the
                     page. You must be using the new LeetCode UI. You should see
@@ -42,7 +49,10 @@
                     </div>
                 </div>
             </div>
-            <div id="github-link">GitHub</div>
+            <div class="flex-col-footer">
+                <div id="github-link">GitHub</div>
+                <div id="version"></div>
+            </div>
         </div>
     </body>
 </html>
