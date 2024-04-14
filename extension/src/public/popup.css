@@ -1,8 +1,10 @@
 body {
     width: 300px;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    padding-bottom: 0.5rem;
+    padding: 0.5rem;
+}
+
+h2 {
+    margin: 0;
 }
 
 .flex-col {
@@ -21,12 +23,31 @@ body {
     gap: 0.5rem;
 }
 
+.flex-col-root {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.flex-col-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
 .flex-row {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: row;
     gap: 0.5rem;
+}
+
+#leetrooms-instructions {
+    gap: 0.75rem;
 }
 
 #leetrooms-instructions-text {
@@ -39,19 +60,12 @@ body {
     padding: 0.8rem;
     border-radius: 0.5rem;
     font-size: 0.9rem;
-    margin-top: 1rem;
     cursor: pointer;
-}
-
-#leetrooms-width-container {
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
 }
 
 #github-link {
     font-size: 0.8rem;
     color: blue;
-    margin-top: 1rem;
     cursor: pointer;
 }
 
@@ -106,4 +120,9 @@ input:checked + .slider:before {
 
 .slider.round:before {
     border-radius: 50%;
+}
+
+#leetrooms-icon {
+    width: 1.75rem;
+    height: auto;
 }
