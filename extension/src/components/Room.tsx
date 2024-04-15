@@ -269,7 +269,7 @@ export default function Room({
                             <div
                                 id="copy-button"
                                 onClick={handleCopy}
-                                className="cursor-pointer rounded-md bg-lc-fg-light p-2 transition-all hover:bg-zinc-200 dark:bg-lc-fg dark:hover:bg-zinc-600"
+                                className="cursor-pointer select-none rounded-md bg-lc-fg-light p-2 transition-all hover:bg-zinc-200 dark:bg-lc-fg dark:hover:bg-zinc-600"
                             >
                                 {hasClickedCopyIcon ? (
                                     <CheckMarkIcon />
