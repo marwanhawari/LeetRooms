@@ -1,6 +1,6 @@
 export default function CookiesWarning() {
     return (
-        <div className="flex h-screen flex-col items-center border-y-8 border-r-8 border-lc-border-light bg-lc-bg-light p-2 text-sm text-lc-text-light dark:border-lc-border dark:bg-lc-bg dark:text-white">
+        <div className="flex h-screen flex-col items-center bg-lc-bg-light p-2 text-sm text-lc-text-light dark:bg-lc-bg dark:text-white">
             <div className="text-center text-xl font-semibold text-yellow-400">
                 ⚠️ Third-party cookies are disabled
             </div>

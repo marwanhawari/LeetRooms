@@ -23,7 +23,7 @@ export default function Home({ session }: { session: SessionResponse }) {
         );
     } else {
         return (
-            <div className="flex h-screen flex-col items-center justify-center border-y-8 border-r-8 border-lc-border-light bg-lc-bg-light p-2 text-sm dark:border-lc-border dark:bg-lc-bg">
+            <div className="flex h-screen flex-col items-center justify-center bg-lc-bg-light p-2 text-sm dark:bg-lc-bg">
                 <div className="mr-4 flex w-full flex-col items-end">
                     <SignOutButton />
                 </div>

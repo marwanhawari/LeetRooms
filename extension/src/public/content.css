@@ -1,3 +1,7 @@
+#leetrooms-iframe {
+    border-radius: 0.5rem;
+}
+
 #leetrooms-handlebar {
     display: flex;
     justify-content: center;
