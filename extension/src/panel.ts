@@ -47,6 +47,35 @@ async function main() {
         setToggleState(true);
     });
 
+    function showPanel() {
+        chrome.storage.local.get("leetroomsFixedPanelToggleState", (result) => {
+            if (result.leetroomsFixedPanelToggleState === true) {
+                setToggleState(true);
+            } else {
+                setToggleState(false);
+            }
+        });
+        chrome.storage.local.set({ shouldShowPanel: true });
+    }
+
+    function hidePanel() {
+        chrome.storage.local.set({ shouldShowPanel: false });
+        panelContainer.style.display = "none";
+        openPanelTab.style.display = "none";
+    }
+
+    function setToggleState(toggleState: boolean) {
+        if (toggleState) {
+            panelContainer.style.display = "block";
+            openPanelTab.style.display = "none";
+            chrome.storage.local.set({ leetroomsFixedPanelToggleState: true });
+        } else {
+            panelContainer.style.display = "none";
+            openPanelTab.style.display = "flex";
+            chrome.storage.local.set({ leetroomsFixedPanelToggleState: false });
+        }
+    }
+
     chrome.storage.local.get("leetroomsDarkMode", (result) => {
         if (result.leetroomsDarkMode === true) {
             document.body.classList.add("leetrooms-dark");
@@ -63,8 +92,23 @@ async function main() {
         }
     });
 
+    chrome.storage.local.get("shouldShowPanel", (result) => {
+        if (result.shouldShowPanel === true) {
+            showPanel();
+        } else {
+            hidePanel();
+        }
+    });
+
     chrome.storage.onChanged.addListener((changes, namespace) => {
         for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
+            if (key == "shouldShowPanel") {
+                if (newValue == true) {
+                    showPanel();
+                } else {
+                    hidePanel();
+                }
+            }
             if (key == "leetroomsFixedPanelToggleState") {
                 if (newValue == true) {
                     setToggleState(true);
@@ -96,18 +140,6 @@ async function main() {
     openPanelTabText.prepend(openPanelTabChevron);
     openPanelTab.appendChild(openPanelTabText);
     document.body.appendChild(openPanelTab);
-
-    function setToggleState(toggleState: boolean) {
-        if (toggleState) {
-            panelContainer.style.display = "block";
-            openPanelTab.style.display = "none";
-            chrome.storage.local.set({ leetroomsFixedPanelToggleState: true });
-        } else {
-            panelContainer.style.display = "none";
-            openPanelTab.style.display = "flex";
-            chrome.storage.local.set({ leetroomsFixedPanelToggleState: false });
-        }
-    }
 }
 
 main();

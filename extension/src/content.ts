@@ -79,15 +79,15 @@ async function main() {
     }
 
     function showPanel() {
+        chrome.storage.local.get("leetroomsToggleState", (result) => {
+            setToggleState(result.leetroomsToggleState ?? true);
+        });
         chrome.storage.local.set({ shouldShowPanel: true });
-        setToggleState(true);
-        reactRoot.style.display = "block";
         handlebar.style.display = "flex";
     }
 
     function hidePanel() {
         chrome.storage.local.set({ shouldShowPanel: false });
-        setToggleState(false);
         reactRoot.style.display = "none";
         handlebar.style.display = "none";
     }
@@ -174,6 +174,13 @@ async function main() {
     window.addEventListener("mousemove", throttle(updateWidth, 16));
     window.addEventListener("mouseup", stopResizing);
 
+    chrome.storage.local.get("leetroomsToggleState", (result) => {
+        setToggleState(result.leetroomsToggleState ?? true);
+    });
+    chrome.storage.local.get("leetroomsWidth", (result) => {
+        const leetroomsWidth = result.leetroomsWidth ?? "525";
+        reactRoot.style.width = `${leetroomsWidth}px`;
+    });
     chrome.storage.local.get("shouldShowPanel", (result) => {
         const shouldShowPanel = result.shouldShowPanel ?? true;
         if (shouldShowPanel) {
@@ -181,18 +188,6 @@ async function main() {
         } else {
             hidePanel();
         }
-    });
-    chrome.storage.local.get("leetroomsToggleState", (result) => {
-        const toggleState = result.leetroomsToggleState ?? true;
-        if (toggleState) {
-            setToggleState(true);
-        } else {
-            setToggleState(false);
-        }
-    });
-    chrome.storage.local.get("leetroomsWidth", (result) => {
-        const leetroomsWidth = result.leetroomsWidth ?? "525";
-        reactRoot.style.width = `${leetroomsWidth}px`;
     });
 
     const oldUIElement = document.querySelector("#app");
