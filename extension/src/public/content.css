@@ -6,8 +6,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 8px;
-    margin-bottom: 8px;
+    border-radius: 0.5rem;
 }
 
 #leetrooms-handlebar:hover {
@@ -19,18 +18,25 @@
 }
 
 .handlebar-svg {
-    margin-bottom: 48px;
-    fill: gray;
+    fill: rgb(58, 58, 58);
 }
 
 #open-handlebar-svg {
     transform: rotate(180deg);
 }
 
-#leetrooms-handlebar:hover > .handlebar-svg {
+#leetrooms-handlebar:hover > #drag-handlebar-svg {
+    fill: rgb(0, 132, 255);
+}
+
+#leetrooms-handlebar:active > #drag-handlebar-svg {
+    fill: rgb(0, 132, 255);
+}
+
+#leetrooms-handlebar:hover > #open-handlebar-svg {
     fill: white;
 }
 
-#leetrooms-handlebar:active > .handlebar-svg {
+#leetrooms-handlebar:active > #open-handlebar-svg {
     fill: white;
 }
