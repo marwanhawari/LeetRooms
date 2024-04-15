@@ -27,10 +27,9 @@ async function main() {
 
     const handlebar = document.createElement("div");
     handlebar.id = "leetrooms-handlebar";
-    handlebar.style.minWidth = "2px";
-    handlebar.style.userSelect = "none"; // This line disables text selection on the handlebar
+    handlebar.style.minWidth = "8px";
+    handlebar.style.userSelect = "none";
     handlebar.style.position = "relative";
-    handlebar.style.marginInline = "3px";
 
     const overlay = document.createElement("div");
     overlay.style.position = "absolute";
@@ -62,7 +61,9 @@ async function main() {
     function setToggleState(toggleState: boolean) {
         if (toggleState) {
             reactRoot.style.display = "block";
-            handlebar.innerHTML = dragHandlebarSVG;
+            handlebar.innerHTML = `
+            <div id="handlebar-highlight">${dragHandlebarSVG}</div>
+            `;
             handlebar.style.cursor = "ew-resize";
             chrome.storage.local.set({ leetroomsToggleState: true });
             isOpen = true;
