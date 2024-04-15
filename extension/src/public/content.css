@@ -1,32 +1,61 @@
+#leetrooms-iframe {
+    border-radius: 0.5rem;
+}
+
 #leetrooms-handlebar {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 8px;
-    margin-bottom: 8px;
+    border-radius: 5px;
 }
 
-#leetrooms-handlebar:hover {
+#handlebar-highlight {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+#leetrooms-handlebar:hover > #handlebar-highlight {
     background-color: rgb(0, 132, 255);
 }
 
-#leetrooms-handlebar:active {
+#leetrooms-handlebar:active > #handlebar-highlight {
+    background-color: rgb(0, 132, 255);
+}
+
+#leetrooms-handlebar:not(:has(#handlebar-highlight)) {
+    margin-left: 3px;
+}
+
+#leetrooms-handlebar:hover:not(:has(#handlebar-highlight)) {
+    background-color: rgb(0, 132, 255);
+}
+
+#leetrooms-handlebar:active:not(:has(#handlebar-highlight)) {
     background-color: rgb(0, 132, 255);
 }
 
 .handlebar-svg {
-    margin-bottom: 48px;
-    fill: gray;
+    fill: rgb(58, 58, 58);
 }
 
 #open-handlebar-svg {
     transform: rotate(180deg);
 }
 
-#leetrooms-handlebar:hover > .handlebar-svg {
+#leetrooms-handlebar:hover #drag-handlebar-svg {
+    fill: rgb(0, 132, 255);
+}
+
+#leetrooms-handlebar:active #drag-handlebar-svg {
+    fill: rgb(0, 132, 255);
+}
+
+#leetrooms-handlebar:hover > #open-handlebar-svg {
     fill: white;
 }
 
-#leetrooms-handlebar:active > .handlebar-svg {
+#leetrooms-handlebar:active > #open-handlebar-svg {
     fill: white;
 }

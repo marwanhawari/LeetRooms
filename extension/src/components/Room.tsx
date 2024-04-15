@@ -246,7 +246,7 @@ export default function Room({
     }, [messages]);
 
     return (
-        <div className="flex h-screen flex-col gap-y-2 border-y-8 border-r-8 border-lc-border-light bg-lc-bg-light px-2 text-sm text-lc-text-light dark:border-lc-border dark:bg-lc-bg dark:text-white">
+        <div className="flex h-screen flex-col gap-y-2 bg-lc-bg-light px-2 text-sm text-lc-text-light dark:bg-lc-bg dark:text-white">
             <div className="mx-2 mt-2 flex flex-col" id="first-box">
                 <div
                     className="flex flex-row items-start justify-between"
@@ -269,7 +269,7 @@ export default function Room({
                             <div
                                 id="copy-button"
                                 onClick={handleCopy}
-                                className="cursor-pointer rounded-md bg-lc-fg-light p-2 transition-all hover:bg-zinc-200 dark:bg-lc-fg dark:hover:bg-zinc-600"
+                                className="cursor-pointer select-none rounded-md bg-lc-fg-light p-2 transition-all hover:bg-zinc-200 dark:bg-lc-fg dark:hover:bg-zinc-600"
                             >
                                 {hasClickedCopyIcon ? (
                                     <CheckMarkIcon />

@@ -9,11 +9,9 @@ const XIconSVG = `
 ></path>
 </svg>`;
 
-const dragHandlebarSVG = `<svg class="handlebar-svg" id="drag-handlebar-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2 14" width="2" height="14">
-<circle r="1" transform="matrix(4.37114e-08 -1 -1 -4.37114e-08 1 1)"></circle>
-<circle r="1" transform="matrix(4.37114e-08 -1 -1 -4.37114e-08 1 7)"></circle>
-<circle r="1" transform="matrix(4.37114e-08 -1 -1 -4.37114e-08 1 13)"></circle>
-    </svg>`;
+const dragHandlebarSVG = `<svg class="handlebar-svg" id="drag-handlebar-svg" width="2" height="20" viewBox="0 0 2 20" xmlns="http://www.w3.org/2000/svg">
+<rect width="2" height="20"/>
+</svg>`;
 
 const openHandlebarSVG = `<svg class="handlebar-svg" id="open-handlebar-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
     <path fill-rule="evenodd" d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z" clip-rule="evenodd"></path>
@@ -30,9 +28,8 @@ async function main() {
     const handlebar = document.createElement("div");
     handlebar.id = "leetrooms-handlebar";
     handlebar.style.minWidth = "8px";
-    handlebar.style.userSelect = "none"; // This line disables text selection on the handlebar
+    handlebar.style.userSelect = "none";
     handlebar.style.position = "relative";
-    handlebar.style.left = "-4px";
 
     const overlay = document.createElement("div");
     overlay.style.position = "absolute";
@@ -64,8 +61,10 @@ async function main() {
     function setToggleState(toggleState: boolean) {
         if (toggleState) {
             reactRoot.style.display = "block";
-            handlebar.innerHTML = dragHandlebarSVG;
-            handlebar.style.cursor = "col-resize";
+            handlebar.innerHTML = `
+            <div id="handlebar-highlight">${dragHandlebarSVG}</div>
+            `;
+            handlebar.style.cursor = "ew-resize";
             chrome.storage.local.set({ leetroomsToggleState: true });
             isOpen = true;
             handlebar.style.zIndex = "10";
