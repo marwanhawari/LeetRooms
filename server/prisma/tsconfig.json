@@ -1,0 +1,8 @@
+/* This file is needed because we want type-checking, but we don't want to include these files in the build output */
+{
+    "extends": "../tsconfig.json",
+    "compilerOptions": {
+        "noEmit": true
+    },
+    "include": ["."]
+}

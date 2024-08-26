@@ -114,45 +114,49 @@ Note: Google doesn't like the `.localhost` domain we use for development, so I d
 * Discord: https://discord.com/developers/applications
 * Twitch: https://dev.twitch.tv/console/apps
 
-3. Install yarn and Turborepo
+3. Load the environment variables into your current environment and install application dependencies separately.
 
 ```sh
 # LeetRooms/
 
-npm install -g yarn turbo
+source env.sh
 ```
 
-4. Install application dependencies
-
 ```sh
-# LeetRooms/
+# LeetRooms/server
+# LeetRooms/extension
+# LeetRooms/website
 
-yarn install
+npm install
 ```
 
-5. Start the PostgreSQL and Redis docker containers
+4. Start the PostgreSQL and Redis docker containers
 ```sh
-# LeetRooms/
+# LeetRooms/server
 
 docker-compose up
 ```
 
-6. Initialize the database and seed the database with questions
+5. Initialize the database and seed the database with questions
 ```sh
-# LeetRooms/
+# LeetRooms/server
 
-cd server/ && npm run prisma-migrate && npm run prisma-seed
+npm run prisma-migrate && npm run prisma-seed
 ```
-* Sometimes the `npm run prisma-seed` command will fail with a 403 response. If this is the case, just run it again and it should eventually work.
 
-7. Start all the dev servers
+> [!TIP]
+> Sometimes the `npm run prisma-seed` command will fail with a 403 response. If this is the case, just run it again and it should eventually work.
+
+6. Start all the dev servers separately
 ```sh
-# LeetRooms/
+# LeetRooms/server
+# LeetRooms/extension
+# LeetRooms/website
 
 npm run dev
 ```
 
-8. Start the HTTPS reverse-proxy server
+7. Start the HTTPS reverse-proxy server
 
 * LeetRooms needs to set the `SameSite` cookie attribute to `none` in order to send the LeetRooms cookies from https://leetcode.com to the LeetRooms server. Setting it to `none` also requires you to use secure cookies (`https` only). This is fine in production, but in development `localhost` is not `https`. To make this work in development, I use a Caddy proxy server that will automatically generate self signed certificates to serve `localhost` over `https`. Read about local `https` [here](`https://caddyserver.com/docs/automatic-https`) and about Caddy [here](https://web.dev/when-to-use-local-https/).
 * Install caddy then run the server:

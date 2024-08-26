@@ -8,8 +8,8 @@
     "license": "MIT",
     "scripts": {
         "dev": "export NODE_ENV=development && nodemon src/index.ts | pino-pretty --singleLine --levelFirst --translateTime",
-        "build": "export NODE_ENV=production && rm -rf ./dist && tsc -p tsconfig.build.json",
-        "start": "export NODE_ENV=production && node dist/src/index.js",
+        "build": "export NODE_ENV=production && rm -rf ./dist && tsc",
+        "start": "export NODE_ENV=production && node dist/index.js",
         "prisma-init": "set -a && . ../.env && set +a && prisma init --datasource-provider postgresql",
         "prisma-migrate": "set -a && . ../.env && set +a && prisma migrate dev",
         "prisma-generate": "set -a && . ../.env && set +a && npm install @prisma/client && prisma generate",
@@ -22,6 +22,7 @@
     "dependencies": {
         "@hewmen/passport-twitch": "^1.0.4",
         "@prisma/client": "^4.8.1",
+        "@socket.io/admin-ui": "^0.5.1",
         "axios": "^1.2.2",
         "connect-redis": "^6.1.3",
         "cors": "^2.8.5",
@@ -36,8 +37,7 @@
         "passport-google-oauth20": "^2.0.0",
         "pino": "^8.8.0",
         "pino-http": "^8.3.1",
-        "socket.io": "^4.5.4",
-        "@socket.io/admin-ui": "^0.5.1"
+        "socket.io": "^4.5.4"
     },
     "devDependencies": {
         "@types/connect-redis": "^0.0.19",
@@ -50,7 +50,7 @@
         "@types/passport-github2": "^1.2.5",
         "@types/passport-google-oauth20": "^2.0.11",
         "@types/pino-http": "^5.8.1",
-        "nodemon": "^2.0.20",
+        "nodemon": "^3.1.4",
         "pino-pretty": "^9.1.1",
         "prisma": "^4.7.0",
         "ts-node": "^10.9.1",

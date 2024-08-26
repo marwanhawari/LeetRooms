@@ -1,4 +1,4 @@
-import { PrismaClient, Question } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 import axios from "axios";
 
