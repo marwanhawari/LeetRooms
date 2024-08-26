@@ -1,3 +1,6 @@
+> [!WARNING]
+> LeetRooms is undergoing maintenance and will be offline until September 9th, 2024.
+
 <p align="center">
   <img width=20% height=auto src="https://github.com/marwanhawari/LeetRooms/blob/main/website/src/assets/LeetRoomsIcon.png" alt="LeetRooms icon"/>
 </p>
