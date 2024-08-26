@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { RoomsPathParameter, PlayerWithSubmissions } from "./rooms.model";
-import { Question, RoomQuestion, Room } from "@prisma/client";
+import { Question, RoomQuestion } from "@prisma/client";
 import prisma from "../../index";
 import { nanoid } from "nanoid";
 import {
