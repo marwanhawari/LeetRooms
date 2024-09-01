@@ -1,3 +1,5 @@
+import { QuestionInterface } from "./Question";
+
 export interface RoomSettings {
     questionFilter: QuestionFilter;
     duration?: number | null;
@@ -13,10 +15,12 @@ export interface RoomDifficulty {
 export interface QuestionFilter {
     kind: QuestionFilterKind;
     selections: string[];
+    questions?: QuestionInterface[];
 }
 
 export enum QuestionFilterKind {
     Topics = "topics",
+    Questions = "questions",
 }
 
 export const topics = [

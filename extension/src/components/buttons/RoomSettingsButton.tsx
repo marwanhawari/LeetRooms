@@ -1,5 +1,13 @@
 import { Dialog, Transition, Tab } from "@headlessui/react";
-import { ChangeEvent, Fragment, useCallback, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import {
+    ChangeEvent,
+    Fragment,
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+} from "react";
 import Spinner from "../Spinner";
 import XIcon from "../../icons/XIcon";
 import SettingsIcon from "../../icons/SettingsIcon";
@@ -11,7 +19,8 @@ import {
     topics,
     defaultRoomSettings,
 } from "../../types/RoomSettings";
-import { Difficulty } from "../../types/Question";
+import { Difficulty, QuestionInterface } from "../../types/Question";
+import { SERVER_URL } from "../../config";
 
 function classNames(...classes: any[]) {
     return classes.filter(Boolean).join(" ");
@@ -210,7 +219,7 @@ function SettingsTabs({
     roomSettings: RoomSettings;
     setRoomSettings: (roomSettings: RoomSettings) => void;
 }) {
-    let tabs = ["Topics"];
+    let tabs = ["Topics", "Questions"];
     return (
         <div className="h-full px-2 py-2">
             <Tab.Group>
@@ -233,6 +242,10 @@ function SettingsTabs({
                 </Tab.List>
                 <Tab.Panels className="mt-2">
                     <TopicSelector
+                        roomSettings={roomSettings}
+                        setRoomSettings={setRoomSettings}
+                    />
+                    <QuestionSelector
                         roomSettings={roomSettings}
                         setRoomSettings={setRoomSettings}
                     />
@@ -382,6 +395,195 @@ function TopicSelector({
                 >
                     Hard
                 </button>
+            </fieldset>
+        </Tab.Panel>
+    );
+}
+
+function useDebounce(value: any, delay: number) {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [value, delay]);
+
+    return debouncedValue;
+}
+
+function QuestionSelector({
+    roomSettings,
+    setRoomSettings,
+}: {
+    roomSettings: RoomSettings;
+    setRoomSettings: (roomSettings: RoomSettings) => void;
+}) {
+    let searchQuestionRef = useRef<HTMLInputElement>(null);
+    const [searchTerm, setSearchTerm] = useState("");
+    const debounceSearch = useDebounce(searchTerm, 500);
+    const [selectedQuestions, setSelectedQuestions] = useState<
+        QuestionInterface[]
+    >(roomSettings?.questionFilter.questions || []);
+
+    let {
+        data: questions,
+        isFetching,
+        refetch,
+    } = useQuery<any[]>({
+        queryKey: ["questions"],
+        queryFn: async ({ signal }) => {
+            let response = await fetch(
+                `${SERVER_URL}/questions/search/${searchTerm}`,
+                {
+                    credentials: "include",
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    signal,
+                }
+            );
+            if (!response.ok) {
+                throw new Error("Failed to fetch current players");
+            }
+
+            return response.json();
+        },
+        refetchOnWindowFocus: false,
+        enabled: false,
+        keepPreviousData: false,
+    });
+
+    useEffect(() => {
+        if (searchTerm) {
+            refetch();
+        }
+    }, [debounceSearch]);
+
+    useEffect(() => {
+        setRoomSettings({
+            ...roomSettings,
+            questionFilter: {
+                kind: QuestionFilterKind.Questions,
+                selections: selectedQuestions.map((q) => q.titleSlug),
+                questions: selectedQuestions,
+            },
+        });
+    }, [selectedQuestions]);
+
+    function handleSelectQuestion(
+        event: ChangeEvent<HTMLInputElement>,
+        question: QuestionInterface
+    ) {
+        const isChecked = event.target.checked;
+        if (isChecked) {
+            setSelectedQuestions([...selectedQuestions, question]);
+        } else {
+            const deSelected = selectedQuestions.filter(
+                (each) => each.id !== question.id
+            );
+            setSelectedQuestions(deSelected);
+        }
+    }
+
+    return (
+        <Tab.Panel>
+            <div className="flex flex-row items-center justify-between gap-x-2 rounded-lg border border-transparent bg-lc-fg-light px-3 py-[6px] text-lc-text-light focus-within:border-blue-500 hover:border-blue-500 dark:bg-lc-fg dark:text-white">
+                <input
+                    className="w-full bg-lc-fg-light  outline-none dark:bg-lc-fg"
+                    ref={searchQuestionRef}
+                    type="text"
+                    name="roomNumber"
+                    id="question"
+                    placeholder="Search a question"
+                    spellCheck="false"
+                    autoComplete="off"
+                    autoCapitalize="off"
+                    autoCorrect="off"
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    value={searchTerm}
+                />
+            </div>
+
+            <hr />
+
+            <div className="flex h-28 flex-col items-start justify-between gap-x-2 overflow-auto rounded-lg p-1 hover:border-blue-500 dark:bg-lc-fg dark:text-white">
+                {isFetching ? (
+                    "Loading"
+                ) : (
+                    <div
+                        className={classNames(
+                            "h-56 w-full overflow-auto rounded-md bg-lc-fg-modal-light dark:bg-lc-fg-modal dark:text-white"
+                        )}
+                    >
+                        <ul className="flex flex-col text-sm">
+                            {questions?.length && searchTerm ? (
+                                questions?.map((q) => (
+                                    <label
+                                        key={q.id}
+                                        className="flex flex-row items-center gap-3 px-3 py-1 even:bg-white even:bg-opacity-[45%] dark:even:bg-lc-bg dark:even:bg-opacity-[35%]"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            name="topics"
+                                            value={q.title}
+                                            onChange={(e) =>
+                                                handleSelectQuestion(e, q)
+                                            }
+                                            id={q.id}
+                                            checked={
+                                                !!selectedQuestions.find(
+                                                    (each) => each.id === q.id
+                                                )
+                                            }
+                                            disabled={
+                                                !!!selectedQuestions.find(
+                                                    (each) => each.id === q.id
+                                                ) &&
+                                                selectedQuestions.length === 4
+                                            }
+                                        />
+                                        {q.id}. {q.title}
+                                    </label>
+                                ))
+                            ) : (
+                                <p className="p-1">No result found</p>
+                            )}
+                        </ul>
+                    </div>
+                )}
+            </div>
+
+            <fieldset className="mt-4 flex flex-col items-start justify-around rounded-lg border-4 border-lc-fg-modal-light p-1 pb-1 text-sm text-lc-text-light dark:border-lc-fg-modal dark:text-white">
+                <legend className="px-2 dark:text-lc-fg-modal-light">
+                    Selected question ({selectedQuestions.length} / 4)
+                </legend>
+
+                {selectedQuestions.map((q) => {
+                    return (
+                        <label
+                            key={q.id}
+                            className="mb-2 flex flex-row items-center gap-3 rounded-md bg-lc-fg-modal-light px-3 py-1 text-sm text-lc-text-light dark:bg-lc-fg-modal dark:text-white"
+                        >
+                            <input
+                                type="checkbox"
+                                name="select-unselect-all"
+                                value={"Select/Unselect All"}
+                                onChange={(e) => {
+                                    handleSelectQuestion(e, q);
+                                }}
+                                checked
+                                id={"select-unselect-all"}
+                            />
+                            {q.id}. {q.title}
+                        </label>
+                    );
+                })}
             </fieldset>
         </Tab.Panel>
     );

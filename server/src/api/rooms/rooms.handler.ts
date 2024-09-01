@@ -75,114 +75,200 @@ export async function createRoom(
 
             let roomSettings: RoomSettings = req.body;
             let { kind: filterKind, selections } = roomSettings.questionFilter;
-            if (filterKind !== QuestionFilterKind.Topics) {
-                throw new Error(`Invalid question filter kind: ${filterKind}`);
+
+            switch (filterKind) {
+                case QuestionFilterKind.Topics: {
+                    let filteredQuestions: Question[] =
+                        await prisma.question.findMany({
+                            where: {
+                                tags: {
+                                    hasSome: selections,
+                                },
+                            },
+                        });
+
+                    let easyQuestions = filteredQuestions.filter(
+                        (question) => question.difficulty === "Easy"
+                    );
+                    let mediumQuestions = filteredQuestions.filter(
+                        (question) => question.difficulty === "Medium"
+                    );
+                    let hardQuestions = filteredQuestions.filter(
+                        (question) => question.difficulty === "Hard"
+                    );
+
+                    let {
+                        Easy: numberOfEasy,
+                        Medium: numberOfMedium,
+                        Hard: numberOfHard,
+                    } = getNumberOfQuestionsPerDifficulty(
+                        roomSettings.difficulty,
+                        easyQuestions,
+                        mediumQuestions,
+                        hardQuestions
+                    );
+
+                    // Select 4 random questions
+                    let randomlySelectedEasyQuestions: Question[] =
+                        easyQuestions
+                            .sort(() => Math.random() - 0.5)
+                            .slice(0, numberOfEasy);
+                    let randomlySelectedMediumQuestions: Question[] =
+                        mediumQuestions
+                            .sort(() => Math.random() - 0.5)
+                            .slice(0, numberOfMedium);
+                    let randomlySelectedHardQuestions: Question[] =
+                        hardQuestions
+                            .sort(() => Math.random() - 0.5)
+                            .slice(0, numberOfHard);
+
+                    let randomlySelectedQuestions =
+                        randomlySelectedEasyQuestions.concat(
+                            randomlySelectedMediumQuestions,
+                            randomlySelectedHardQuestions
+                        );
+
+                    // Generate a room ID
+                    const newRoomId = nanoid(ROOM_ID_LENGTH);
+
+                    // Create a new room in the db
+                    const newRoom = await prisma.room.create({
+                        data: {
+                            id: newRoomId,
+                            questionFilterKind: filterKind,
+                            questionFilterSelections: selections,
+                            duration: roomSettings.duration,
+                        },
+                    });
+
+                    // Get the roomId and questionId so that you can update the RoomQuestion table
+                    let questionIdsAndRoom: RoomQuestion[] =
+                        randomlySelectedQuestions.map((question) => {
+                            return {
+                                questionId: question.id,
+                                roomId: newRoom.id,
+                            };
+                        });
+
+                    // Add the questions to the room in the join table (RoomQuestion)
+                    await prisma.roomQuestion.createMany({
+                        data: questionIdsAndRoom,
+                    });
+
+                    // Update the user table with the roomId
+                    let user = await prisma.user.update({
+                        data: {
+                            roomId: newRoomId,
+                        },
+                        where: {
+                            id: req.user.id,
+                        },
+                    });
+
+                    // Update the room user table with the join time
+                    const { joinedAt } = await prisma.roomUser.create({
+                        data: {
+                            userId: user.id,
+                            roomId: newRoomId,
+                        },
+                    });
+
+                    // Update the user session
+                    req.user.updatedAt = user.updatedAt;
+
+                    // Update the room session
+                    let roomSession: RoomSession = {
+                        roomId: newRoomId,
+                        questions: randomlySelectedQuestions,
+                        userColor: generateRandomUserColor(),
+                        createdAt: newRoom.createdAt,
+                        duration: newRoom.duration,
+                        joinedAt,
+                    };
+                    await setUserRoomSession(req.user.id, roomSession);
+                    sendJoinRoomMessage(req.user.username, roomSession);
+
+                    return res.redirect("../sessions");
+                }
+
+                case QuestionFilterKind.Questions: {
+                    const questions = await prisma.question.findMany({
+                        where: {
+                            titleSlug: {
+                                in: selections,
+                            },
+                        },
+                    });
+
+                    // Generate a room ID
+                    const newRoomId = nanoid(ROOM_ID_LENGTH);
+
+                    // Create a new room in the db
+                    const newRoom = await prisma.room.create({
+                        data: {
+                            id: newRoomId,
+                            questionFilterKind: filterKind,
+                            questionFilterSelections: selections,
+                            duration: roomSettings.duration,
+                        },
+                    });
+
+                    // Get the roomId and questionId so that you can update the RoomQuestion table
+                    let questionIdsAndRoom: RoomQuestion[] = questions.map(
+                        (question) => {
+                            return {
+                                questionId: question.id,
+                                roomId: newRoom.id,
+                            };
+                        }
+                    );
+
+                    // Add the questions to the room in the join table (RoomQuestion)
+                    await prisma.roomQuestion.createMany({
+                        data: questionIdsAndRoom,
+                    });
+
+                    // Update the user table with the roomId
+                    let user = await prisma.user.update({
+                        data: {
+                            roomId: newRoomId,
+                        },
+                        where: {
+                            id: req.user.id,
+                        },
+                    });
+
+                    // Update the room user table with the join time
+                    const { joinedAt } = await prisma.roomUser.create({
+                        data: {
+                            userId: user.id,
+                            roomId: newRoomId,
+                        },
+                    });
+
+                    // Update the user session
+                    req.user.updatedAt = user.updatedAt;
+
+                    // Update the room session
+                    let roomSession: RoomSession = {
+                        roomId: newRoomId,
+                        questions,
+                        userColor: generateRandomUserColor(),
+                        createdAt: newRoom.createdAt,
+                        duration: newRoom.duration,
+                        joinedAt,
+                    };
+                    await setUserRoomSession(req.user.id, roomSession);
+                    sendJoinRoomMessage(req.user.username, roomSession);
+
+                    return res.redirect("../sessions");
+                }
+
+                default:
+                    throw new Error(
+                        `Invalid question filter kind: ${filterKind}`
+                    );
             }
-
-            let filteredQuestions: Question[] = await prisma.question.findMany({
-                where: {
-                    tags: {
-                        hasSome: selections,
-                    },
-                },
-            });
-
-            let easyQuestions = filteredQuestions.filter(
-                (question) => question.difficulty === "Easy"
-            );
-            let mediumQuestions = filteredQuestions.filter(
-                (question) => question.difficulty === "Medium"
-            );
-            let hardQuestions = filteredQuestions.filter(
-                (question) => question.difficulty === "Hard"
-            );
-
-            let {
-                Easy: numberOfEasy,
-                Medium: numberOfMedium,
-                Hard: numberOfHard,
-            } = getNumberOfQuestionsPerDifficulty(
-                roomSettings.difficulty,
-                easyQuestions,
-                mediumQuestions,
-                hardQuestions
-            );
-
-            // Select 4 random questions
-            let randomlySelectedEasyQuestions: Question[] = easyQuestions
-                .sort(() => Math.random() - 0.5)
-                .slice(0, numberOfEasy);
-            let randomlySelectedMediumQuestions: Question[] = mediumQuestions
-                .sort(() => Math.random() - 0.5)
-                .slice(0, numberOfMedium);
-            let randomlySelectedHardQuestions: Question[] = hardQuestions
-                .sort(() => Math.random() - 0.5)
-                .slice(0, numberOfHard);
-
-            let randomlySelectedQuestions =
-                randomlySelectedEasyQuestions.concat(
-                    randomlySelectedMediumQuestions,
-                    randomlySelectedHardQuestions
-                );
-
-            // Generate a room ID
-            let newRoomId = nanoid(ROOM_ID_LENGTH);
-
-            // Create a new room in the db
-            let newRoom = await prisma.room.create({
-                data: {
-                    id: newRoomId,
-                    questionFilterKind: filterKind,
-                    questionFilterSelections: selections,
-                    duration: roomSettings.duration,
-                },
-            });
-
-            // Get the roomId and questionId so that you can update the RoomQuestion table
-            let questionIdsAndRoom: RoomQuestion[] =
-                randomlySelectedQuestions.map((question) => {
-                    return { questionId: question.id, roomId: newRoom.id };
-                });
-
-            // Add the questions to the room in the join table (RoomQuestion)
-            await prisma.roomQuestion.createMany({
-                data: questionIdsAndRoom,
-            });
-
-            // Update the user table with the roomId
-            let user = await prisma.user.update({
-                data: {
-                    roomId: newRoomId,
-                },
-                where: {
-                    id: req.user.id,
-                },
-            });
-
-            // Update the room user table with the join time
-            const { joinedAt } = await prisma.roomUser.create({
-                data: {
-                    userId: user.id,
-                    roomId: newRoomId,
-                },
-            });
-
-            // Update the user session
-            req.user.updatedAt = user.updatedAt;
-
-            // Update the room session
-            let roomSession: RoomSession = {
-                roomId: newRoomId,
-                questions: randomlySelectedQuestions,
-                userColor: generateRandomUserColor(),
-                createdAt: newRoom.createdAt,
-                duration: newRoom.duration,
-                joinedAt,
-            };
-            await setUserRoomSession(req.user.id, roomSession);
-            sendJoinRoomMessage(req.user.username, roomSession);
-
-            return res.redirect("../sessions");
         });
     } catch (error) {
         return next(error);
