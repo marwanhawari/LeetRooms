@@ -9,9 +9,10 @@ import faviconAppleTouchIcon from "../assets/favicon/apple-touch-icon.png";
 import favicon32 from "../assets/favicon/favicon-32x32.png";
 import favicon16 from "../assets/favicon/favicon-16x16.png";
 import webManifest from "../assets/favicon/site.webmanifest";
+import opengraphImage from "../assets/opengraph.png";
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
@@ -27,6 +28,33 @@ import webManifest from "../assets/favicon/site.webmanifest";
         <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />
         <link rel="manifest" href={webManifest} />
         <title>{Astro.props.title}</title>
+
+        <!-- Facebook Meta Tags -->
+        <meta property="og:url" content="https://leetrooms.com" />
+        <meta property="og:type" content="website" />
+        <meta
+            property="og:title"
+            content="LeetRooms | Multiplayer rooms for LeetCode"
+        />
+        <meta
+            property="og:description"
+            content="⚔️ Multiplayer rooms for LeetCode"
+        />
+        <meta property="og:image" content={opengraphImage} />
+
+        <!-- Twitter Meta Tags -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta property="twitter:domain" content="leetrooms.com" />
+        <meta property="twitter:url" content="https://leetrooms.com" />
+        <meta
+            name="twitter:title"
+            content="LeetRooms | Multiplayer rooms for LeetCode"
+        />
+        <meta
+            name="twitter:description"
+            content="⚔️ Multiplayer rooms for LeetCode"
+        />
+        <meta name="twitter:image" content={opengraphImage} />
     </head>
     <body class="overscroll-none min-h-screen h-full bg-[#0B1015]">
         <slot />
