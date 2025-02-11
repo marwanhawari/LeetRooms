@@ -55,7 +55,7 @@ import PrivacyIcon from "../assets/PrivacyIcon.svg";
                 src={LeetRoomScreenshot}
                 id="leetrooms-screenshot"
                 alt="LeetRooms screenshot"
-                class="relative rounded-xl border-slate-600 border-[1px]"
+                class="relative rounded-xl border-slate-600 border-[1px] opacity-0 scale-95 transition-all duration-1000"
             />
         </div>
         <div
@@ -271,6 +271,13 @@ import PrivacyIcon from "../assets/PrivacyIcon.svg";
     </main>
 </Layout>
 
+<style>
+    .fade-in-grow {
+        opacity: 1 !important;
+        transform: scale(1) !important;
+    }
+</style>
+
 <script>
     import VanillaTilt from "vanilla-tilt";
 
@@ -308,4 +315,11 @@ import PrivacyIcon from "../assets/PrivacyIcon.svg";
     }
     window.addEventListener("scroll", blurNavBar);
     blurNavBar();
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const screenshot = document.getElementById("leetrooms-screenshot");
+        if (screenshot) {
+            screenshot.classList.add("fade-in-grow");
+        }
+    });
 </script>
