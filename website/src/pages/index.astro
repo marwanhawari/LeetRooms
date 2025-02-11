@@ -43,8 +43,8 @@ import PrivacyIcon from "../assets/PrivacyIcon.svg";
             href="https://chrome.google.com/webstore/detail/leetrooms/ekldadcjhbmljcefnilihgagmnmmlfcd"
             class="flex flex-row items-center justify-center bg-[hsl(0,0%,16%)] hover:bg-[hsl(0,0%,19%)] transition-all p-4 rounded-lg gap-x-2"
         >
-            <div class="text-slate-200 text-lg font-semibold">Download for</div>
-            <img src={ChromeIcon} alt="Download for Chrome" class="w-7" />
+            <div class="text-slate-200 text-lg font-semibold">Install for</div>
+            <img src={ChromeIcon} alt="Install for Chrome" class="w-7" />
         </a>
         <div class="relative mx-8 lg:mx-28">
             <div
@@ -221,9 +221,9 @@ import PrivacyIcon from "../assets/PrivacyIcon.svg";
                 class="flex flex-row items-center justify-center bg-[hsl(0,0%,16%)] hover:bg-[hsl(0,0%,19%)] transition-all p-4 rounded-lg gap-x-2"
             >
                 <div class="text-slate-200 text-lg font-semibold">
-                    Download for
+                    Install for
                 </div>
-                <img src={ChromeIcon} alt="Download for Chrome" class="w-7" />
+                <img src={ChromeIcon} alt="Install for Chrome" class="w-7" />
             </a>
         </div>
         <footer
@@ -275,10 +275,10 @@ import PrivacyIcon from "../assets/PrivacyIcon.svg";
     import VanillaTilt from "vanilla-tilt";
 
     const leftCards = Array.from(
-        document.querySelectorAll<HTMLImageElement>(".left-card")
+        document.querySelectorAll<HTMLImageElement>(".left-card"),
     );
     const rightCards = Array.from(
-        document.querySelectorAll<HTMLImageElement>(".right-card")
+        document.querySelectorAll<HTMLImageElement>(".right-card"),
     );
     if (leftCards) {
         VanillaTilt.init(leftCards, {
