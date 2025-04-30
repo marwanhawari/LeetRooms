@@ -8,54 +8,49 @@ export default function Timer({
     createdAt: Date;
     duration: number | undefined | null;
 }) {
-    let getTimeRemaining = useCallback(() => {
-        if (!duration) {
-            return 0;
-        }
-        let dateConvertedCreatedAt = new Date(createdAt);
-
-        let endTime = dateConvertedCreatedAt.getTime() + duration * 60 * 1000;
-        let endTimeInSeconds = Math.floor(endTime / 1000);
-
-        let timeRemainingInSeconds =
+    const getTimeRemaining = useCallback(() => {
+        if (!duration) return 0;
+        const endTime = new Date(createdAt).getTime() + duration * 60 * 1000;
+        const endTimeInSeconds = Math.floor(endTime / 1000);
+        const timeRemainingInSeconds =
             endTimeInSeconds - Math.floor(Date.now() / 1000);
-
         return Math.max(0, timeRemainingInSeconds);
     }, [duration, createdAt]);
 
     function formatTime(timeInSeconds: number) {
         return new Date(timeInSeconds * 1000).toISOString().slice(11, 19);
     }
-
-    let [displayTime, setDisplayTime] = useState(getTimeRemaining());
-    let intervalRef = useRef<number>();
-
-    const handleVisibilityChange = useCallback(() => {
-        if (document.visibilityState === "visible") {
-            setDisplayTime(getTimeRemaining());
-        }
-    }, [getTimeRemaining]);
+    const [displayTime, setDisplayTime] = useState(getTimeRemaining);
+    const intervalRef = useRef<number>();
 
     useEffect(() => {
-        function decrementTime() {
-            setDisplayTime((prevTime) => {
-                if (prevTime <= 0) {
-                    clearInterval(intervalRef.current);
-                    return 0;
-                }
-                return prevTime - 1;
-            });
+        function updateTime() {
+            const time = getTimeRemaining();
+            setDisplayTime(time);
+            if (time <= 0 && intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
         }
 
-        intervalRef.current = setInterval(decrementTime, 1000);
+        intervalRef.current = window.setInterval(updateTime, 1000);
+        updateTime();
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === "visible") {
+                updateTime();
+            }
+        };
 
         document.addEventListener("visibilitychange", handleVisibilityChange);
 
         return () => {
             clearInterval(intervalRef.current);
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            document.removeEventListener(
+                "visibilitychange",
+                handleVisibilityChange
+            );
         };
-    }, [handleVisibilityChange]);
+    }, [getTimeRemaining]);
 
     return (
         <div
@@ -65,7 +60,7 @@ export default function Timer({
         >
             <div className="flex flex-row items-center gap-2">
                 <StopwatchIcon />
-                <div className={`font-mono`}>{formatTime(displayTime)}</div>
+                <div className="font-mono">{formatTime(displayTime)}</div>
             </div>
         </div>
     );
