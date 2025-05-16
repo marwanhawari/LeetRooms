@@ -23,6 +23,7 @@ export interface QuestionFilter {
 
 export enum QuestionFilterKind {
     Topics = "topics",
+    Questions = "questions",
 }
 
 export const topics = [

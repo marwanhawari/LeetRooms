@@ -19,6 +19,7 @@ import http from "http";
 import { Server } from "socket.io";
 import { errorHandler, ensureAuthenticated } from "./middleware";
 import roomsRoute from "../api/rooms/rooms.route";
+import questionsRoute from "../api/questions/questions.route";
 import submissionsRoute from "../api/submissions/submissions.route";
 import authRoute from "../api/auth/auth.route";
 import session, { Session } from "express-session";
@@ -294,6 +295,7 @@ app.use(httplog);
 app.use("/auth", authRoute);
 app.use("/submissions", ensureAuthenticated, submissionsRoute);
 app.use("/rooms", ensureAuthenticated, roomsRoute);
+app.use("/questions", ensureAuthenticated, questionsRoute);
 app.use(errorHandler);
 
 declare module "http" {

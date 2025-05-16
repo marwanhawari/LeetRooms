@@ -73,63 +73,78 @@ export async function createRoom(
                 );
             }
 
-            let roomSettings: RoomSettings = req.body;
-            let { kind: filterKind, selections } = roomSettings.questionFilter;
-            if (filterKind !== QuestionFilterKind.Topics) {
-                throw new Error(`Invalid question filter kind: ${filterKind}`);
+            const roomSettings: RoomSettings = req.body;
+            const { kind: filterKind, selections } =
+                roomSettings.questionFilter;
+
+            let questions: Question[];
+            switch (filterKind) {
+                case QuestionFilterKind.Topics:
+                    const filteredQuestions: Question[] =
+                        await prisma.question.findMany({
+                            where: {
+                                tags: {
+                                    hasSome: selections,
+                                },
+                            },
+                        });
+
+                    const easyQuestions = filteredQuestions.filter(
+                        (question) => question.difficulty === "Easy"
+                    );
+                    const mediumQuestions = filteredQuestions.filter(
+                        (question) => question.difficulty === "Medium"
+                    );
+                    const hardQuestions = filteredQuestions.filter(
+                        (question) => question.difficulty === "Hard"
+                    );
+
+                    const {
+                        Easy: numberOfEasy,
+                        Medium: numberOfMedium,
+                        Hard: numberOfHard,
+                    } = getNumberOfQuestionsPerDifficulty(
+                        roomSettings.difficulty,
+                        easyQuestions,
+                        mediumQuestions,
+                        hardQuestions
+                    );
+
+                    // Select 4 random questions
+                    const randomlySelectedEasyQuestions: Question[] =
+                        easyQuestions
+                            .sort(() => Math.random() - 0.5)
+                            .slice(0, numberOfEasy);
+                    const randomlySelectedMediumQuestions: Question[] =
+                        mediumQuestions
+                            .sort(() => Math.random() - 0.5)
+                            .slice(0, numberOfMedium);
+                    const randomlySelectedHardQuestions: Question[] =
+                        hardQuestions
+                            .sort(() => Math.random() - 0.5)
+                            .slice(0, numberOfHard);
+
+                    questions = randomlySelectedEasyQuestions.concat(
+                        randomlySelectedMediumQuestions,
+                        randomlySelectedHardQuestions
+                    );
+                    break;
+                case QuestionFilterKind.Questions:
+                    questions = await prisma.question.findMany({
+                        where: { titleSlug: { in: selections } },
+                    });
+                    break;
+                default:
+                    throw new Error(
+                        `Invalid question filter kind: ${filterKind}`
+                    );
             }
 
-            let filteredQuestions: Question[] = await prisma.question.findMany({
-                where: {
-                    tags: {
-                        hasSome: selections,
-                    },
-                },
-            });
-
-            let easyQuestions = filteredQuestions.filter(
-                (question) => question.difficulty === "Easy"
-            );
-            let mediumQuestions = filteredQuestions.filter(
-                (question) => question.difficulty === "Medium"
-            );
-            let hardQuestions = filteredQuestions.filter(
-                (question) => question.difficulty === "Hard"
-            );
-
-            let {
-                Easy: numberOfEasy,
-                Medium: numberOfMedium,
-                Hard: numberOfHard,
-            } = getNumberOfQuestionsPerDifficulty(
-                roomSettings.difficulty,
-                easyQuestions,
-                mediumQuestions,
-                hardQuestions
-            );
-
-            // Select 4 random questions
-            let randomlySelectedEasyQuestions: Question[] = easyQuestions
-                .sort(() => Math.random() - 0.5)
-                .slice(0, numberOfEasy);
-            let randomlySelectedMediumQuestions: Question[] = mediumQuestions
-                .sort(() => Math.random() - 0.5)
-                .slice(0, numberOfMedium);
-            let randomlySelectedHardQuestions: Question[] = hardQuestions
-                .sort(() => Math.random() - 0.5)
-                .slice(0, numberOfHard);
-
-            let randomlySelectedQuestions =
-                randomlySelectedEasyQuestions.concat(
-                    randomlySelectedMediumQuestions,
-                    randomlySelectedHardQuestions
-                );
-
             // Generate a room ID
-            let newRoomId = nanoid(ROOM_ID_LENGTH);
+            const newRoomId = nanoid(ROOM_ID_LENGTH);
 
             // Create a new room in the db
-            let newRoom = await prisma.room.create({
+            const newRoom = await prisma.room.create({
                 data: {
                     id: newRoomId,
                     questionFilterKind: filterKind,
@@ -139,10 +154,11 @@ export async function createRoom(
             });
 
             // Get the roomId and questionId so that you can update the RoomQuestion table
-            let questionIdsAndRoom: RoomQuestion[] =
-                randomlySelectedQuestions.map((question) => {
+            const questionIdsAndRoom: RoomQuestion[] = questions.map(
+                (question) => {
                     return { questionId: question.id, roomId: newRoom.id };
-                });
+                }
+            );
 
             // Add the questions to the room in the join table (RoomQuestion)
             await prisma.roomQuestion.createMany({
@@ -150,7 +166,7 @@ export async function createRoom(
             });
 
             // Update the user table with the roomId
-            let user = await prisma.user.update({
+            const user = await prisma.user.update({
                 data: {
                     roomId: newRoomId,
                 },
@@ -171,9 +187,9 @@ export async function createRoom(
             req.user.updatedAt = user.updatedAt;
 
             // Update the room session
-            let roomSession: RoomSession = {
+            const roomSession: RoomSession = {
                 roomId: newRoomId,
-                questions: randomlySelectedQuestions,
+                questions,
                 userColor: generateRandomUserColor(),
                 createdAt: newRoom.createdAt,
                 duration: newRoom.duration,
