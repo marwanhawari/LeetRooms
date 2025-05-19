@@ -14,6 +14,7 @@ import {
 import { Difficulty, Question } from "../../types/Question";
 import { useQuery } from "@tanstack/react-query";
 import { SERVER_URL } from "../../config";
+import { VariableSizeList } from "react-window";
 
 function classNames(...classes: any[]) {
     return classes.filter(Boolean).join(" ");
@@ -346,6 +347,57 @@ function QuestionSelector(props: {
         }
     }
 
+    const getItemSize = useCallback(
+        (index: number) => {
+            const question = questions[index];
+            const textLength =
+                question.id.toString().length + 2 + question.title.length; // ex: "1. Two-Sum" => 10 characters
+            const charactersPerLineEstimation = 22;
+            const estimatedLines = Math.ceil(
+                textLength / charactersPerLineEstimation
+            );
+            const baseHeight = 35;
+            const lineHeight = 25;
+            return Math.max(baseHeight, lineHeight * estimatedLines);
+        },
+        [questions]
+    );
+
+    function Row({
+        index,
+        style,
+    }: {
+        index: number;
+        style: React.CSSProperties;
+    }) {
+        const question = questions[index];
+        const isOdd = index % 2 === 1;
+
+        return (
+            <label
+                key={question.id}
+                className={`flex flex-row items-center gap-3 px-3 py-1 text-sm ${
+                    isOdd
+                        ? "bg-white even:bg-opacity-[45%] dark:bg-lc-bg dark:bg-opacity-[35%]"
+                        : ""
+                }`}
+                style={style}
+            >
+                <input
+                    type="checkbox"
+                    name="questions"
+                    value={question.titleSlug}
+                    onChange={handleSelect}
+                    checked={roomSettings?.questionFilter?.selections?.questions?.includes(
+                        question.titleSlug
+                    )}
+                    id={question.titleSlug}
+                />
+                {question.id}. {question.title}
+            </label>
+        );
+    }
+
     return (
         <Tab.Panel>
             <label className="mb-2 flex flex-row items-center gap-3 rounded-md bg-lc-fg-modal-light px-3 py-1 text-sm text-lc-text-light dark:bg-lc-fg-modal dark:text-white">
@@ -374,28 +426,14 @@ function QuestionSelector(props: {
                     "h-[19rem] overflow-auto rounded-md bg-lc-fg-modal-light dark:bg-lc-fg-modal dark:text-white"
                 )}
             >
-                <ul className="flex flex-col text-sm">
-                    {questions.map((question) => {
-                        return (
-                            <label
-                                key={question.id}
-                                className="flex flex-row items-center gap-3 px-3 py-1 even:bg-white even:bg-opacity-[45%] dark:even:bg-lc-bg dark:even:bg-opacity-[35%]"
-                            >
-                                <input
-                                    type="checkbox"
-                                    name="questions"
-                                    value={question.titleSlug}
-                                    onChange={handleSelect}
-                                    checked={roomSettings.questionFilter.selections.questions.includes(
-                                        question.titleSlug
-                                    )}
-                                    id={question.titleSlug}
-                                />
-                                {question.id}. {question.title}
-                            </label>
-                        );
-                    })}
-                </ul>
+                <VariableSizeList
+                    height={304} // ~19rem
+                    itemCount={questions.length}
+                    itemSize={getItemSize}
+                    width="100%"
+                >
+                    {Row}
+                </VariableSizeList>
             </div>
         </Tab.Panel>
     );
@@ -507,7 +545,7 @@ function TopicSelector({
                                 name="topics"
                                 value={topic}
                                 onChange={handleSelect}
-                                checked={roomSettings.questionFilter.selections.topics.includes(
+                                checked={roomSettings?.questionFilter?.selections?.topics?.includes(
                                     topic
                                 )}
                                 id={topic}
