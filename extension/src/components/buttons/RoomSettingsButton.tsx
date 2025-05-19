@@ -1,5 +1,13 @@
 import { Dialog, Transition, Tab } from "@headlessui/react";
-import { ChangeEvent, Fragment, useCallback, useEffect, useState } from "react";
+import {
+    ChangeEvent,
+    Fragment,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 import Spinner from "../Spinner";
 import XIcon from "../../icons/XIcon";
 import SettingsIcon from "../../icons/SettingsIcon";
@@ -313,6 +321,17 @@ function QuestionSelector(props: {
     setRoomSettings: (roomSettings: RoomSettings) => void;
 }) {
     const { questions, roomSettings, setRoomSettings } = props;
+    const [searchTerm, setSearchTerm] = useState("");
+    const listRef = useRef<VariableSizeList>(null);
+
+    const filteredQuestions = useMemo(() => {
+        if (!searchTerm.trim()) return questions;
+        return questions.filter((question) =>
+            `${question.id}. ${question.title}`
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase())
+        );
+    }, [questions, searchTerm]);
 
     function handleSelect(event: ChangeEvent<HTMLInputElement>) {
         let newSelection = event.target.value;
@@ -349,7 +368,7 @@ function QuestionSelector(props: {
 
     const getItemSize = useCallback(
         (index: number) => {
-            const question = questions[index];
+            const question = filteredQuestions[index];
             const textLength =
                 question.id.toString().length + 2 + question.title.length; // ex: "1. Two-Sum" => 10 characters
             const charactersPerLineEstimation = 22;
@@ -360,7 +379,7 @@ function QuestionSelector(props: {
             const lineHeight = 25;
             return Math.max(baseHeight, lineHeight * estimatedLines);
         },
-        [questions]
+        [filteredQuestions]
     );
 
     function Row({
@@ -370,7 +389,7 @@ function QuestionSelector(props: {
         index: number;
         style: React.CSSProperties;
     }) {
-        const question = questions[index];
+        const question = filteredQuestions[index];
         const isOdd = index % 2 === 1;
 
         return (
@@ -398,8 +417,22 @@ function QuestionSelector(props: {
         );
     }
 
+    useEffect(() => {
+        if (listRef.current) {
+            listRef.current.resetAfterIndex(0); // this will force react-window to recompute the size of the items when searching
+        }
+    }, [filteredQuestions]);
+
     return (
         <Tab.Panel>
+            <input
+                className="border-2 border-solid border-white text-white"
+                type="text"
+                value={searchTerm}
+                onChange={(event) => {
+                    setSearchTerm(event.target.value);
+                }}
+            />
             <label className="mb-2 flex flex-row items-center gap-3 rounded-md bg-lc-fg-modal-light px-3 py-1 text-sm text-lc-text-light dark:bg-lc-fg-modal dark:text-white">
                 <button
                     name="select-unselect-all-questions"
@@ -427,8 +460,9 @@ function QuestionSelector(props: {
                 )}
             >
                 <VariableSizeList
-                    height={304} // ~19rem
-                    itemCount={questions.length}
+                    ref={listRef}
+                    height={304} // 19rem
+                    itemCount={filteredQuestions.length}
                     itemSize={getItemSize}
                     width="100%"
                 >
