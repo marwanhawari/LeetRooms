@@ -433,26 +433,6 @@ function QuestionSelector(props: {
                     setSearchTerm(event.target.value);
                 }}
             />
-            <label className="mb-2 flex flex-row items-center gap-3 rounded-md bg-lc-fg-modal-light px-3 py-1 text-sm text-lc-text-light dark:bg-lc-fg-modal dark:text-white">
-                <button
-                    name="select-unselect-all-questions"
-                    value={"Select/Unselect All Questions"}
-                    onClick={() => {
-                        setRoomSettings({
-                            ...roomSettings,
-                            questionFilter: {
-                                kind: QuestionFilterKind.Questions,
-                                selections: {
-                                    ...roomSettings.questionFilter.selections,
-                                    questions: [],
-                                },
-                            },
-                        });
-                    }}
-                    id={"select-unselect-all-questions"}
-                />
-                {"Clear Selections"}
-            </label>
 
             <div
                 className={classNames(
