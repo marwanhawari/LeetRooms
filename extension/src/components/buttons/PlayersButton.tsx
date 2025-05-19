@@ -4,7 +4,7 @@ import GraphIcon from "../../icons/GraphIcon";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SERVER_URL } from "../../config";
 import Spinner from "../Spinner";
-import { QuestionInterface, SubmissionStatus } from "../../types/Question";
+import { Question, SubmissionStatus } from "../../types/Question";
 import XIcon from "../../icons/XIcon";
 import NoSubmissionIcon from "../../icons/NoSubmissionIcon";
 import AcceptedSubmissionIcon from "../../icons/AcceptedSubmissionIcon";
@@ -55,7 +55,7 @@ export default function PlayersButton({
     questions,
     roomId,
 }: {
-    questions: QuestionInterface[];
+    questions: Question[];
     roomId: string;
 }) {
     let [isOpen, setIsOpen] = useState(false);
@@ -91,7 +91,7 @@ export default function PlayersButton({
 
     function getPlayersWithSortedSubmissions(
         players: PlayerWithSubmissions[] | undefined,
-        questions: QuestionInterface[]
+        questions: Question[]
     ) {
         if (!players) {
             return undefined;
@@ -113,7 +113,7 @@ export default function PlayersButton({
 
     function sortSubmissionsByQuestionOrder(
         submissions: PlayerSubmission[],
-        questions: QuestionInterface[]
+        questions: Question[]
     ) {
         let sortedSubmissions = [];
         for (let question of questions) {
@@ -292,14 +292,14 @@ function Scoreboard({
                 ? players.map((player) => {
                       return (
                           <div
-                              className="odd:bg-[hsl(0,0%,85%)] odd:bg-opacity-[45%] dark:odd:bg-opacity-[45%] flex flex-row gap-3 px-5 py-2 dark:odd:bg-lc-bg"
+                              className="flex flex-row gap-3 px-5 py-2 odd:bg-[hsl(0,0%,85%)] odd:bg-opacity-[45%] dark:odd:bg-lc-bg dark:odd:bg-opacity-[45%]"
                               key={player.id}
                           >
                               <div
                                   className={`w-28 truncate ${
                                       player.roomId === roomId
                                           ? ""
-                                          : "dark:text-[hsl(0,0%,100%,30%)] text-[hsl(0,0%,15%,37%)]"
+                                          : "text-[hsl(0,0%,15%,37%)] dark:text-[hsl(0,0%,100%,30%)]"
                                   }`}
                               >
                                   {player.username}

@@ -12,11 +12,15 @@ export interface RoomDifficulty {
 
 export interface QuestionFilter {
     kind: QuestionFilterKind;
-    selections: string[];
+    selections: {
+        topics: string[];
+        questions: string[];
+    };
 }
 
 export enum QuestionFilterKind {
     Topics = "topics",
+    Questions = "questions",
 }
 
 export const topics = [
@@ -93,10 +97,15 @@ export const topics = [
     "Union Find",
 ];
 
+const defaultQuestions = ["two-sum"];
+
 export const defaultRoomSettings: RoomSettings = {
     questionFilter: {
         kind: QuestionFilterKind.Topics,
-        selections: topics,
+        selections: {
+            topics,
+            questions: defaultQuestions,
+        },
     },
     duration: null,
     difficulty: {

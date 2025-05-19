@@ -11,7 +11,9 @@ import {
     topics,
     defaultRoomSettings,
 } from "../../types/RoomSettings";
-import { Difficulty } from "../../types/Question";
+import { Difficulty, Question } from "../../types/Question";
+import { useQuery } from "@tanstack/react-query";
+import { SERVER_URL } from "../../config";
 
 function classNames(...classes: any[]) {
     return classes.filter(Boolean).join(" ");
@@ -19,19 +21,41 @@ function classNames(...classes: any[]) {
 
 export default function RoomSettingsButton() {
     let isFetching = false;
-    let [isOpen, setIsOpen] = useState(false);
-    let [roomSettings, setRoomSettings] =
+    const [isOpen, setIsOpen] = useState(false);
+    const [roomSettings, setRoomSettings] =
         useState<RoomSettings>(defaultRoomSettings);
 
-    let loadRoomSettings = useCallback(async () => {
-        let roomSettingsString = localStorage.getItem("roomSettings");
+    const {
+        data: questions = [],
+        isLoading,
+        error,
+    } = useQuery<Question[]>({
+        queryKey: ["questions"],
+        queryFn: async ({ signal }) => {
+            const response = await fetch(`${SERVER_URL}/questions/`, {
+                credentials: "include",
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                signal,
+            });
+            if (!response.ok) {
+                throw new Error("Failed to fetch questions");
+            }
+            return await response.json();
+        },
+    });
+
+    const loadRoomSettings = useCallback(async () => {
+        const roomSettingsString = localStorage.getItem("roomSettings");
         // This is a hack to wait for the modal to fade out before updating the checkbox UI in case you cancel without saving
         if (!isOpen) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
         }
         if (roomSettingsString) {
             try {
-                let storedRoomSettings: RoomSettings =
+                const storedRoomSettings: RoomSettings =
                     JSON.parse(roomSettingsString);
                 if (!storedRoomSettings.difficulty) {
                     storedRoomSettings.difficulty =
@@ -76,7 +100,8 @@ export default function RoomSettingsButton() {
 
     function saveAndCloseModal() {
         if (
-            !roomSettings.questionFilter.selections.length ||
+            !roomSettings?.questionFilter?.selections?.topics?.length ||
+            !roomSettings?.questionFilter?.selections?.questions?.length ||
             (!roomSettings.difficulty.Easy &&
                 !roomSettings.difficulty.Medium &&
                 !roomSettings.difficulty.Hard)
@@ -91,6 +116,14 @@ export default function RoomSettingsButton() {
             );
         }
         setIsOpen(false);
+    }
+
+    if (isLoading) {
+        return <div>loading</div>;
+    }
+
+    if (error) {
+        return <div>error</div>;
     }
 
     return (
@@ -151,6 +184,7 @@ export default function RoomSettingsButton() {
                                                 </button>
                                             </div>
                                             <SettingsTabs
+                                                questions={questions}
                                                 roomSettings={roomSettings}
                                                 setRoomSettings={
                                                     setRoomSettings
@@ -173,9 +207,14 @@ export default function RoomSettingsButton() {
                                                     onClick={saveAndCloseModal}
                                                     className={`${
                                                         !roomSettings
-                                                            .questionFilter
-                                                            .selections
-                                                            .length ||
+                                                            ?.questionFilter
+                                                            ?.selections?.topics
+                                                            ?.length ||
+                                                        !roomSettings
+                                                            ?.questionFilter
+                                                            ?.selections
+                                                            ?.questions
+                                                            ?.length ||
                                                         (!roomSettings
                                                             .difficulty.Easy &&
                                                             !roomSettings
@@ -204,16 +243,36 @@ export default function RoomSettingsButton() {
 }
 
 function SettingsTabs({
+    questions,
     roomSettings,
     setRoomSettings,
 }: {
+    questions: Question[];
     roomSettings: RoomSettings;
     setRoomSettings: (roomSettings: RoomSettings) => void;
 }) {
-    let tabs = ["Topics"];
+    const tabs = ["Topics", "Questions"];
+    const questionFilterKinds = [
+        QuestionFilterKind.Topics,
+        QuestionFilterKind.Questions,
+    ];
+
     return (
         <div className="h-full px-2 py-2">
-            <Tab.Group>
+            <Tab.Group
+                selectedIndex={questionFilterKinds.findIndex(
+                    (kind) => kind === roomSettings.questionFilter.kind
+                )}
+                onChange={(index) => {
+                    setRoomSettings({
+                        ...roomSettings,
+                        questionFilter: {
+                            ...roomSettings.questionFilter,
+                            kind: questionFilterKinds[index],
+                        },
+                    });
+                }}
+            >
                 <Tab.List className="flex gap-2">
                     {tabs.map((category) => (
                         <Tab
@@ -236,9 +295,109 @@ function SettingsTabs({
                         roomSettings={roomSettings}
                         setRoomSettings={setRoomSettings}
                     />
+                    <QuestionSelector
+                        questions={questions}
+                        roomSettings={roomSettings}
+                        setRoomSettings={setRoomSettings}
+                    />
                 </Tab.Panels>
             </Tab.Group>
         </div>
+    );
+}
+
+function QuestionSelector(props: {
+    questions: Question[];
+    roomSettings: RoomSettings;
+    setRoomSettings: (roomSettings: RoomSettings) => void;
+}) {
+    const { questions, roomSettings, setRoomSettings } = props;
+
+    function handleSelect(event: ChangeEvent<HTMLInputElement>) {
+        let newSelection = event.target.value;
+        if (event.target.checked) {
+            setRoomSettings({
+                ...roomSettings,
+                questionFilter: {
+                    kind: QuestionFilterKind.Questions,
+                    selections: {
+                        ...roomSettings.questionFilter.selections,
+                        questions: [
+                            ...roomSettings.questionFilter.selections.questions,
+                            newSelection,
+                        ],
+                    },
+                },
+            });
+        } else {
+            setRoomSettings({
+                ...roomSettings,
+                questionFilter: {
+                    kind: QuestionFilterKind.Questions,
+                    selections: {
+                        ...roomSettings.questionFilter.selections,
+                        questions:
+                            roomSettings.questionFilter.selections.questions.filter(
+                                (selection) => selection !== newSelection
+                            ),
+                    },
+                },
+            });
+        }
+    }
+
+    return (
+        <Tab.Panel>
+            <label className="mb-2 flex flex-row items-center gap-3 rounded-md bg-lc-fg-modal-light px-3 py-1 text-sm text-lc-text-light dark:bg-lc-fg-modal dark:text-white">
+                <button
+                    name="select-unselect-all-questions"
+                    value={"Select/Unselect All Questions"}
+                    onClick={() => {
+                        setRoomSettings({
+                            ...roomSettings,
+                            questionFilter: {
+                                kind: QuestionFilterKind.Questions,
+                                selections: {
+                                    ...roomSettings.questionFilter.selections,
+                                    questions: [],
+                                },
+                            },
+                        });
+                    }}
+                    id={"select-unselect-all-questions"}
+                />
+                {"Clear Selections"}
+            </label>
+
+            <div
+                className={classNames(
+                    "h-[19rem] overflow-auto rounded-md bg-lc-fg-modal-light dark:bg-lc-fg-modal dark:text-white"
+                )}
+            >
+                <ul className="flex flex-col text-sm">
+                    {questions.map((question) => {
+                        return (
+                            <label
+                                key={question.id}
+                                className="flex flex-row items-center gap-3 px-3 py-1 even:bg-white even:bg-opacity-[45%] dark:even:bg-lc-bg dark:even:bg-opacity-[35%]"
+                            >
+                                <input
+                                    type="checkbox"
+                                    name="questions"
+                                    value={question.titleSlug}
+                                    onChange={handleSelect}
+                                    checked={roomSettings.questionFilter.selections.questions.includes(
+                                        question.titleSlug
+                                    )}
+                                    id={question.titleSlug}
+                                />
+                                {question.id}. {question.title}
+                            </label>
+                        );
+                    })}
+                </ul>
+            </div>
+        </Tab.Panel>
     );
 }
 
@@ -249,8 +408,6 @@ function TopicSelector({
     roomSettings: RoomSettings;
     setRoomSettings: (roomSettings: RoomSettings) => void;
 }) {
-    let { selections } = roomSettings.questionFilter;
-
     function handleSelect(event: ChangeEvent<HTMLInputElement>) {
         let newSelection = event.target.value;
         if (event.target.checked) {
@@ -258,7 +415,13 @@ function TopicSelector({
                 ...roomSettings,
                 questionFilter: {
                     kind: QuestionFilterKind.Topics,
-                    selections: [...selections, newSelection],
+                    selections: {
+                        ...roomSettings.questionFilter.selections,
+                        topics: [
+                            ...roomSettings.questionFilter.selections.topics,
+                            newSelection,
+                        ],
+                    },
                 },
             });
         } else {
@@ -266,9 +429,12 @@ function TopicSelector({
                 ...roomSettings,
                 questionFilter: {
                     kind: QuestionFilterKind.Topics,
-                    selections: selections.filter(
-                        (selection) => selection !== newSelection
-                    ),
+                    selections: {
+                        ...roomSettings.questionFilter.selections,
+                        topics: roomSettings.questionFilter.selections.topics.filter(
+                            (selection) => selection !== newSelection
+                        ),
+                    },
                 },
             });
         }
@@ -280,7 +446,10 @@ function TopicSelector({
                 ...roomSettings,
                 questionFilter: {
                     kind: QuestionFilterKind.Topics,
-                    selections: topics,
+                    selections: {
+                        ...roomSettings.questionFilter.selections,
+                        topics,
+                    },
                 },
             });
         } else {
@@ -288,7 +457,10 @@ function TopicSelector({
                 ...roomSettings,
                 questionFilter: {
                     kind: QuestionFilterKind.Topics,
-                    selections: [],
+                    selections: {
+                        ...roomSettings.questionFilter.selections,
+                        topics: [],
+                    },
                 },
             });
         }
@@ -311,7 +483,9 @@ function TopicSelector({
                     name="select-unselect-all"
                     value={"Select/Unselect All"}
                     onChange={handleSelectUnselectAll}
-                    checked={Boolean(selections.length)}
+                    checked={Boolean(
+                        roomSettings?.questionFilter?.selections?.topics?.length
+                    )}
                     id={"select-unselect-all"}
                 />
                 {"Select/Unselect All"}
@@ -333,7 +507,9 @@ function TopicSelector({
                                 name="topics"
                                 value={topic}
                                 onChange={handleSelect}
-                                checked={selections.includes(topic)}
+                                checked={roomSettings.questionFilter.selections.topics.includes(
+                                    topic
+                                )}
                                 id={topic}
                             />
                             {topic}
