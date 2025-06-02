@@ -13,6 +13,7 @@ import XIcon from "../../icons/XIcon";
 import SettingsIcon from "../../icons/SettingsIcon";
 import StopwatchIcon from "../../icons/StopwatchIcon";
 import ChevronIcon from "../../icons/ChevronIcon";
+import SearchIcon from "../../icons/SearchIcon";
 import {
     RoomSettings,
     QuestionFilterKind,
@@ -323,6 +324,7 @@ function QuestionSelector(props: {
     const { questions, roomSettings, setRoomSettings } = props;
     const [searchTerm, setSearchTerm] = useState("");
     const listRef = useRef<VariableSizeList>(null);
+    const LIST_HEIGHT = 260;
 
     const filteredQuestions = useMemo(() => {
         if (!searchTerm.trim()) return questions;
@@ -424,24 +426,32 @@ function QuestionSelector(props: {
     }, [filteredQuestions]);
 
     return (
-        <Tab.Panel>
-            <input
-                className="border-2 border-solid border-white text-white"
-                type="text"
-                value={searchTerm}
-                onChange={(event) => {
-                    setSearchTerm(event.target.value);
-                }}
-            />
+        <Tab.Panel className="flex flex-col gap-2">
+            <div className="flex flex-row items-center justify-center gap-2 rounded-xl border-2 border-solid border-lc-fg-modal p-[2px] px-2">
+                <SearchIcon />
+                <input
+                    className="w-full text-white outline-none placeholder:text-white/50"
+                    placeholder="Search questions"
+                    type="text"
+                    value={searchTerm}
+                    onChange={(event) => {
+                        setSearchTerm(event.target.value);
+                    }}
+                    spellCheck="false"
+                    autoComplete="off"
+                    autoCapitalize="off"
+                    autoCorrect="off"
+                />
+            </div>
 
             <div
                 className={classNames(
-                    "h-[19rem] overflow-auto rounded-md bg-lc-fg-modal-light dark:bg-lc-fg-modal dark:text-white"
+                    `h-[${LIST_HEIGHT}rem] overflow-auto rounded-md bg-lc-fg-modal-light dark:bg-lc-fg-modal dark:text-white`
                 )}
             >
                 <VariableSizeList
                     ref={listRef}
-                    height={304} // 19rem
+                    height={LIST_HEIGHT}
                     itemCount={filteredQuestions.length}
                     itemSize={getItemSize}
                     width="100%"
