@@ -425,6 +425,19 @@ function QuestionSelector(props: {
         }
     }, [filteredQuestions]);
 
+    function getColorForQuestionDifficulty(difficulty: Difficulty) {
+        switch (difficulty) {
+            case Difficulty.Easy:
+                return "bg-[hsl(168,41%,89%)] text-[hsl(173,97%,35%)] hover:bg-[hsl(168,41%,85%)] dark:bg-[hsl(172,20%,32%)] dark:text-[hsl(173,100%,42%)] dark:hover:bg-[hsl(172,20%,35%)]";
+            case Difficulty.Medium:
+                return "bg-[hsl(38,100%,90%)] text-[hsl(43,100%,50%)] hover:bg-[hsl(38,100%,87%)] dark:bg-[hsl(39,32%,27%)] dark:text-[hsl(43,100%,56%)] dark:hover:bg-[hsl(39,32%,30%)]";
+            case Difficulty.Hard:
+                return "bg-[hsl(355,100%,95%)] text-[hsl(349,100%,59%)] hover:bg-[hsl(355,100%,93%)] dark:bg-[hsl(353,27%,26%)] dark:text-[hsl(347,100%,67%)] dark:hover:bg-[hsl(353,27%,28%)]";
+            default:
+                return "bg-lc-fg-modal-light text-lc-text-light hover:bg-lc-fg-modal-hover-light dark:bg-lc-fg-modal dark:text-white dark:hover:bg-lc-fg-modal-hover";
+        }
+    }
+
     return (
         <Tab.Panel className="flex flex-col gap-2">
             <div className="flex flex-row items-center justify-center gap-2 rounded-xl border-2 border-solid border-lc-fg-modal p-[2px] px-2">
@@ -459,6 +472,26 @@ function QuestionSelector(props: {
                     {Row}
                 </VariableSizeList>
             </div>
+
+            <fieldset className="flex flex-row items-center justify-around rounded-lg border-4 border-lc-fg-modal-light p-2 pb-3 text-sm text-lc-text-light dark:border-lc-fg-modal dark:text-white">
+                <legend className="px-2 dark:text-lc-fg-modal-light">
+                    Selected
+                </legend>
+                {roomSettings.questionFilter.selections.questions.map(
+                    (question) => {
+                        // return <div>{question}</div>;
+                        return (
+                            <div
+                                className={`
+                            rounded-[16px] px-3 py-1.5 font-medium transition-all
+                            ${getColorForQuestionDifficulty(Difficulty.Easy)}`}
+                            >
+                                17
+                            </div>
+                        );
+                    }
+                )}
+            </fieldset>
         </Tab.Panel>
     );
 }
