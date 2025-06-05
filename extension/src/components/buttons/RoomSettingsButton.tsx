@@ -337,7 +337,7 @@ function QuestionSelector(props: {
     const { questions, roomSettings, setRoomSettings } = props;
     const [searchTerm, setSearchTerm] = useState("");
     const listRef = useRef<VariableSizeList>(null);
-    const LIST_HEIGHT = 260;
+    const LIST_HEIGHT = 224;
 
     const filteredQuestions = useMemo(() => {
         if (!searchTerm.trim()) return questions;
@@ -448,11 +448,11 @@ function QuestionSelector(props: {
     }
 
     return (
-        <Tab.Panel className="flex flex-col gap-2">
+        <Tab.Panel className="flex flex-col gap-2 text-sm">
             <div className="flex flex-row items-center justify-center gap-2 rounded-xl border-2 border-solid border-lc-fg-modal p-[2px] px-2">
                 <SearchIcon />
                 <input
-                    className="w-full text-white outline-none placeholder:text-white/50"
+                    className="w-full bg-lc-fg text-white outline-none placeholder:text-white/50"
                     placeholder="Search questions"
                     type="text"
                     value={searchTerm}
@@ -482,7 +482,7 @@ function QuestionSelector(props: {
                 </VariableSizeList>
             </div>
 
-            <fieldset className="flex flex-row items-center justify-around rounded-lg border-4 border-lc-fg-modal-light p-2 pb-3 text-sm text-lc-text-light dark:border-lc-fg-modal dark:text-white">
+            <fieldset className="mt-1 flex min-h-[76px] flex-row items-center justify-around rounded-lg border-4 border-lc-fg-modal-light p-2 pb-3 text-sm text-lc-text-light dark:border-lc-fg-modal dark:text-white">
                 <legend className="px-2 dark:text-lc-fg-modal-light">
                     Selected
                 </legend>
