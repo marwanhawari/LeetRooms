@@ -75,6 +75,22 @@ export default function RoomSettingsButton() {
                         JSON.stringify(storedRoomSettings)
                     );
                 }
+                if (!storedRoomSettings.questionFilter) {
+                    storedRoomSettings.questionFilter =
+                        defaultRoomSettings.questionFilter;
+                    localStorage.setItem(
+                        "roomSettings",
+                        JSON.stringify(storedRoomSettings)
+                    );
+                }
+                if (!storedRoomSettings.questionFilter.questionSelections) {
+                    storedRoomSettings.questionFilter.questionSelections =
+                        defaultRoomSettings.questionFilter.questionSelections;
+                    localStorage.setItem(
+                        "roomSettings",
+                        JSON.stringify(storedRoomSettings)
+                    );
+                }
                 setRoomSettings(storedRoomSettings);
             } catch (error) {
                 console.error(
@@ -108,16 +124,29 @@ export default function RoomSettingsButton() {
         setIsOpen(false);
     }
 
-    function saveAndCloseModal() {
-        if (
-            !roomSettings?.questionFilter?.selections?.topics?.length ||
-            !roomSettings?.questionFilter?.selections?.questions?.length ||
-            (!roomSettings.difficulty.Easy &&
-                !roomSettings.difficulty.Medium &&
-                !roomSettings.difficulty.Hard)
-        ) {
-            return;
+    function isValidSettings() {
+        switch (roomSettings?.questionFilter?.kind) {
+            case QuestionFilterKind.Topics:
+                return (
+                    roomSettings?.questionFilter?.selections?.length &&
+                    (roomSettings.difficulty.Easy ||
+                        roomSettings.difficulty.Medium ||
+                        roomSettings.difficulty.Hard)
+                );
+            case QuestionFilterKind.Questions:
+                return (
+                    roomSettings?.questionFilter?.questionSelections?.length >=
+                        1 &&
+                    roomSettings?.questionFilter?.questionSelections?.length <=
+                        4
+                );
+            default:
+                return false;
         }
+    }
+
+    function saveAndCloseModal() {
+        if (!isValidSettings()) return;
         try {
             localStorage.setItem("roomSettings", JSON.stringify(roomSettings));
         } catch (error) {
@@ -216,23 +245,7 @@ export default function RoomSettingsButton() {
                                                 <button
                                                     onClick={saveAndCloseModal}
                                                     className={`${
-                                                        !roomSettings
-                                                            ?.questionFilter
-                                                            ?.selections?.topics
-                                                            ?.length ||
-                                                        !roomSettings
-                                                            ?.questionFilter
-                                                            ?.selections
-                                                            ?.questions
-                                                            ?.length ||
-                                                        (!roomSettings
-                                                            .difficulty.Easy &&
-                                                            !roomSettings
-                                                                .difficulty
-                                                                .Medium &&
-                                                            !roomSettings
-                                                                .difficulty
-                                                                .Hard)
+                                                        !isValidSettings()
                                                             ? "cursor-not-allowed bg-lc-fg-modal-light text-lc-text-light hover:bg-lc-fg-modal-hover-light dark:bg-lc-fg-modal dark:text-white dark:hover:bg-lc-fg-modal-hover"
                                                             : "bg-lc-green-button text-white hover:bg-lc-green-button-hover-light dark:hover:bg-lc-green-button-hover"
                                                     } rounded-lg px-3 py-1.5 text-sm font-medium transition-all`}
@@ -341,28 +354,24 @@ function QuestionSelector(props: {
             setRoomSettings({
                 ...roomSettings,
                 questionFilter: {
+                    ...roomSettings.questionFilter,
                     kind: QuestionFilterKind.Questions,
-                    selections: {
-                        ...roomSettings.questionFilter.selections,
-                        questions: [
-                            ...roomSettings.questionFilter.selections.questions,
-                            newSelection,
-                        ],
-                    },
+                    questionSelections: [
+                        ...roomSettings.questionFilter.questionSelections,
+                        newSelection,
+                    ],
                 },
             });
         } else {
             setRoomSettings({
                 ...roomSettings,
                 questionFilter: {
+                    ...roomSettings.questionFilter,
                     kind: QuestionFilterKind.Questions,
-                    selections: {
-                        ...roomSettings.questionFilter.selections,
-                        questions:
-                            roomSettings.questionFilter.selections.questions.filter(
-                                (selection) => selection !== newSelection
-                            ),
-                    },
+                    questionSelections:
+                        roomSettings.questionFilter.questionSelections.filter(
+                            (selection) => selection !== newSelection
+                        ),
                 },
             });
         }
@@ -409,7 +418,7 @@ function QuestionSelector(props: {
                     name="questions"
                     value={question.titleSlug}
                     onChange={handleSelect}
-                    checked={roomSettings?.questionFilter?.selections?.questions?.includes(
+                    checked={roomSettings?.questionFilter?.questionSelections?.includes(
                         question.titleSlug
                     )}
                     id={question.titleSlug}
@@ -477,7 +486,7 @@ function QuestionSelector(props: {
                 <legend className="px-2 dark:text-lc-fg-modal-light">
                     Selected
                 </legend>
-                {roomSettings.questionFilter.selections.questions.map(
+                {roomSettings?.questionFilter?.questionSelections?.map(
                     (question) => {
                         // return <div>{question}</div>;
                         return (
@@ -509,27 +518,23 @@ function TopicSelector({
             setRoomSettings({
                 ...roomSettings,
                 questionFilter: {
+                    ...roomSettings.questionFilter,
                     kind: QuestionFilterKind.Topics,
-                    selections: {
+                    selections: [
                         ...roomSettings.questionFilter.selections,
-                        topics: [
-                            ...roomSettings.questionFilter.selections.topics,
-                            newSelection,
-                        ],
-                    },
+                        newSelection,
+                    ],
                 },
             });
         } else {
             setRoomSettings({
                 ...roomSettings,
                 questionFilter: {
+                    ...roomSettings.questionFilter,
                     kind: QuestionFilterKind.Topics,
-                    selections: {
-                        ...roomSettings.questionFilter.selections,
-                        topics: roomSettings.questionFilter.selections.topics.filter(
-                            (selection) => selection !== newSelection
-                        ),
-                    },
+                    selections: roomSettings.questionFilter.selections.filter(
+                        (selection) => selection !== newSelection
+                    ),
                 },
             });
         }
@@ -540,22 +545,18 @@ function TopicSelector({
             setRoomSettings({
                 ...roomSettings,
                 questionFilter: {
+                    ...roomSettings.questionFilter,
                     kind: QuestionFilterKind.Topics,
-                    selections: {
-                        ...roomSettings.questionFilter.selections,
-                        topics,
-                    },
+                    selections: topics,
                 },
             });
         } else {
             setRoomSettings({
                 ...roomSettings,
                 questionFilter: {
+                    ...roomSettings.questionFilter,
                     kind: QuestionFilterKind.Topics,
-                    selections: {
-                        ...roomSettings.questionFilter.selections,
-                        topics: [],
-                    },
+                    selections: [],
                 },
             });
         }
@@ -579,7 +580,7 @@ function TopicSelector({
                     value={"Select/Unselect All"}
                     onChange={handleSelectUnselectAll}
                     checked={Boolean(
-                        roomSettings?.questionFilter?.selections?.topics?.length
+                        roomSettings?.questionFilter?.selections?.length
                     )}
                     id={"select-unselect-all"}
                 />
@@ -602,7 +603,7 @@ function TopicSelector({
                                 name="topics"
                                 value={topic}
                                 onChange={handleSelect}
-                                checked={roomSettings?.questionFilter?.selections?.topics?.includes(
+                                checked={roomSettings?.questionFilter?.selections?.includes(
                                     topic
                                 )}
                                 id={topic}
