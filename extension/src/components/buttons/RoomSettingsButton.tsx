@@ -496,7 +496,7 @@ function QuestionSelector(props: {
                         );
                         if (!question) return;
                         return (
-                            <div>
+                            <div className="group relative">
                                 <div
                                     data-tooltip-id={question.titleSlug}
                                     data-tooltip-content={question.title}
@@ -509,9 +509,31 @@ function QuestionSelector(props: {
                                 >
                                     {question.id}
                                 </div>
+                                <button
+                                    onClick={(event) => {
+                                        setRoomSettings({
+                                            ...roomSettings,
+                                            questionFilter: {
+                                                ...roomSettings.questionFilter,
+                                                kind: QuestionFilterKind.Questions,
+                                                questionSelections:
+                                                    roomSettings.questionFilter.questionSelections.filter(
+                                                        (titleSlug) =>
+                                                            titleSlug !==
+                                                            question.titleSlug
+                                                    ),
+                                            },
+                                        });
+                                    }}
+                                    className="absolute right-0 top-0 hidden group-hover:block"
+                                >
+                                    <div className="flex -translate-y-[2px] translate-x-[2px] flex-row items-center justify-center rounded-lg bg-stone-900/40 p-[1px]">
+                                        <XIcon className="h-[10px] w-[10px]  fill-current text-gray-400 dark:text-white/95" />
+                                    </div>
+                                </button>
                                 <Tooltip
                                     id={question.titleSlug}
-                                    className="max-w-52"
+                                    className="z-10 max-w-52"
                                 />
                             </div>
                         );
