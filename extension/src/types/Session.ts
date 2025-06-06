@@ -1,8 +1,8 @@
-import { QuestionInterface } from "./Question";
+import { Question } from "./Question";
 
 export interface RoomSession {
     roomId: string;
-    questions: QuestionInterface[];
+    questions: Question[];
     userColor: string;
     createdAt: Date;
     duration?: number | null;
