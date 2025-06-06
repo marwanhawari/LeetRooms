@@ -19,6 +19,7 @@ export interface RoomDifficultyNumberOfQuestions {
 export interface QuestionFilter {
     kind: QuestionFilterKind;
     selections: string[];
+    questionSelections: string[];
 }
 
 export enum QuestionFilterKind {
@@ -104,6 +105,7 @@ export const defaultRoomSettings: RoomSettings = {
     questionFilter: {
         kind: QuestionFilterKind.Topics,
         selections: topics,
+        questionSelections: [],
     },
     duration: null,
     difficulty: {

@@ -74,8 +74,11 @@ export async function createRoom(
             }
 
             const roomSettings: RoomSettings = req.body;
-            const { kind: filterKind, selections } =
-                roomSettings.questionFilter;
+            const {
+                kind: filterKind,
+                selections,
+                questionSelections,
+            } = roomSettings.questionFilter;
 
             let questions: Question[];
             switch (filterKind) {
@@ -130,8 +133,16 @@ export async function createRoom(
                     );
                     break;
                 case QuestionFilterKind.Questions:
+                    if (
+                        !questionSelections.length ||
+                        questionSelections.length > 4
+                    ) {
+                        throw new Error(
+                            "Invalid number of questions selected!"
+                        );
+                    }
                     questions = await prisma.question.findMany({
-                        where: { titleSlug: { in: selections } },
+                        where: { titleSlug: { in: questionSelections } },
                     });
                     break;
                 default:
