@@ -1,7 +1,10 @@
 import { io, Socket } from "socket.io-client";
 import { useEffect, useRef, useState } from "react";
 import Question from "./Question";
-import { QuestionInterface, SubmissionStatus } from "../types/Question";
+import {
+    Question as QuestionInterface,
+    SubmissionStatus,
+} from "../types/Question";
 import CopyIcon from "../icons/CopyIcon";
 import CheckMarkIcon from "../icons/CheckMarkIcon";
 import SendIcon from "../icons/SendIcon";
