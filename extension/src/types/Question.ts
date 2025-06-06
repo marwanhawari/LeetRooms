@@ -1,8 +1,9 @@
-export interface QuestionInterface {
+export interface Question {
     id: string;
     title: string;
     titleSlug: string;
     difficulty: Difficulty;
+    tags: string[];
 }
 
 export enum Difficulty {

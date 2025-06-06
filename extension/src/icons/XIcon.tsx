@@ -1,8 +1,12 @@
-export default function XIcon() {
+export default function XIcon(props: { className?: string }) {
+    const { className } = props;
     return (
         <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 fill-current text-gray-400 dark:text-white"
+            className={
+                className ??
+                `h-6 w-6 fill-current text-gray-400 dark:text-white`
+            }
             viewBox="0 0 24 24"
         >
             <path

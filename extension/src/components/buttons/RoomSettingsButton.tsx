@@ -1,17 +1,30 @@
 import { Dialog, Transition, Tab } from "@headlessui/react";
-import { ChangeEvent, Fragment, useCallback, useEffect, useState } from "react";
+import {
+    ChangeEvent,
+    Fragment,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 import Spinner from "../Spinner";
 import XIcon from "../../icons/XIcon";
 import SettingsIcon from "../../icons/SettingsIcon";
 import StopwatchIcon from "../../icons/StopwatchIcon";
 import ChevronIcon from "../../icons/ChevronIcon";
+import SearchIcon from "../../icons/SearchIcon";
 import {
     RoomSettings,
     QuestionFilterKind,
     topics,
     defaultRoomSettings,
 } from "../../types/RoomSettings";
-import { Difficulty } from "../../types/Question";
+import { Difficulty, Question } from "../../types/Question";
+import { useQuery } from "@tanstack/react-query";
+import { SERVER_URL } from "../../config";
+import { VariableSizeList } from "react-window";
+import { Tooltip } from "react-tooltip";
 
 function classNames(...classes: any[]) {
     return classes.filter(Boolean).join(" ");
@@ -19,23 +32,61 @@ function classNames(...classes: any[]) {
 
 export default function RoomSettingsButton() {
     let isFetching = false;
-    let [isOpen, setIsOpen] = useState(false);
-    let [roomSettings, setRoomSettings] =
+    const [isOpen, setIsOpen] = useState(false);
+    const [roomSettings, setRoomSettings] =
         useState<RoomSettings>(defaultRoomSettings);
 
-    let loadRoomSettings = useCallback(async () => {
-        let roomSettingsString = localStorage.getItem("roomSettings");
+    const {
+        data: questions = [],
+        isLoading,
+        error,
+    } = useQuery<Question[]>({
+        queryKey: ["questions"],
+        queryFn: async ({ signal }) => {
+            const response = await fetch(`${SERVER_URL}/questions/`, {
+                credentials: "include",
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                signal,
+            });
+            if (!response.ok) {
+                throw new Error("Failed to fetch questions");
+            }
+            return await response.json();
+        },
+    });
+
+    const loadRoomSettings = useCallback(async () => {
+        const roomSettingsString = localStorage.getItem("roomSettings");
         // This is a hack to wait for the modal to fade out before updating the checkbox UI in case you cancel without saving
         if (!isOpen) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
         }
         if (roomSettingsString) {
             try {
-                let storedRoomSettings: RoomSettings =
+                const storedRoomSettings: RoomSettings =
                     JSON.parse(roomSettingsString);
                 if (!storedRoomSettings.difficulty) {
                     storedRoomSettings.difficulty =
                         defaultRoomSettings.difficulty;
+                    localStorage.setItem(
+                        "roomSettings",
+                        JSON.stringify(storedRoomSettings)
+                    );
+                }
+                if (!storedRoomSettings.questionFilter) {
+                    storedRoomSettings.questionFilter =
+                        defaultRoomSettings.questionFilter;
+                    localStorage.setItem(
+                        "roomSettings",
+                        JSON.stringify(storedRoomSettings)
+                    );
+                }
+                if (!storedRoomSettings.questionFilter.questionSelections) {
+                    storedRoomSettings.questionFilter.questionSelections =
+                        defaultRoomSettings.questionFilter.questionSelections;
                     localStorage.setItem(
                         "roomSettings",
                         JSON.stringify(storedRoomSettings)
@@ -74,15 +125,29 @@ export default function RoomSettingsButton() {
         setIsOpen(false);
     }
 
-    function saveAndCloseModal() {
-        if (
-            !roomSettings.questionFilter.selections.length ||
-            (!roomSettings.difficulty.Easy &&
-                !roomSettings.difficulty.Medium &&
-                !roomSettings.difficulty.Hard)
-        ) {
-            return;
+    function isValidSettings() {
+        switch (roomSettings?.questionFilter?.kind) {
+            case QuestionFilterKind.Topics:
+                return (
+                    roomSettings?.questionFilter?.selections?.length &&
+                    (roomSettings.difficulty.Easy ||
+                        roomSettings.difficulty.Medium ||
+                        roomSettings.difficulty.Hard)
+                );
+            case QuestionFilterKind.Questions:
+                return (
+                    roomSettings?.questionFilter?.questionSelections?.length >=
+                        1 &&
+                    roomSettings?.questionFilter?.questionSelections?.length <=
+                        4
+                );
+            default:
+                return false;
         }
+    }
+
+    function saveAndCloseModal() {
+        if (!isValidSettings()) return;
         try {
             localStorage.setItem("roomSettings", JSON.stringify(roomSettings));
         } catch (error) {
@@ -91,6 +156,14 @@ export default function RoomSettingsButton() {
             );
         }
         setIsOpen(false);
+    }
+
+    if (isLoading) {
+        return <div>loading</div>;
+    }
+
+    if (error) {
+        return <div>error</div>;
     }
 
     return (
@@ -151,6 +224,7 @@ export default function RoomSettingsButton() {
                                                 </button>
                                             </div>
                                             <SettingsTabs
+                                                questions={questions}
                                                 roomSettings={roomSettings}
                                                 setRoomSettings={
                                                     setRoomSettings
@@ -172,18 +246,7 @@ export default function RoomSettingsButton() {
                                                 <button
                                                     onClick={saveAndCloseModal}
                                                     className={`${
-                                                        !roomSettings
-                                                            .questionFilter
-                                                            .selections
-                                                            .length ||
-                                                        (!roomSettings
-                                                            .difficulty.Easy &&
-                                                            !roomSettings
-                                                                .difficulty
-                                                                .Medium &&
-                                                            !roomSettings
-                                                                .difficulty
-                                                                .Hard)
+                                                        !isValidSettings()
                                                             ? "cursor-not-allowed bg-lc-fg-modal-light text-lc-text-light hover:bg-lc-fg-modal-hover-light dark:bg-lc-fg-modal dark:text-white dark:hover:bg-lc-fg-modal-hover"
                                                             : "bg-lc-green-button text-white hover:bg-lc-green-button-hover-light dark:hover:bg-lc-green-button-hover"
                                                     } rounded-lg px-3 py-1.5 text-sm font-medium transition-all`}
@@ -204,16 +267,36 @@ export default function RoomSettingsButton() {
 }
 
 function SettingsTabs({
+    questions,
     roomSettings,
     setRoomSettings,
 }: {
+    questions: Question[];
     roomSettings: RoomSettings;
     setRoomSettings: (roomSettings: RoomSettings) => void;
 }) {
-    let tabs = ["Topics"];
+    const tabs = ["Topics", "Questions"];
+    const questionFilterKinds = [
+        QuestionFilterKind.Topics,
+        QuestionFilterKind.Questions,
+    ];
+
     return (
         <div className="h-full px-2 py-2">
-            <Tab.Group>
+            <Tab.Group
+                selectedIndex={questionFilterKinds.findIndex(
+                    (kind) => kind === roomSettings.questionFilter.kind
+                )}
+                onChange={(index) => {
+                    setRoomSettings({
+                        ...roomSettings,
+                        questionFilter: {
+                            ...roomSettings.questionFilter,
+                            kind: questionFilterKinds[index],
+                        },
+                    });
+                }}
+            >
                 <Tab.List className="flex gap-2">
                     {tabs.map((category) => (
                         <Tab
@@ -236,9 +319,228 @@ function SettingsTabs({
                         roomSettings={roomSettings}
                         setRoomSettings={setRoomSettings}
                     />
+                    <QuestionSelector
+                        questions={questions}
+                        roomSettings={roomSettings}
+                        setRoomSettings={setRoomSettings}
+                    />
                 </Tab.Panels>
             </Tab.Group>
         </div>
+    );
+}
+
+function QuestionSelector(props: {
+    questions: Question[];
+    roomSettings: RoomSettings;
+    setRoomSettings: (roomSettings: RoomSettings) => void;
+}) {
+    const { questions, roomSettings, setRoomSettings } = props;
+    const [searchTerm, setSearchTerm] = useState("");
+    const listRef = useRef<VariableSizeList>(null);
+    const LIST_HEIGHT = 224;
+
+    const filteredQuestions = useMemo(() => {
+        if (!searchTerm.trim()) return questions;
+        return questions.filter((question) =>
+            `${question.id}. ${question.title}`
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase())
+        );
+    }, [questions, searchTerm]);
+
+    function handleSelect(event: ChangeEvent<HTMLInputElement>) {
+        let newSelection = event.target.value;
+        if (event.target.checked) {
+            if (roomSettings.questionFilter.questionSelections.length < 4) {
+                setRoomSettings({
+                    ...roomSettings,
+                    questionFilter: {
+                        ...roomSettings.questionFilter,
+                        kind: QuestionFilterKind.Questions,
+                        questionSelections: [
+                            ...roomSettings.questionFilter.questionSelections,
+                            newSelection,
+                        ],
+                    },
+                });
+            }
+        } else {
+            setRoomSettings({
+                ...roomSettings,
+                questionFilter: {
+                    ...roomSettings.questionFilter,
+                    kind: QuestionFilterKind.Questions,
+                    questionSelections:
+                        roomSettings.questionFilter.questionSelections.filter(
+                            (selection) => selection !== newSelection
+                        ),
+                },
+            });
+        }
+    }
+
+    const getItemSize = useCallback(
+        (index: number) => {
+            const question = filteredQuestions[index];
+            const textLength =
+                question.id.toString().length + 2 + question.title.length; // ex: "1. Two-Sum" => 10 characters
+            const charactersPerLineEstimation = 22;
+            const estimatedLines = Math.ceil(
+                textLength / charactersPerLineEstimation
+            );
+            const baseHeight = 35;
+            const lineHeight = 25;
+            return Math.max(baseHeight, lineHeight * estimatedLines);
+        },
+        [filteredQuestions]
+    );
+
+    function Row({
+        index,
+        style,
+    }: {
+        index: number;
+        style: React.CSSProperties;
+    }) {
+        const question = filteredQuestions[index];
+        const isOdd = index % 2 === 1;
+
+        return (
+            <label
+                key={question.id}
+                className={`flex flex-row items-center gap-3 px-3 py-1 text-sm ${
+                    isOdd
+                        ? "bg-white even:bg-opacity-[45%] dark:bg-lc-bg dark:bg-opacity-[35%]"
+                        : ""
+                }`}
+                style={style}
+            >
+                <input
+                    type="checkbox"
+                    name="questions"
+                    value={question.titleSlug}
+                    onChange={handleSelect}
+                    checked={roomSettings?.questionFilter?.questionSelections?.includes(
+                        question.titleSlug
+                    )}
+                    id={question.titleSlug}
+                />
+                {question.id}. {question.title}
+            </label>
+        );
+    }
+
+    useEffect(() => {
+        if (listRef.current) {
+            listRef.current.resetAfterIndex(0); // this will force react-window to recompute the size of the items when searching
+        }
+    }, [filteredQuestions]);
+
+    function getColorForQuestionDifficulty(difficulty: Difficulty) {
+        switch (difficulty) {
+            case Difficulty.Easy:
+                return "bg-[hsl(168,41%,89%)] text-[hsl(173,97%,35%)] hover:bg-[hsl(168,41%,85%)] dark:bg-[hsl(172,20%,32%)] dark:text-[hsl(173,100%,42%)] dark:hover:bg-[hsl(172,20%,35%)]";
+            case Difficulty.Medium:
+                return "bg-[hsl(38,100%,90%)] text-[hsl(43,100%,50%)] hover:bg-[hsl(38,100%,87%)] dark:bg-[hsl(39,32%,27%)] dark:text-[hsl(43,100%,56%)] dark:hover:bg-[hsl(39,32%,30%)]";
+            case Difficulty.Hard:
+                return "bg-[hsl(355,100%,95%)] text-[hsl(349,100%,59%)] hover:bg-[hsl(355,100%,93%)] dark:bg-[hsl(353,27%,26%)] dark:text-[hsl(347,100%,67%)] dark:hover:bg-[hsl(353,27%,28%)]";
+            default:
+                return "bg-lc-fg-modal-light text-lc-text-light hover:bg-lc-fg-modal-hover-light dark:bg-lc-fg-modal dark:text-white dark:hover:bg-lc-fg-modal-hover";
+        }
+    }
+
+    return (
+        <Tab.Panel className="flex flex-col gap-2 text-sm">
+            <div className="flex flex-row items-center justify-center gap-2 rounded-xl border-2 border-solid p-[2px] px-2 dark:border-lc-fg-modal">
+                <SearchIcon />
+                <input
+                    className="w-full bg-lc-fg-light text-lc-text-light outline-none placeholder:text-lc-text-light/50  dark:bg-lc-fg dark:text-white dark:placeholder:text-white/50"
+                    placeholder="Search questions"
+                    type="text"
+                    value={searchTerm}
+                    onChange={(event) => {
+                        setSearchTerm(event.target.value);
+                    }}
+                    spellCheck="false"
+                    autoComplete="off"
+                    autoCapitalize="off"
+                    autoCorrect="off"
+                />
+            </div>
+
+            <div
+                className={classNames(
+                    `h-[${LIST_HEIGHT}rem] overflow-auto rounded-md bg-lc-fg-modal-light dark:bg-lc-fg-modal dark:text-white`
+                )}
+            >
+                <VariableSizeList
+                    ref={listRef}
+                    height={LIST_HEIGHT}
+                    itemCount={filteredQuestions.length}
+                    itemSize={getItemSize}
+                    width="100%"
+                >
+                    {Row}
+                </VariableSizeList>
+            </div>
+
+            <fieldset className="mt-1 flex min-h-[76px] flex-row items-center justify-around rounded-lg border-4 border-lc-fg-modal-light p-2 pb-3 text-sm text-lc-text-light dark:border-lc-fg-modal dark:text-white">
+                <legend className="px-2 dark:text-lc-fg-modal-light">
+                    Selected
+                </legend>
+                {roomSettings?.questionFilter?.questionSelections?.map(
+                    (titleSlug) => {
+                        const question = questions.find(
+                            (question) => question.titleSlug === titleSlug
+                        );
+                        if (!question) return;
+                        return (
+                            <div className="group relative">
+                                <div
+                                    data-tooltip-id={question.titleSlug}
+                                    data-tooltip-content={question.title}
+                                    className={`
+                            rounded-[16px] px-3 py-1.5 text-xs font-medium
+                            ${getColorForQuestionDifficulty(
+                                question.difficulty
+                            )}`}
+                                    id={question.id}
+                                >
+                                    {question.id}
+                                </div>
+                                <button
+                                    onClick={(event) => {
+                                        setRoomSettings({
+                                            ...roomSettings,
+                                            questionFilter: {
+                                                ...roomSettings.questionFilter,
+                                                kind: QuestionFilterKind.Questions,
+                                                questionSelections:
+                                                    roomSettings.questionFilter.questionSelections.filter(
+                                                        (titleSlug) =>
+                                                            titleSlug !==
+                                                            question.titleSlug
+                                                    ),
+                                            },
+                                        });
+                                    }}
+                                    className="absolute right-0 top-0 hidden group-hover:block"
+                                >
+                                    <div className="flex -translate-y-[2px] translate-x-[2px] flex-row items-center justify-center rounded-lg bg-stone-900/40 p-[1px]">
+                                        <XIcon className="h-[10px] w-[10px]  fill-current text-white dark:text-white/95" />
+                                    </div>
+                                </button>
+                                <Tooltip
+                                    id={question.titleSlug}
+                                    className="z-10 max-w-52"
+                                />
+                            </div>
+                        );
+                    }
+                )}
+            </fieldset>
+        </Tab.Panel>
     );
 }
 
@@ -249,24 +551,27 @@ function TopicSelector({
     roomSettings: RoomSettings;
     setRoomSettings: (roomSettings: RoomSettings) => void;
 }) {
-    let { selections } = roomSettings.questionFilter;
-
     function handleSelect(event: ChangeEvent<HTMLInputElement>) {
         let newSelection = event.target.value;
         if (event.target.checked) {
             setRoomSettings({
                 ...roomSettings,
                 questionFilter: {
+                    ...roomSettings.questionFilter,
                     kind: QuestionFilterKind.Topics,
-                    selections: [...selections, newSelection],
+                    selections: [
+                        ...roomSettings.questionFilter.selections,
+                        newSelection,
+                    ],
                 },
             });
         } else {
             setRoomSettings({
                 ...roomSettings,
                 questionFilter: {
+                    ...roomSettings.questionFilter,
                     kind: QuestionFilterKind.Topics,
-                    selections: selections.filter(
+                    selections: roomSettings.questionFilter.selections.filter(
                         (selection) => selection !== newSelection
                     ),
                 },
@@ -279,6 +584,7 @@ function TopicSelector({
             setRoomSettings({
                 ...roomSettings,
                 questionFilter: {
+                    ...roomSettings.questionFilter,
                     kind: QuestionFilterKind.Topics,
                     selections: topics,
                 },
@@ -287,6 +593,7 @@ function TopicSelector({
             setRoomSettings({
                 ...roomSettings,
                 questionFilter: {
+                    ...roomSettings.questionFilter,
                     kind: QuestionFilterKind.Topics,
                     selections: [],
                 },
@@ -311,7 +618,9 @@ function TopicSelector({
                     name="select-unselect-all"
                     value={"Select/Unselect All"}
                     onChange={handleSelectUnselectAll}
-                    checked={Boolean(selections.length)}
+                    checked={Boolean(
+                        roomSettings?.questionFilter?.selections?.length
+                    )}
                     id={"select-unselect-all"}
                 />
                 {"Select/Unselect All"}
@@ -333,7 +642,9 @@ function TopicSelector({
                                 name="topics"
                                 value={topic}
                                 onChange={handleSelect}
-                                checked={selections.includes(topic)}
+                                checked={roomSettings?.questionFilter?.selections?.includes(
+                                    topic
+                                )}
                                 id={topic}
                             />
                             {topic}
