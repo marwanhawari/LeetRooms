@@ -352,17 +352,19 @@ function QuestionSelector(props: {
     function handleSelect(event: ChangeEvent<HTMLInputElement>) {
         let newSelection = event.target.value;
         if (event.target.checked) {
-            setRoomSettings({
-                ...roomSettings,
-                questionFilter: {
-                    ...roomSettings.questionFilter,
-                    kind: QuestionFilterKind.Questions,
-                    questionSelections: [
-                        ...roomSettings.questionFilter.questionSelections,
-                        newSelection,
-                    ],
-                },
-            });
+            if (roomSettings.questionFilter.questionSelections.length < 4) {
+                setRoomSettings({
+                    ...roomSettings,
+                    questionFilter: {
+                        ...roomSettings.questionFilter,
+                        kind: QuestionFilterKind.Questions,
+                        questionSelections: [
+                            ...roomSettings.questionFilter.questionSelections,
+                            newSelection,
+                        ],
+                    },
+                });
+            }
         } else {
             setRoomSettings({
                 ...roomSettings,
