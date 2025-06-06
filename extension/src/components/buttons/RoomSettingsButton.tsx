@@ -487,15 +487,21 @@ function QuestionSelector(props: {
                     Selected
                 </legend>
                 {roomSettings?.questionFilter?.questionSelections?.map(
-                    (question) => {
-                        // return <div>{question}</div>;
+                    (titleSlug) => {
+                        const question = questions.find(
+                            (question) => question.titleSlug === titleSlug
+                        );
+                        if (!question) return;
                         return (
                             <div
                                 className={`
-                            rounded-[16px] px-3 py-1.5 font-medium transition-all
-                            ${getColorForQuestionDifficulty(Difficulty.Easy)}`}
+                            rounded-[16px] px-3 py-1.5 text-xs font-medium
+                            ${getColorForQuestionDifficulty(
+                                question.difficulty
+                            )}`}
+                                id={question.id}
                             >
-                                17
+                                {question.id}
                             </div>
                         );
                     }
