@@ -452,10 +452,10 @@ function QuestionSelector(props: {
 
     return (
         <Tab.Panel className="flex flex-col gap-2 text-sm">
-            <div className="flex flex-row items-center justify-center gap-2 rounded-xl border-2 border-solid border-lc-fg-modal p-[2px] px-2">
+            <div className="flex flex-row items-center justify-center gap-2 rounded-xl border-2 border-solid p-[2px] px-2 dark:border-lc-fg-modal">
                 <SearchIcon />
                 <input
-                    className="w-full bg-lc-fg text-white outline-none placeholder:text-white/50"
+                    className="w-full bg-lc-fg-light text-lc-text-light outline-none placeholder:text-lc-text-light/50  dark:bg-lc-fg dark:text-white dark:placeholder:text-white/50"
                     placeholder="Search questions"
                     type="text"
                     value={searchTerm}
@@ -528,7 +528,7 @@ function QuestionSelector(props: {
                                     className="absolute right-0 top-0 hidden group-hover:block"
                                 >
                                     <div className="flex -translate-y-[2px] translate-x-[2px] flex-row items-center justify-center rounded-lg bg-stone-900/40 p-[1px]">
-                                        <XIcon className="h-[10px] w-[10px]  fill-current text-gray-400 dark:text-white/95" />
+                                        <XIcon className="h-[10px] w-[10px]  fill-current text-white dark:text-white/95" />
                                     </div>
                                 </button>
                                 <Tooltip

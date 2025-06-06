@@ -4,7 +4,7 @@ export default function SearchIcon() {
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 512 512"
             focusable="false"
-            className="h-[18px] w-[18px] fill-current text-lc-text-light dark:text-white/50"
+            className="h-[18px] w-[18px] fill-current text-lc-text-light/50 dark:text-white/50"
         >
             <path
                 fill="currentColor"
