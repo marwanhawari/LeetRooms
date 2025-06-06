@@ -158,14 +158,6 @@ export default function RoomSettingsButton() {
         setIsOpen(false);
     }
 
-    if (isLoading) {
-        return <div>loading</div>;
-    }
-
-    if (error) {
-        return <div>error</div>;
-    }
-
     return (
         <>
             <div
