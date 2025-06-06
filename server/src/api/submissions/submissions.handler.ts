@@ -28,6 +28,25 @@ export async function createSubmission(
                 url: submissionUrl,
             } = submissionRequestBody;
 
+            if (
+                submissionStatus !== SubmissionStatus.Accepted &&
+                submissionStatus !== SubmissionStatus.Attempted
+            ) {
+                throw new Error("Invalid submission status");
+            }
+
+            if (!submissionUrl.includes(questionTitleSlug)) {
+                throw new Error("Invalid questionTitleSlug");
+            }
+
+            if (
+                !submissionUrl.startsWith(
+                    `https://leetcode.com/problems/${questionTitleSlug}/submissions/`
+                )
+            ) {
+                throw new Error("Invalid submission URL");
+            }
+
             let question = await prisma.question.findUnique({
                 where: {
                     titleSlug: questionTitleSlug,
@@ -48,9 +67,8 @@ export async function createSubmission(
                     },
                 },
             });
-
             if (existingSubmission?.status == SubmissionStatus.Accepted) {
-                return;
+                return res.json(200);
             }
 
             await prisma.submission.upsert({
@@ -75,7 +93,7 @@ export async function createSubmission(
             });
 
             if (submissionStatus !== SubmissionStatus.Accepted) {
-                return;
+                return res.json(200);
             }
 
             let response: PlayerWithSubmissions[] =
@@ -121,6 +139,7 @@ export async function createSubmission(
                     completedTimeString
                 );
             }
+            return res.json(200);
         });
     } catch (error) {
         return next(error);
