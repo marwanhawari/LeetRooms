@@ -24,6 +24,7 @@ import { Difficulty, Question } from "../../types/Question";
 import { useQuery } from "@tanstack/react-query";
 import { SERVER_URL } from "../../config";
 import { VariableSizeList } from "react-window";
+import { Tooltip } from "react-tooltip";
 
 function classNames(...classes: any[]) {
     return classes.filter(Boolean).join(" ");
@@ -493,15 +494,23 @@ function QuestionSelector(props: {
                         );
                         if (!question) return;
                         return (
-                            <div
-                                className={`
+                            <div>
+                                <div
+                                    data-tooltip-id={question.titleSlug}
+                                    data-tooltip-content={question.title}
+                                    className={`
                             rounded-[16px] px-3 py-1.5 text-xs font-medium
                             ${getColorForQuestionDifficulty(
                                 question.difficulty
                             )}`}
-                                id={question.id}
-                            >
-                                {question.id}
+                                    id={question.id}
+                                >
+                                    {question.id}
+                                </div>
+                                <Tooltip
+                                    id={question.titleSlug}
+                                    className="max-w-52"
+                                />
                             </div>
                         );
                     }
